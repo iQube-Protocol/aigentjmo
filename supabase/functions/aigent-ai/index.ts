@@ -2,8 +2,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { OpenAI } from 'https://esm.sh/openai@4.0.0';
-// Import ChainGPT SDK for better API integration
-import { GeneralChat } from "npm:@chaingpt/generalchat@latest";
 
 // Interface for the response
 interface AigentResponse {
@@ -115,7 +113,7 @@ Your tone is conversational, upbeat, and encouraging - like a knowledgeable frie
 `;
 
 /**
- * Create ChainGPT API response using the official SDK
+ * Create ChainGPT API response using direct API calls
  */
 async function createChainGPTResponse(
   message: string,
@@ -127,33 +125,44 @@ async function createChainGPTResponse(
     throw new Error('ChainGPT API key not configured');
   }
 
-  console.log('🔧 ChainGPT: Using official SDK for API call');
+  console.log('🔧 ChainGPT: Using direct API call');
   
-  // Initialize ChainGPT SDK
-  const generalchat = new GeneralChat({
-    apiKey: chainGPTApiKey,
-  });
-
   try {
-    // Use createChatBlob for a complete response (not streaming for now)
-    const response = await generalchat.createChatBlob({
-      question: `${systemPrompt}\n\nUser: ${message}`,
-      chatHistory: "on", // Enable chat history for better context
-      sdkUniqueId: conversationId, // Use conversation ID for history tracking
-      useCustomContext: true, // Use context if configured in AI Hub
+    // Call ChainGPT API directly
+    const response = await fetch('https://api.chaingpt.org/api/v1/chatbot/chat', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${chainGPTApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        question: `${systemPrompt}\n\nUser: ${message}`,
+        chatHistory: "on",
+        sdkUniqueId: conversationId,
+        useCustomContext: true,
+      }),
     });
 
-    console.log('✅ ChainGPT: Response received successfully via SDK');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ ChainGPT: API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`ChainGPT API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ ChainGPT: Response received successfully');
     
-    return response.data.bot || '';
+    return data.data?.bot || data.bot || '';
     
-  } catch (error) {
-    console.error('❌ ChainGPT: SDK Error:', {
-      message: error.message,
-      status: error.status || error.statusCode,
-      code: error.code
+  } catch (error: any) {
+    console.error('❌ ChainGPT: Error:', {
+      message: error?.message || 'Unknown error',
     });
-    throw new Error(`ChainGPT SDK error: ${error.message}`);
+    throw new Error(`ChainGPT error: ${error?.message || 'Unknown error'}`);
   }
 }
 
@@ -165,9 +174,9 @@ function createAIClient(useVenice: boolean = false, useChainGPT: boolean = false
   const openAIApiKey = (Deno.env.get('OPENAI_API_KEY') ?? '').trim();
   const veniceApiKey = (Deno.env.get('VENICE_API_KEY') ?? '').trim();
   
-  // ChainGPT uses its own SDK, handled separately
+  // ChainGPT uses direct API calls, handled separately
   if (useChainGPT) {
-    console.log('🔧 ChainGPT: Will use ChainGPT SDK (not OpenAI client)');
+    console.log('🔧 ChainGPT: Will use ChainGPT direct API (not OpenAI client)');
     return null; // Return null to indicate ChainGPT uses different approach
   } else if (useVenice) {
     if (!veniceApiKey) {
@@ -375,16 +384,16 @@ The knowledge base contains visual content (mermaid diagrams and/or images). You
   console.log(`🚀 ${useVenice ? 'Venice' : 'OpenAI'}: Making API call with model: ${modelConfig.model}`);
   
   try {
-    const requestBody = {
+    const requestBody: any = {
       ...modelConfig,
       ...veniceParameters,
       messages: [
         { 
-          role: "system", 
+          role: "system" as const, 
           content: fullContext
         },
         { 
-          role: "user", 
+          role: "user" as const, 
           content: message 
         }
       ],
@@ -392,7 +401,7 @@ The knowledge base contains visual content (mermaid diagrams and/or images). You
     
     console.log(`🔧 ${useVenice ? 'Venice' : 'OpenAI'}: Request config:`, {
       model: requestBody.model,
-      hasVeniceParams: !!requestBody.venice_parameters,
+      hasVeniceParams: useVenice && !!veniceParameters,
       messageCount: requestBody.messages.length,
       hasPersonaContext: !personaContext?.isAnonymous,
       hasMetaKnytsContext: !!qryptoKnowledgeContext,
@@ -406,12 +415,12 @@ The knowledge base contains visual content (mermaid diagrams and/or images). You
 
     return response.choices[0]?.message?.content || "I apologize, I wasn't able to process your request.";
     
-  } catch (error) {
+  } catch (error: any) {
     console.error(`❌ ${useVenice ? 'Venice' : 'OpenAI'}: API Error:`, {
-      message: error.message,
-      status: error.status,
-      code: error.code,
-      type: error.type
+      message: error?.message || 'Unknown error',
+      status: error?.status,
+      code: error?.code,
+      type: error?.type
     });
     
     if (useVenice) {

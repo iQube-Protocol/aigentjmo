@@ -58,7 +58,7 @@ serve(async (req) => {
     console.log(`Found ${interactions.length} interactions to summarize`);
     
     // Prepare conversation history for summarization
-    const conversationContent = interactions.map(interaction => 
+    const conversationContent = interactions.map((interaction: any) => 
       `User: ${interaction.query}\nAssistant: ${interaction.response}`
     ).join('\n\n');
     
@@ -95,7 +95,7 @@ serve(async (req) => {
     const summaryText = data.choices[0].message.content;
     
     // Store the summary in the database
-    const interactionIds = interactions.map(i => i.id);
+    const interactionIds = interactions.map((i: any) => i.id);
     
     // Insert the summary
     const { data: summaryData, error: summaryError } = await fetch(`${Deno.env.get('SUPABASE_URL')}/rest/v1/conversation_summaries`, {
@@ -146,12 +146,12 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in summarize-history function:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error?.message || 'Unknown error' 
       }),
       { 
         status: 500,

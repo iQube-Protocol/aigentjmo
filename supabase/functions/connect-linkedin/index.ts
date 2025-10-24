@@ -92,10 +92,10 @@ serve(async (req) => {
       }
     );
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("=== Unexpected Error in LinkedIn Connection ===");
     console.error("Error:", error);
-    console.error("Error stack:", error.stack);
+    console.error("Error stack:", error?.stack);
     
     return new Response(
       JSON.stringify({ 

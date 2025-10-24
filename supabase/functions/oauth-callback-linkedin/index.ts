@@ -47,8 +47,8 @@ serve(async (req) => {
         } else {
           console.log("⚠️ Referer origin not recognized, using fallback:", detectedOrigin);
         }
-      } catch (e) {
-        console.log("❌ Failed to parse referer, using fallback:", e.message);
+      } catch (e: any) {
+        console.log("❌ Failed to parse referer, using fallback:", e?.message || 'Unknown error');
       }
     } 
     
@@ -365,9 +365,9 @@ serve(async (req) => {
       },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("=== Unexpected error ===", error);
-    console.error("Error stack:", error.stack);
+    console.error("Error stack:", error?.stack);
     
     // Get the actual client origin from request headers with smart detection (error handler)
     const referer = req.headers.get("referer");

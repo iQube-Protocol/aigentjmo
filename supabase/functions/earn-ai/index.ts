@@ -184,10 +184,10 @@ Keep your responses conversational but informative, focusing on being helpful wi
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in earn-ai function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: error?.message || 'Unknown error',
       message: "I'm sorry, I couldn't process your request. Please try again later."
     }), {
       status: 500,
