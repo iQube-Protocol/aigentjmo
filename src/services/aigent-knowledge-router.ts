@@ -2,6 +2,8 @@ import { COYNKnowledgeBase } from '@/services/coyn-knowledge-base';
 import { iQubesKnowledgeBase } from '@/services/iqubes-knowledge-base';
 import { QryptoKnowledgeBase } from '@/services/qrypto-knowledge-base';
 import { MetaKnytsKnowledgeBase } from '@/services/metaknyts-knowledge-base';
+import { JMOREITKnowledgeBase } from '@/services/jmo-reit-knowledge-base';
+import { TENANT_CONFIG } from '@/config/tenant';
 
 interface KnowledgeResult {
   id: string;
@@ -31,12 +33,14 @@ export class AigentKnowledgeRouter {
   private iQubesKB: iQubesKnowledgeBase;
   private qryptoKB: QryptoKnowledgeBase;
   private metaKnytsKB: MetaKnytsKnowledgeBase;
+  private jmoReitKB: JMOREITKnowledgeBase | null;
 
   private constructor() {
     this.coynKB = COYNKnowledgeBase.getInstance();
     this.iQubesKB = iQubesKnowledgeBase.getInstance();
     this.qryptoKB = QryptoKnowledgeBase.getInstance();
     this.metaKnytsKB = MetaKnytsKnowledgeBase.getInstance();
+    this.jmoReitKB = TENANT_CONFIG.tenantId === 'aigent-jmo' ? JMOREITKnowledgeBase.getInstance() : null;
   }
 
   public static getInstance(): AigentKnowledgeRouter {
