@@ -69,9 +69,11 @@ const AgentHeader = ({ title, description, isProcessing, additionalActions }: Ag
                     <img 
                       src="/jmo-knyt-avatar.jpeg" 
                       alt="Aigent JMO KNYT"
-                      className="w-full h-full object-cover object-top"
+                      className="w-full h-full object-cover"
                       style={{
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                        objectPosition: 'center 20%',
+                        transform: 'scale(1.3)'
                       }}
                     />
                   </div>

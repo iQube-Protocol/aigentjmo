@@ -34,7 +34,7 @@ const AuthLayout = ({
               <span className="text-4xl font-bold">N</span>
             </div>
           </div>
-          <h1 className="text-4xl font-bold mb-4 text-center">Aigent JMO</h1>
+          <h1 className="text-4xl font-bold mb-4 text-center">Aigent JMO KNYT</h1>
           <p className="text-xl opacity-80 max-w-lg text-center">
             Your private, personalized, censorship proof AI
           </p>
