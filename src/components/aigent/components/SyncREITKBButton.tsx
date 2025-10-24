@@ -4,18 +4,24 @@ import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TENANT_CONFIG } from '@/config/tenant';
+import { useAdminCheck } from '@/hooks/use-admin-check';
 
 /**
  * Button component to sync JMO REIT Knowledge Base to QubeBase Core Hub
- * Only visible for aigent-jmo tenant
+ * Only visible for aigent-jmo tenant and admin users
  */
 const SyncREITKBButton: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const { isAdmin, loading } = useAdminCheck();
   
-  // Only show for JMO tenant
-  if (TENANT_CONFIG.tenantId !== 'aigent-jmo') {
+  // Only show for JMO tenant and admin users
+  if (TENANT_CONFIG.tenantId !== 'aigent-jmo' || loading) {
     return null;
+  }
+
+  if (!isAdmin) {
+    return null; // Only admins can see the sync button
   }
 
   const handleSync = async (forceUpdate: boolean = false) => {

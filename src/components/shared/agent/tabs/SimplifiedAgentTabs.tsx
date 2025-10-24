@@ -126,10 +126,10 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="h-5 w-5 text-gray-400 cursor-help flex items-center justify-center text-sm font-medium">2</div>
+                      <div className="h-5 w-5 text-gray-400 cursor-help flex items-center justify-center text-sm font-medium">3</div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Explore both iQubes technical knowledge and COYN economic framework</p>
+                      <p>Explore iQubes technical knowledge, COYN economic framework, and REIT knowledge bases</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
