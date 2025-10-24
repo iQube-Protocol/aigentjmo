@@ -22,7 +22,7 @@ export const coreHubClient = createClient(CORE_HUB_URL, CORE_HUB_ANON_KEY);
  */
 export function getTenantContext(): { tenantId: string; siteId: string } {
   return {
-    tenantId: localStorage.getItem('tenantId') || '00000000-0000-0000-0000-000000000000',
+    tenantId: localStorage.getItem('tenantId') || 'aigent-jmo',
     siteId: localStorage.getItem('siteId') || ''
   };
 }

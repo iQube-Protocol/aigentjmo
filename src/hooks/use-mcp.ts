@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useDriveContext } from './mcp/useDriveContext';
 import { useDocumentContext } from './mcp/useDocumentContext';
 import { useConversationContext } from './mcp/useConversationContext';
+import { initializeTenant } from '@/services/tenant-initialization-service';
 
 /**
  * Main MCP hook that provides MCP client and related functionality
@@ -17,7 +18,10 @@ export function useMCP() {
   // Initialize MCP client
   useEffect(() => {
     if (user) {
-      const initClient = () => {
+      const initClient = async () => {
+        // Initialize tenant context first
+        await initializeTenant();
+        
         const mcpClient = getMCPClient({
         });
         
