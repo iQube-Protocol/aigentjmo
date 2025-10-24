@@ -19,8 +19,12 @@ verify_jwt = false
 [functions.naka-kb-upsert-tenant-doc]
 verify_jwt = false
 
+[functions.naka-kb-sync-reit]
+verify_jwt = false
+
 [functions.naka-prompt-set-tenant]
 verify_jwt = false
 
 [functions.naka-history-migrate]
 verify_jwt = false
+

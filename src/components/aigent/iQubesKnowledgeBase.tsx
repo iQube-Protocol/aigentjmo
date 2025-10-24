@@ -8,6 +8,7 @@ import { TENANT_CONFIG } from '@/config/tenant';
 import KnowledgeBaseSearch from './components/KnowledgeBaseSearch';
 import KnowledgeList from './components/KnowledgeList';
 import KnowledgeItemDialog from './components/KnowledgeItemDialog';
+import SyncREITKBButton from './components/SyncREITKBButton';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const iQubesKnowledgeBase = () => {
@@ -44,10 +45,17 @@ const iQubesKnowledgeBase = () => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      <KnowledgeBaseSearch
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
+      <div className="px-4 pt-4">
+        <KnowledgeBaseSearch
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
+        {isJMOTenant && (
+          <div className="mt-2 flex justify-end">
+            <SyncREITKBButton />
+          </div>
+        )}
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <TabsList className={`mx-4 mt-4 grid w-full ${isJMOTenant ? 'grid-cols-4' : 'grid-cols-3'}`}>

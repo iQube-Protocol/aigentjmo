@@ -58,7 +58,8 @@ export class AigentKnowledgeRouter {
     coyn: boolean;
     qrypto: boolean;
     metaknyts: boolean;
-    priority: 'iqube' | 'coyn' | 'qrypto' | 'metaknyts' | 'general';
+    reit: boolean;
+    priority: 'iqube' | 'coyn' | 'qrypto' | 'metaknyts' | 'reit' | 'general';
   } {
     const lowerMessage = message.toLowerCase();
     
@@ -89,26 +90,41 @@ export class AigentKnowledgeRouter {
       'mythology', 'lore', 'metaknyts', 'knyt', 'folklore', 'legend', 'tale',
       'story', 'narrative', 'character', 'myth'
     ];
+    
+    // REIT-specific terms (JMO tenant only)
+    const reitTerms = [
+      'reit', 'real estate', 'property', 'commercial real estate', 'quartz',
+      'dvn oracle', 'nav', 'ffo', 'funds from operations', 'dividend yield',
+      'rent roll', 'tenant', 'occupancy', 'vacancy', 'cap rate',
+      'shareholder iqube', 'operator iqube', 'lender iqube', 'reit coyn',
+      'vaulted rent', 'cash flow', 'collateral', 'defi lending', 'rwa',
+      'real world asset', 'accredited investor', 'qualified purchaser',
+      'sec compliance', 'finra', '1120-reit', 'distribution requirement',
+      'foreclosure', 'recovery waterfall', 'aigent jmo', 'jmo knyt'
+    ];
 
     const hasIQubeTerms = iQubeTerms.some(term => lowerMessage.includes(term));
     const hasCoynTerms = coynTerms.some(term => lowerMessage.includes(term));
     const hasQryptoTerms = qryptoTerms.some(term => lowerMessage.includes(term));
     const hasMetaKnytsTerms = metaKnytsTerms.some(term => lowerMessage.includes(term));
+    const hasREITTerms = TENANT_CONFIG.tenantId === 'aigent-jmo' && reitTerms.some(term => lowerMessage.includes(term));
 
     // Determine priority based on specificity
-    let priority: 'iqube' | 'coyn' | 'qrypto' | 'metaknyts' | 'general' = 'general';
-    if (hasIQubeTerms) priority = 'iqube';
+    let priority: 'iqube' | 'coyn' | 'qrypto' | 'metaknyts' | 'reit' | 'general' = 'general';
+    if (hasREITTerms) priority = 'reit';
+    else if (hasIQubeTerms) priority = 'iqube';
     else if (hasCoynTerms) priority = 'coyn';
     else if (hasQryptoTerms) priority = 'qrypto';
     else if (hasMetaKnytsTerms) priority = 'metaknyts';
 
-    console.log(`🎯 Knowledge Router: Query intent detected - iQube: ${hasIQubeTerms}, COYN: ${hasCoynTerms}, Qrypto: ${hasQryptoTerms}, metaKnyts: ${hasMetaKnytsTerms}, Priority: ${priority}`);
+    console.log(`🎯 Knowledge Router: Query intent detected - iQube: ${hasIQubeTerms}, COYN: ${hasCoynTerms}, Qrypto: ${hasQryptoTerms}, metaKnyts: ${hasMetaKnytsTerms}, REIT: ${hasREITTerms}, Priority: ${priority}`);
 
     return {
       iqube: hasIQubeTerms,
       coyn: hasCoynTerms || priority === 'general', // Always search COYN as fallback
       qrypto: hasQryptoTerms,
       metaknyts: hasMetaKnytsTerms,
+      reit: hasREITTerms,
       priority
     };
   }
@@ -173,6 +189,25 @@ export class AigentKnowledgeRouter {
         })));
       }
       if (allResults.some(r => r.source.includes('metaKnyts'))) sources.push('metaKnyts Knowledge Base');
+    }
+
+    // Search JMO REIT KB if relevant (JMO tenant only)
+    if (this.jmoReitKB && (intent.reit || intent.priority === 'reit')) {
+      console.log(`📚 Knowledge Router: Searching JMO REIT KB`);
+      for (const term of searchTerms) {
+        const reitResults = this.jmoReitKB.searchKnowledge(term);
+        allResults.push(...reitResults.map(item => ({
+          id: item.id,
+          title: item.title,
+          content: item.content,
+          section: item.section,
+          category: item.category,
+          keywords: item.keywords,
+          timestamp: item.timestamp,
+          source: 'JMO REIT Knowledge Base'
+        })));
+      }
+      if (allResults.some(r => r.source.includes('JMO REIT'))) sources.push('JMO REIT Knowledge Base');
     }
 
     // Remove duplicates and sort by relevance
