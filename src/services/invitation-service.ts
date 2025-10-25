@@ -212,7 +212,8 @@ class InvitationService {
   }
 
   async getInvitationByToken(token: string): Promise<any> {
-    const { data, error } = await supabase
+    const client: any = supabase;
+    const { data, error } = await client
       .from('invited_users')
       .select('*')
       .eq('invitation_token', token)

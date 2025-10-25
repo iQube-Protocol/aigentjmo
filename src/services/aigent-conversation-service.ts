@@ -282,7 +282,8 @@ export class AigentConversationService {
    */
   private async getLongTermSummary(conversationId: string): Promise<string | undefined> {
     try {
-      const { data: summaries, error } = await supabase
+      const client: any = supabase;
+      const { data: summaries, error } = await client
         .from('conversation_summaries')
         .select('summary_text')
         .eq('conversation_type', 'learn')
