@@ -11,7 +11,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   {
-    name: 'Nakamoto',
+    name: 'JMO KNYT',
     href: '/aigent',
     icon: Bot,
   },
