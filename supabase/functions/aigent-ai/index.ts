@@ -200,6 +200,32 @@ function createAIClient(useVenice: boolean = false, useChainGPT: boolean = false
   }
 }
 
+// Call Lovable AI Gateway (no external API keys needed)
+async function callLovableAI(messages: Array<{ role: "system" | "user" | "assistant"; content: string }>, model: string = "google/gemini-2.5-flash"): Promise<string> {
+  const apiKey = Deno.env.get("LOVABLE_API_KEY");
+  if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+
+  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model, messages }),
+  });
+
+  if (!resp.ok) {
+    if (resp.status === 429) throw new Error("Rate limits exceeded, please try again later.");
+    if (resp.status === 402) throw new Error("Payment required, please add funds to your Lovable AI workspace.");
+    const t = await resp.text();
+    console.error("AI gateway error:", resp.status, t);
+    throw new Error("AI gateway error");
+  }
+
+  const data = await resp.json();
+  return data.choices?.[0]?.message?.content ?? "";
+}
+
 /**
  * Select appropriate Venice model based on query type
  */
@@ -283,12 +309,7 @@ async function processWithOpenAI(
     return await createChainGPTResponse(message, fullSystemPrompt, conversationId);
   }
 
-  // For OpenAI and Venice, use the existing client approach
-  const client = createAIClient(useVenice, useChainGPT);
-  
-  if (!client) {
-    throw new Error('Failed to create AI client');
-  }
+  // Using Lovable AI Gateway (no provider-specific client needed)
 
   // Use provided system prompt or default based on persona context
   let finalSystemPrompt = systemPrompt || DEFAULT_AIGENT_NAKAMOTO_SYSTEM_PROMPT;
@@ -349,98 +370,24 @@ The knowledge base contains visual content (mermaid diagrams and/or images). You
 
   const fullContext = contextParts.filter(Boolean).join('\n\n');
 
-  // Configure model and parameters based on provider
-  let modelConfig;
-  let veniceParameters = {};
-  
-  if (useVenice) {
-    const selectedModel = selectVeniceModel(message);
-    console.log(`🎯 Venice: Selected model "${selectedModel}" based on query type`);
-    
-    modelConfig = {
-      model: selectedModel,
-      temperature: 0.8,
-      max_tokens: 2000,
-      top_p: 0.9,
-      frequency_penalty: 0.1,
-      presence_penalty: 0.1
-    };
-    
-    // Add Venice-specific parameters
-    veniceParameters = {
-      venice_parameters: {
-        include_venice_system_prompt: false, // Use our custom system prompt
-        enable_web_search: "auto" // Enable web search when beneficial
-      }
-    };
-  } else {
-    modelConfig = {
-      model: "gpt-4o-mini",
-      temperature: 0.7,
-      max_tokens: 1500
-    };
-  }
-
-  console.log(`🚀 ${useVenice ? 'Venice' : 'OpenAI'}: Making API call with model: ${modelConfig.model}`);
+  // Use Lovable AI Gateway for completions
+  const modelName = 'google/gemini-2.5-flash';
+  console.log(`🚀 Lovable AI Gateway: Making API call with model: ${modelName}`);
   
   try {
-    const requestBody: any = {
-      ...modelConfig,
-      ...veniceParameters,
-      messages: [
-        { 
-          role: "system" as const, 
-          content: fullContext
-        },
-        { 
-          role: "user" as const, 
-          content: message 
-        }
-      ],
-    };
-    
-    console.log(`🔧 ${useVenice ? 'Venice' : 'OpenAI'}: Request config:`, {
-      model: requestBody.model,
-      hasVeniceParams: useVenice && !!veniceParameters,
-      messageCount: requestBody.messages.length,
-      hasPersonaContext: !personaContext?.isAnonymous,
-      hasMetaKnytsContext: !!qryptoKnowledgeContext,
-      hasConversationMemory: !!conversationMemory,
-      hasVisualContent: qryptoKnowledgeContext?.includes('mermaid') || qryptoKnowledgeContext?.includes('![')
-    });
+    const content = await callLovableAI([
+      { role: "system", content: fullContext },
+      { role: "user", content: message }
+    ], modelName);
 
-    const response = await client.chat.completions.create(requestBody);
-
-    console.log(`✅ ${useVenice ? 'Venice' : 'OpenAI'}: Response received successfully`);
-
-    return response.choices[0]?.message?.content || "I apologize, I wasn't able to process your request.";
-    
+    console.log(`✅ Lovable AI Gateway: Response received successfully`);
+    return content || "I apologize, I wasn't able to process your request.";
   } catch (error: any) {
-    console.error(`❌ ${useVenice ? 'Venice' : 'OpenAI'}: API Error:`, {
-      message: error?.message || 'Unknown error',
-      status: error?.status,
-      code: error?.code,
-      type: error?.type
+    console.error('❌ Lovable AI Gateway: API Error:', {
+      message: error?.message || 'Unknown error'
     });
-    
-    if (useVenice) {
-      console.log('🔄 Venice: Attempting fallback to OpenAI due to Venice error');
-      // Fallback to OpenAI if Venice fails
-      return await processWithOpenAI(
-        message, 
-        knowledgeItems, 
-        conversationId, 
-        historicalContext,
-        systemPrompt,
-        qryptoKnowledgeContext,
-        conversationMemory,
-        false, // Use OpenAI as fallback
-        false, // Don't use ChainGPT as fallback
-        personaContext,
-        contextualPrompt
-      );
-    }
-    
+
+    // Keep previous fallback behavior if needed in the future
     throw error;
   }
 }

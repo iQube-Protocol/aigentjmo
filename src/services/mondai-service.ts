@@ -253,8 +253,8 @@ export async function generateNakamotoResponse(
   }
 
   try {
-    // Try to call the mondai-ai function with knowledge items
-    const { data, error } = await supabase.functions.invoke('mondai-ai', {
+    // Try to call the aigent-ai function with knowledge items
+    const { data, error } = await supabase.functions.invoke('aigent-ai', {
       body: { 
         message, 
         conversationId,
