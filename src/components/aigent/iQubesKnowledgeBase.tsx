@@ -58,14 +58,16 @@ const iQubesKnowledgeBase = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className={`mx-4 mt-4 grid w-full ${isJMOTenant ? 'grid-cols-4' : 'grid-cols-3'}`}>
-          <TabsTrigger value="all">All ({allTabCount})</TabsTrigger>
-          <TabsTrigger value="iqubes">iQubes ({filteredIQubesItems.length})</TabsTrigger>
-          <TabsTrigger value="coyn">COYN ({filteredCOYNItems.length})</TabsTrigger>
-          {isJMOTenant && (
-            <TabsTrigger value="reits">REITs ({filteredREITItems.length})</TabsTrigger>
-          )}
-        </TabsList>
+        <div className="mx-4 mt-4 overflow-x-auto">
+          <TabsList className={`inline-flex min-w-full ${isJMOTenant ? 'grid grid-cols-4' : 'grid grid-cols-3'} md:w-full`}>
+            <TabsTrigger value="all" className="whitespace-nowrap text-xs sm:text-sm">All ({allTabCount})</TabsTrigger>
+            <TabsTrigger value="iqubes" className="whitespace-nowrap text-xs sm:text-sm">iQubes ({filteredIQubesItems.length})</TabsTrigger>
+            <TabsTrigger value="coyn" className="whitespace-nowrap text-xs sm:text-sm">COYN ({filteredCOYNItems.length})</TabsTrigger>
+            {isJMOTenant && (
+              <TabsTrigger value="reits" className="whitespace-nowrap text-xs sm:text-sm">REITs ({filteredREITItems.length})</TabsTrigger>
+            )}
+          </TabsList>
+        </div>
 
         <div className="flex-1 overflow-hidden">
           <TabsContent value="all" className="mt-0 h-full overflow-hidden">
