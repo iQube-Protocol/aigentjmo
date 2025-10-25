@@ -41,6 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_batches: {
+        Row: {
+          batch_id: string
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          emails_failed: number | null
+          emails_sent: number | null
+          id: string
+          started_at: string | null
+          status: string
+          total_emails: number
+          updated_at: string | null
+        }
+        Insert: {
+          batch_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          emails_failed?: number | null
+          emails_sent?: number | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          total_emails?: number
+          updated_at?: string | null
+        }
+        Update: {
+          batch_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          emails_failed?: number | null
+          emails_sent?: number | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          total_emails?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       invited_users: {
         Row: {
           batch_id: string | null

@@ -3,14 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 export interface NamePreference {
   id: string;
   user_id: string;
-  persona_type: 'knyt' | 'qripto' | 'blak';
   name_source: 'invitation' | 'linkedin' | 'custom';
-  custom_first_name?: string;
-  custom_last_name?: string;
-  linkedin_first_name?: string;
-  linkedin_last_name?: string;
-  invitation_first_name?: string;
-  invitation_last_name?: string;
+  preferred_first_name?: string | null;
+  preferred_last_name?: string | null;
+  linkedin_first_name?: string | null;
+  linkedin_last_name?: string | null;
+  twitter_username?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -23,11 +21,14 @@ export interface NameConflictData {
 }
 
 export class NamePreferenceService {
-  static async getNamePreference(personaType: 'knyt' | 'qripto' | 'blak'): Promise<NamePreference | null> {
+  static async getNamePreference(userId?: string): Promise<NamePreference | null> {
+    const user = userId || (await supabase.auth.getUser()).data.user?.id;
+    if (!user) return null;
+
     const { data, error } = await supabase
       .from('user_name_preferences')
       .select('*')
-      .eq('persona_type', personaType)
+      .eq('user_id', user)
       .maybeSingle();
 
     if (error) {
@@ -35,7 +36,13 @@ export class NamePreferenceService {
       return null;
     }
 
-    return data as NamePreference | null;
+    if (!data) return null;
+
+    // Cast name_source to the expected literal type
+    return {
+      ...data,
+      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin'
+    };
   }
 
   static async saveNamePreference(preference: Partial<NamePreference>): Promise<{ success: boolean; error?: string }> {
@@ -44,24 +51,21 @@ export class NamePreferenceService {
 
     try {
       // First check if preference exists
-      const existingPref = await this.getNamePreference(preference.persona_type!);
+      const existingPref = await this.getNamePreference(user.id);
       
       if (existingPref) {
         // Update existing preference
         const { error } = await supabase
           .from('user_name_preferences')
           .update({
-            name_source: preference.name_source!,
-            custom_first_name: preference.custom_first_name || null,
-            custom_last_name: preference.custom_last_name || null,
+            name_source: preference.name_source,
+            preferred_first_name: preference.preferred_first_name || null,
+            preferred_last_name: preference.preferred_last_name || null,
             linkedin_first_name: preference.linkedin_first_name || null,
             linkedin_last_name: preference.linkedin_last_name || null,
-            invitation_first_name: preference.invitation_first_name || null,
-            invitation_last_name: preference.invitation_last_name || null,
-            updated_at: new Date().toISOString(),
+            twitter_username: preference.twitter_username || null,
           })
-          .eq('user_id', user.id)
-          .eq('persona_type', preference.persona_type!);
+          .eq('user_id', user.id);
 
         if (error) {
           console.error('Error updating name preference:', error);
@@ -73,14 +77,12 @@ export class NamePreferenceService {
           .from('user_name_preferences')
           .insert({
             user_id: user.id,
-            persona_type: preference.persona_type!,
-            name_source: preference.name_source!,
-            custom_first_name: preference.custom_first_name || null,
-            custom_last_name: preference.custom_last_name || null,
+            name_source: preference.name_source || 'custom',
+            preferred_first_name: preference.preferred_first_name || null,
+            preferred_last_name: preference.preferred_last_name || null,
             linkedin_first_name: preference.linkedin_first_name || null,
             linkedin_last_name: preference.linkedin_last_name || null,
-            invitation_first_name: preference.invitation_first_name || null,
-            invitation_last_name: preference.invitation_last_name || null,
+            twitter_username: preference.twitter_username || null,
           });
 
         if (error) {
@@ -89,11 +91,7 @@ export class NamePreferenceService {
         }
       }
 
-      // Update the corresponding persona table
-      const updatedPreference = { ...preference, user_id: user.id } as NamePreference;
-      await this.updatePersonaNames(user.id, updatedPreference);
-
-      console.log('✅ Successfully saved name preference for', preference.persona_type);
+      console.log('✅ Successfully saved name preference');
       return { success: true };
     } catch (error: any) {
       console.error('Error saving name preference:', error);
@@ -161,13 +159,11 @@ export class NamePreferenceService {
   static getEffectiveName(preference: NamePreference): string {
     switch (preference.name_source) {
       case 'custom':
-        return preference.custom_first_name || '';
+        return preference.preferred_first_name || '';
       case 'linkedin':
         return preference.linkedin_first_name || '';
-      case 'invitation':
-        return preference.invitation_first_name || '';
       default:
-        return '';
+        return preference.preferred_first_name || '';
     }
   }
 
@@ -218,27 +214,25 @@ export class NamePreferenceService {
   ): Promise<void> {
     console.log(`🏷️ Processing LinkedIn names for ${personaType} persona`);
     
-    // Get existing name preference for this persona type
-    let namePrefs = await this.getNamePreference(personaType);
+    // Get existing name preference (not tied to persona type anymore)
+    let namePrefs = await this.getNamePreference(userId);
     
     if (!namePrefs) {
-      console.log(`💡 Creating new name preferences for ${personaType} persona`);
+      console.log(`💡 Creating new name preferences`);
       
-      // For KNYT: default to invitation source, store LinkedIn data
+      // For KNYT: default to custom source
       // For Qrypto: default to LinkedIn source, apply automatically
-      const defaultSource = personaType === 'knyt' ? 'invitation' : 'linkedin';
+      const defaultSource = personaType === 'knyt' ? 'custom' : 'linkedin';
       
       namePrefs = await this.createNamePreferences(userId, {
-        persona_type: personaType,
         linkedin_first_name: firstName,
         linkedin_last_name: lastName,
         name_source: defaultSource
       });
       
       if (namePrefs) {
-        console.log(`✅ Created ${personaType} name preferences with source: ${defaultSource}`);
+        console.log(`✅ Created name preferences with source: ${defaultSource}`);
         // Only update persona names for Qrypto (which defaults to linkedin)
-        // For KNYT, names should come from invitation data
         if (personaType === 'qripto') {
           await this.updatePersonaNames(userId, namePrefs);
         }
@@ -246,7 +240,7 @@ export class NamePreferenceService {
       return;
     }
     
-    console.log(`📋 Current ${personaType} name preferences:`, namePrefs);
+    console.log(`📋 Current name preferences:`, namePrefs);
     
     // Update LinkedIn fields in existing preference
     const updatedPrefs = {
@@ -293,22 +287,16 @@ export class NamePreferenceService {
   }
 
   static async createNamePreferences(userId: string, preferences: Partial<NamePreference>): Promise<NamePreference | null> {
-    // Determine default name source based on persona type
-    const defaultSource: 'invitation' | 'linkedin' = preferences.persona_type === 'qripto' ? 'linkedin' : 'invitation';
-    const defaultPersonaType: 'knyt' | 'qripto' = 'knyt';
-    
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('user_name_preferences')
       .insert({
         user_id: userId,
-        persona_type: preferences.persona_type || defaultPersonaType,
-        name_source: preferences.name_source || defaultSource,
-        custom_first_name: preferences.custom_first_name || null,
-        custom_last_name: preferences.custom_last_name || null,
+        name_source: preferences.name_source || 'custom',
+        preferred_first_name: preferences.preferred_first_name || null,
+        preferred_last_name: preferences.preferred_last_name || null,
         linkedin_first_name: preferences.linkedin_first_name || null,
         linkedin_last_name: preferences.linkedin_last_name || null,
-        invitation_first_name: preferences.invitation_first_name || null,
-        invitation_last_name: preferences.invitation_last_name || null,
+        twitter_username: preferences.twitter_username || null,
       })
       .select()
       .single();
@@ -318,24 +306,24 @@ export class NamePreferenceService {
       return null;
     }
 
-    return data as NamePreference;
+    if (!data) return null;
+
+    // Cast name_source to the expected literal type
+    return {
+      ...data,
+      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin'
+    };
   }
 
   static async updateNamePreferences(userId: string, preferences: Partial<NamePreference>): Promise<void> {
-    const defaultPersonaType: 'knyt' | 'qripto' = 'knyt';
-    const defaultNameSource: 'invitation' | 'linkedin' = 'linkedin';
-    
     const updateData = {
       user_id: userId,
-      persona_type: preferences.persona_type || defaultPersonaType,
-      name_source: preferences.name_source || defaultNameSource,
-      custom_first_name: preferences.custom_first_name,
-      custom_last_name: preferences.custom_last_name,
+      name_source: preferences.name_source || 'custom',
+      preferred_first_name: preferences.preferred_first_name,
+      preferred_last_name: preferences.preferred_last_name,
       linkedin_first_name: preferences.linkedin_first_name,
       linkedin_last_name: preferences.linkedin_last_name,
-      invitation_first_name: preferences.invitation_first_name,
-      invitation_last_name: preferences.invitation_last_name,
-      updated_at: new Date().toISOString()
+      twitter_username: preferences.twitter_username,
     };
 
     const { error } = await supabase
@@ -350,26 +338,33 @@ export class NamePreferenceService {
 
   static async updatePersonaNames(userId: string, preferences: NamePreference): Promise<void> {
     const firstName = this.getEffectiveName(preferences);
-    const lastName = preferences.name_source === 'custom' ? preferences.custom_last_name :
+    const lastName = preferences.name_source === 'custom' ? preferences.preferred_last_name :
                     preferences.name_source === 'linkedin' ? preferences.linkedin_last_name :
-                    preferences.invitation_last_name;
+                    null;
 
-    // Only update the specific persona type that this preference belongs to
-    const tableName = preferences.persona_type === 'knyt' ? 'knyt_personas' : 'qripto_personas';
+    // Update both persona tables with the display name
+    const displayName = `${firstName || ''} ${lastName || ''}`.trim();
     
-    const { error } = await supabase
-      .from(tableName)
-      .update({
-        'First-Name': firstName || '',
-        'Last-Name': lastName || ''
-      })
+    // Update knyt_personas
+    const { error: knytError } = await supabase
+      .from('knyt_personas')
+      .update({ display_name: displayName })
       .eq('user_id', userId);
-
-    if (error) {
-      console.error(`Error updating ${preferences.persona_type} persona names:`, error);
-      throw error;
+    
+    if (knytError) {
+      console.error('Error updating knyt persona names:', knytError);
     }
     
-    console.log(`✅ Updated ${preferences.persona_type} persona names: ${firstName} ${lastName}`);
+    // Update qripto_personas
+    const { error: qriptoError } = await supabase
+      .from('qripto_personas')
+      .update({ display_name: displayName })
+      .eq('user_id', userId);
+
+    if (qriptoError) {
+      console.error('Error updating qripto persona names:', qriptoError);
+    }
+    
+    console.log(`✅ Updated persona names: ${firstName} ${lastName}`);
   }
 }

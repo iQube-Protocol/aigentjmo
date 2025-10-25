@@ -41,14 +41,12 @@ export interface ExportedUser {
   
   // Name preferences
   name_preferences: {
-    persona_type: string;
     name_source: string;
-    invitation_first_name: string | null;
-    invitation_last_name: string | null;
+    preferred_first_name?: string | null;
+    preferred_last_name?: string | null;
     linkedin_first_name?: string | null;
     linkedin_last_name?: string | null;
-    custom_first_name?: string | null;
-    custom_last_name?: string | null;
+    twitter_username?: string | null;
   } | null;
   
   // Profile data
@@ -103,14 +101,12 @@ export interface EnrichedUserMigrationRecord {
     connection_data: any;
   }>;
   name_preferences: {
-    persona_type: string;
     name_source: string;
-    invitation_first_name: string | null;
-    invitation_last_name: string | null;
+    preferred_first_name?: string | null;
+    preferred_last_name?: string | null;
     linkedin_first_name?: string | null;
     linkedin_last_name?: string | null;
-    custom_first_name?: string | null;
-    custom_last_name?: string | null;
+    twitter_username?: string | null;
   } | null;
   profile: {
     first_name: string | null;
@@ -239,60 +235,30 @@ export async function exportAllUsers(): Promise<{ data: ExportedUser[] | null; e
                 }));
               }
 
-              // Name preferences
-              const { data: namePrefRows } = await supabase
+              // Name preferences  
+              const { data: namePrefs } = await supabase
                 .from('user_name_preferences')
                 .select('*')
                 .eq('user_id', foundUserId)
-                .eq('persona_type', invitation.persona_type)
-                .limit(1);
-              const namePrefs = namePrefRows?.[0];
+                .maybeSingle();
+              
               if (namePrefs) {
                 enrichedUser.name_preferences = {
-                  persona_type: namePrefs.persona_type,
                   name_source: namePrefs.name_source,
-                  invitation_first_name: namePrefs.invitation_first_name,
-                  invitation_last_name: namePrefs.invitation_last_name,
+                  preferred_first_name: namePrefs.preferred_first_name,
+                  preferred_last_name: namePrefs.preferred_last_name,
                   linkedin_first_name: namePrefs.linkedin_first_name,
                   linkedin_last_name: namePrefs.linkedin_last_name,
-                  custom_first_name: namePrefs.custom_first_name,
-                  custom_last_name: namePrefs.custom_last_name
+                  twitter_username: namePrefs.twitter_username
                 };
               }
 
-              // Profile by user_id
-              const { data: profileRows } = await supabase
-                .from('profiles')
-                .select('first_name, last_name, avatar_url, total_points, level')
-                .eq('user_id', foundUserId)
-                .limit(1);
-              const profile = profileRows?.[0];
-              if (profile) {
-                enrichedUser.profile = {
-                  first_name: profile.first_name,
-                  last_name: profile.last_name,
-                  avatar_url: profile.avatar_url,
-                  total_points: profile.total_points || 0,
-                  level: profile.level || 1
-                };
-              }
+              // Skip profile query - profiles table doesn't exist
+              // Users are stored in auth.users and personas tables
             } else {
               // Fallback profile by email if user_id not found
-              const { data: profileRows } = await supabase
-                .from('profiles')
-                .select('first_name, last_name, avatar_url, total_points, level')
-                .eq('email', invitation.email)
-                .limit(1);
-              const profile = profileRows?.[0];
-              if (profile) {
-                enrichedUser.profile = {
-                  first_name: profile.first_name,
-                  last_name: profile.last_name,
-                  avatar_url: profile.avatar_url,
-                  total_points: profile.total_points || 0,
-                  level: profile.level || 1
-                };
-              }
+              // Skip profile query - profiles table doesn't exist
+              // Users are stored in auth.users and personas tables
             }
           } catch (e) {
             console.warn('Enrichment lookup failed for', invitation.email, e);

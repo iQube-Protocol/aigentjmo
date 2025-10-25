@@ -30,14 +30,12 @@ export interface UserMigrationRecord {
     connection_data: any;
   }>;
   name_preferences: {
-    persona_type: string;
     name_source: string;
-    invitation_first_name: string | null;
-    invitation_last_name: string | null;
+    preferred_first_name?: string | null;
+    preferred_last_name?: string | null;
     linkedin_first_name?: string | null;
     linkedin_last_name?: string | null;
-    custom_first_name?: string | null;
-    custom_last_name?: string | null;
+    twitter_username?: string | null;
   } | null;
   profile: {
     first_name: string | null;
