@@ -15,10 +15,10 @@ const AuthLayout = ({
         <div className="mx-auto w-full max-w-md">
           <div className="mb-6">
             <Link to="/" className="flex items-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-iqube-primary to-iqube-accent flex items-center justify-center text-white font-bold text-xl\n\nShould be an N">N</div>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-iqube-primary to-iqube-accent flex items-center justify-center text-white font-bold text-xl">J</div>
               <span className="ml-2 text-2xl font-bold">JMO KNYT</span>
             </Link>
-            <h2 className="mt-6 text-3xl font-extrabold text-foreground">{title}</h2>
+            <h2 className="mt-6 text-3xl font-extrabold text-foreground">Welcome to Aigent JMO</h2>
             {subtitle && <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>}
           </div>
           {children}
@@ -31,7 +31,7 @@ const AuthLayout = ({
         <div className="absolute inset-0 flex flex-col justify-center items-center text-white p-12">
           <div className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center mb-6">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-iqube-primary to-iqube-accent flex items-center justify-center">
-              <span className="text-4xl font-bold">N</span>
+              <span className="text-4xl font-bold">J</span>
             </div>
           </div>
           <h1 className="text-4xl font-bold mb-4 text-center">Aigent JMO KNYT</h1>
