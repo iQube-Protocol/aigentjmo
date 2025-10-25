@@ -133,17 +133,18 @@ async function createChainGPTResponse(
   
   try {
     // Call ChainGPT API directly
-    const response = await fetch('https://api.chaingpt.org/api/v1/chatbot/chat', {
+    const response = await fetch('https://api.chaingpt.org/chat/stream', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${chainGPTApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        model: 'general_assistant',
         question: `${systemPrompt}\n\nUser: ${message}`,
-        chatHistory: "on",
+        chatHistory: 'on',
         sdkUniqueId: conversationId,
-        useCustomContext: true,
+        // useCustomContext: true, // enable if you’ve configured default context for this API key
       }),
     });
 
