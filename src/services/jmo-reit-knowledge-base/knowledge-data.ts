@@ -3,6 +3,72 @@ import { JMOREITKnowledgeItem } from './types';
 
 export const JMO_REIT_KNOWLEDGE_DATA: JMOREITKnowledgeItem[] = [
   {
+    id: 'reit-fundamentals-overview',
+    title: 'REITs: Real Estate Investment Trust Fundamentals',
+    content: `Real Estate Investment Trusts (REITs) are companies that own, operate, or finance income-producing real estate. They allow investors to earn income from real estate without having to buy or manage properties directly. REITs can be publicly traded on stock exchanges, non-traded but registered, or private.
+
+**Types of REITs:**
+
+**Equity REITs:**
+- Own and manage properties
+- Generate income primarily through rent and property sales
+- Most common type of REIT
+- Focus on property appreciation and rental income
+
+**Mortgage REITs (mREITs):**
+- Provide financing for income-producing properties
+- Earn revenue from interest on loans and mortgages
+- Don't own physical properties
+- Focus on debt instruments and mortgage-backed securities
+
+**Hybrid REITs:**
+- Combine features of both equity and mortgage REITs
+- Diversify income sources by owning properties and investing in mortgages
+- Offer balanced exposure to real estate markets
+
+**Benefits of Investing in REITs:**
+
+**Income Generation:**
+- REITs are required to distribute at least 90% of their taxable income as dividends
+- Provides a steady income stream for investors
+- Attractive for income-focused portfolios
+
+**Liquidity:**
+- Publicly traded REITs can be bought and sold like stocks
+- Offers investors easy access to their investments
+- More liquid than direct real estate ownership
+
+**Diversification:**
+- Allows individuals to diversify their portfolios with real estate assets
+- Can reduce overall investment risk
+- Provides exposure to different property types and geographic regions
+
+**Risks of Investing in REITs:**
+
+**Market Sensitivity:**
+- REIT prices can fluctuate based on market conditions, similar to stocks
+- Subject to broader market volatility
+- Can be affected by economic downturns
+
+**Interest Rate Risk:**
+- Changes in interest rates can impact property values
+- Affects the cost of financing for REITs
+- Can influence investor demand for REIT dividends
+
+**Occupancy Rates:**
+- REITs depend on maintaining high occupancy levels to generate income
+- Can be affected by market demand and economic conditions
+- Vacancy can significantly impact revenue
+
+Investing in REITs provides a way to gain exposure to real estate while enjoying the benefits of liquidity and income generation without the complexities of direct property ownership.`,
+    section: 'REIT Fundamentals',
+    category: 'reit-basics',
+    keywords: ['REIT', 'real estate investment trust', 'equity REIT', 'mortgage REIT', 'hybrid REIT', 'dividends', 'liquidity', 'diversification', 'income', 'occupancy', 'interest rates'],
+    timestamp: new Date().toISOString(),
+    source: 'REIT Overview Educational Material',
+    crossTags: ['coyn', 'iqubes']
+  },
+  {
     id: 'reit-history-nakamoto-connection',
     title: 'REITs: The First Decentralized Asset',
     content: `REITs (Real Estate Investment Trusts) represent the first decentralized asset class that Satoshi Nakamoto understood when architecting the Bitcoin protocol. The structural requirements of REITs provide a blueprint for decentralized governance and value distribution:

@@ -4,7 +4,7 @@ export interface JMOREITKnowledgeItem {
   title: string;
   content: string;
   section: string;
-  category: 'reit-structure' | 'operator-iqubes' | 'shareholder-iqubes' | 'lender-iqubes' | 'quartz-architecture' | 'defi-integration' | 'collateral-lending' | 'recovery-waterfall' | 'token-economics' | 'compliance';
+  category: 'reit-basics' | 'reit-structure' | 'operator-iqubes' | 'shareholder-iqubes' | 'lender-iqubes' | 'quartz-architecture' | 'defi-integration' | 'collateral-lending' | 'recovery-waterfall' | 'token-economics' | 'compliance';
   keywords: string[];
   timestamp: string;
   source: string;
