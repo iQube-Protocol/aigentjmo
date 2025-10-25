@@ -488,7 +488,7 @@ async function processAigentInteraction(
   }
 
   if (conversationMemory) {
-    console.log(`🧠 MonDAI Edge Function: Using conversation memory`);
+    console.log(`🧠 Aigent Edge Function: Using conversation memory`);
   }
   
   // Process with the AI API (OpenAI, Venice, or ChainGPT) including persona context, metaKnyts knowledge, and conversation memory
@@ -518,11 +518,11 @@ async function processAigentInteraction(
   // Determine knowledge source
   let knowledgeSource = "LLM General Knowledge";
   if (qryptoKnowledgeContext && knowledgeItems.length > 0) {
-    knowledgeSource = "metaKnyts KB + MonDAI Knowledge Router";
+    knowledgeSource = "metaKnyts KB + Aigent Knowledge Router";
   } else if (qryptoKnowledgeContext) {
     knowledgeSource = "metaKnyts Knowledge Base";
   } else if (knowledgeItems.length > 0) {
-    knowledgeSource = "MonDAI Knowledge Router";
+    knowledgeSource = "Aigent Knowledge Router";
   }
 
   // Add conversation memory to knowledge source if used
@@ -575,9 +575,9 @@ serve(async (req) => {
       contextualPrompt
     } = await req.json();
 
-    console.log(`🚀 MonDAI Edge Function: Received request with Venice: ${useVenice}, ChainGPT: ${useChainGPT}`);
-    console.log(`🔧 MonDAI Edge Function: useVenice parameter type:`, typeof useVenice, 'value:', useVenice);
-    console.log(`🔧 MonDAI Edge Function: useChainGPT parameter type:`, typeof useChainGPT, 'value:', useChainGPT);
+    console.log(`🚀 Aigent Edge Function: Received request with Venice: ${useVenice}, ChainGPT: ${useChainGPT}`);
+    console.log(`🔧 Aigent Edge Function: useVenice parameter type:`, typeof useVenice, 'value:', useVenice);
+    console.log(`🔧 Aigent Edge Function: useChainGPT parameter type:`, typeof useChainGPT, 'value:', useChainGPT);
 
     if (!message) {
       return new Response(
@@ -606,7 +606,7 @@ serve(async (req) => {
       contextualPrompt
     );
 
-    console.log(`✅ MonDAI Edge Function: Response generated using ${response.metadata.aiProvider}`);
+    console.log(`✅ Aigent Edge Function: Response generated using ${response.metadata.aiProvider}`);
 
     return new Response(
       JSON.stringify(response),
@@ -616,7 +616,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in mondai-ai function:', error);
+    console.error('Error in aigent-ai function:', error);
     
     return new Response(
       JSON.stringify({

@@ -179,7 +179,7 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
     }
     
     // Call the edge function with conversation memory
-    const { data, error } = await supabase.functions.invoke('mondai-ai', {
+    const { data, error } = await supabase.functions.invoke('aigent-ai', {
       body: {
         message,
         conversationId: currentConversationId,
@@ -194,8 +194,8 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
     });
 
     if (error) {
-      console.error('❌ MonDAI: Edge function error:', error);
-      throw new Error(`MonDAI service error: ${error.message}`);
+      console.error('❌ Aigent: Edge function error:', error);
+      throw new Error(`Aigent service error: ${error.message}`);
     }
 
     // Validate response for visual content
@@ -206,17 +206,17 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
     );
     
     if (knowledgeHadVisuals && !responseHasMermaid && !responseHasImages) {
-      console.warn('⚠️ MonDAI: Visual content was in knowledge base but missing from response');
-      console.log('🔍 MonDAI: Knowledge items with visuals:', 
+      console.warn('⚠️ Aigent: Visual content was in knowledge base but missing from response');
+      console.log('🔍 Aigent: Knowledge items with visuals:', 
         knowledgeResults.filter(item => 
           item.content.includes('mermaid') || item.content.includes('![')
         ).map(item => item.title)
       );
     }
 
-    console.log(`✅ MonDAI: Response generated successfully`);
-    console.log(`📊 MonDAI: Knowledge sources used: ${data.metadata.knowledgeSource}`);
-    console.log(`🎨 MonDAI: Visual content in response - Mermaid: ${responseHasMermaid}, Images: ${responseHasImages}`);
+    console.log(`✅ Aigent: Response generated successfully`);
+    console.log(`📊 Aigent: Knowledge sources used: ${data.metadata.knowledgeSource}`);
+    console.log(`🎨 Aigent: Visual content in response - Mermaid: ${responseHasMermaid}, Images: ${responseHasImages}`);
     
     // Enhance metadata with memory information
     if (knowledgeResults.length > 0) {
