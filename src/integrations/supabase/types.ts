@@ -43,30 +43,57 @@ export type Database = {
       }
       invited_users: {
         Row: {
+          batch_id: string | null
+          completed_at: string | null
           created_at: string | null
           email: string
+          email_sent: boolean | null
+          email_sent_at: string | null
           expires_at: string | null
           id: string
           invitation_code: string | null
+          invited_at: string | null
           invited_by: string | null
+          persona_data: Json | null
+          persona_type: string | null
+          send_attempts: number | null
+          signup_completed: boolean | null
           used_at: string | null
         }
         Insert: {
+          batch_id?: string | null
+          completed_at?: string | null
           created_at?: string | null
           email: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
           expires_at?: string | null
           id?: string
           invitation_code?: string | null
+          invited_at?: string | null
           invited_by?: string | null
+          persona_data?: Json | null
+          persona_type?: string | null
+          send_attempts?: number | null
+          signup_completed?: boolean | null
           used_at?: string | null
         }
         Update: {
+          batch_id?: string | null
+          completed_at?: string | null
           created_at?: string | null
           email?: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
           expires_at?: string | null
           id?: string
           invitation_code?: string | null
+          invited_at?: string | null
           invited_by?: string | null
+          persona_data?: Json | null
+          persona_type?: string | null
+          send_attempts?: number | null
+          signup_completed?: boolean | null
           used_at?: string | null
         }
         Relationships: []
@@ -75,6 +102,7 @@ export type Database = {
         Row: {
           created_at: string | null
           display_name: string | null
+          Email: string | null
           id: string
           profile_image_url: string | null
           updated_at: string | null
@@ -83,6 +111,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           display_name?: string | null
+          Email?: string | null
           id?: string
           profile_image_url?: string | null
           updated_at?: string | null
@@ -91,6 +120,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           display_name?: string | null
+          Email?: string | null
           id?: string
           profile_image_url?: string | null
           updated_at?: string | null
@@ -102,6 +132,7 @@ export type Database = {
         Row: {
           created_at: string | null
           display_name: string | null
+          Email: string | null
           id: string
           profile_image_url: string | null
           updated_at: string | null
@@ -110,6 +141,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           display_name?: string | null
+          Email?: string | null
           id?: string
           profile_image_url?: string | null
           updated_at?: string | null
@@ -118,6 +150,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           display_name?: string | null
+          Email?: string | null
           id?: string
           profile_image_url?: string | null
           updated_at?: string | null
@@ -158,6 +191,8 @@ export type Database = {
           id: string
           interaction_type: string
           metadata: Json | null
+          query: string | null
+          response: string | null
           user_id: string
         }
         Insert: {
@@ -165,6 +200,8 @@ export type Database = {
           id?: string
           interaction_type: string
           metadata?: Json | null
+          query?: string | null
+          response?: string | null
           user_id: string
         }
         Update: {
@@ -172,6 +209,47 @@ export type Database = {
           id?: string
           interaction_type?: string
           metadata?: Json | null
+          query?: string | null
+          response?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_name_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          linkedin_first_name: string | null
+          linkedin_last_name: string | null
+          name_source: string | null
+          preferred_first_name: string | null
+          preferred_last_name: string | null
+          twitter_username: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          linkedin_first_name?: string | null
+          linkedin_last_name?: string | null
+          name_source?: string | null
+          preferred_first_name?: string | null
+          preferred_last_name?: string | null
+          twitter_username?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          linkedin_first_name?: string | null
+          linkedin_last_name?: string | null
+          name_source?: string | null
+          preferred_first_name?: string | null
+          preferred_last_name?: string | null
+          twitter_username?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -204,23 +282,28 @@ export type Database = {
     Functions: {
       count_direct_signups: { Args: never; Returns: number }
       extend_invitation_expiration: {
-        Args: { days: number; invitation_id: string }
-        Returns: undefined
+        Args: { email_list: string[]; extend_days: number }
+        Returns: Json
       }
       get_expiring_invitations: {
-        Args: never
+        Args: { days_ahead?: number }
         Returns: {
           created_at: string
+          days_until_expiry: number
           email: string
           expires_at: string
           id: string
+          persona_type: string
         }[]
       }
       get_invitation_expiration_stats: {
         Args: never
         Returns: {
-          expired_count: number
-          total_expiring: number
+          expiring_soon_3_days: number
+          expiring_soon_7_days: number
+          expiring_today: number
+          total_active: number
+          total_expired: number
         }[]
       }
       has_role: {
@@ -232,7 +315,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "super_admin" | "uber_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -360,7 +443,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "super_admin", "uber_admin"],
     },
   },
 } as const
