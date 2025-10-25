@@ -1,5 +1,5 @@
 
-export interface QryptoKnowledgeItem {
+export interface QriptoKnowledgeItem {
   id: string;
   title: string;
   content: string;

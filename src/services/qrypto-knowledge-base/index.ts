@@ -1,7 +1,7 @@
 
-export type { QryptoKnowledgeItem } from './types';
+export type { QriptoKnowledgeItem } from './types';
 export { QryptoKnowledgeBase } from './QryptoKnowledgeBase';
-export { QRYPTO_KNOWLEDGE_DATA } from './knowledge-data';
+export { QRIPTO_KNOWLEDGE_DATA } from './knowledge-data';
 
 // Create and export the singleton instance
 import { QryptoKnowledgeBase } from './QryptoKnowledgeBase';

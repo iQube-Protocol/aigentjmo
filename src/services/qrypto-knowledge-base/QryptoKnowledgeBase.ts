@@ -1,10 +1,10 @@
 
-import { QryptoKnowledgeItem } from './types';
-import { QRYPTO_KNOWLEDGE_DATA } from './knowledge-data';
+import { QriptoKnowledgeItem } from './types';
+import { QRIPTO_KNOWLEDGE_DATA } from './knowledge-data';
 
 export class QryptoKnowledgeBase {
   private static instance: QryptoKnowledgeBase;
-  private knowledgeItems: QryptoKnowledgeItem[] = [];
+  private knowledgeItems: QriptoKnowledgeItem[] = [];
 
   private constructor() {
     this.initializeKnowledgeBase();
@@ -18,14 +18,14 @@ export class QryptoKnowledgeBase {
   }
 
   private initializeKnowledgeBase() {
-    this.addKnowledgeItems(QRYPTO_KNOWLEDGE_DATA);
+    this.addKnowledgeItems(QRIPTO_KNOWLEDGE_DATA);
   }
 
-  public addKnowledgeItems(items: QryptoKnowledgeItem[]) {
+  public addKnowledgeItems(items: QriptoKnowledgeItem[]) {
     this.knowledgeItems.push(...items);
   }
 
-  public searchKnowledge(query: string): QryptoKnowledgeItem[] {
+  public searchKnowledge(query: string): QriptoKnowledgeItem[] {
     const queryLower = query.toLowerCase();
     const searchTerms = queryLower.split(' ');
     
@@ -47,11 +47,11 @@ export class QryptoKnowledgeBase {
     });
   }
 
-  public getAllKnowledge(): QryptoKnowledgeItem[] {
+  public getAllKnowledge(): QriptoKnowledgeItem[] {
     return this.knowledgeItems;
   }
 
-  public getKnowledgeByCategory(category: QryptoKnowledgeItem['category']): QryptoKnowledgeItem[] {
+  public getKnowledgeByCategory(category: QriptoKnowledgeItem['category']): QriptoKnowledgeItem[] {
     return this.knowledgeItems.filter(item => item.category === category);
   }
 }

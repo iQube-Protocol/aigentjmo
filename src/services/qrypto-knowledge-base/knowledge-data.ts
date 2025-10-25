@@ -1,21 +1,21 @@
-import { QryptoKnowledgeItem } from './types';
+import { QriptoKnowledgeItem } from './types';
 
-export const QRYPTO_KNOWLEDGE_DATA: QryptoKnowledgeItem[] = [
+export const QRIPTO_KNOWLEDGE_DATA: QriptoKnowledgeItem[] = [
   {
-    id: 'qryptocoyn-definition',
-    title: 'QryptoCOYN: Definition and Etymology',
-    content: `QryptoCOYN is a compound term combining two key concepts:
+    id: 'qriptocoyn-definition',
+    title: 'QriptoCOYN: Definition and Etymology',
+    content: `QriptoCOYN is a compound term combining two key concepts:
     
-    Qrypto: Refers to Quantum-ready cryptography and information management. This represents advanced cryptographic systems designed to be secure against both classical and quantum computing attacks, ensuring long-term data protection in the evolving technological landscape.
+    Qripto: Refers to Quantum-ready cryptography and information management. This represents advanced cryptographic systems designed to be secure against both classical and quantum computing attacks, ensuring long-term data protection in the evolving technological landscape.
     
     COYN: An anagram for "Currency Of Your Network" which relates to the value of your data and the network that you do to enrich, collate and curate it. It also relates to the value of your network which is reflected in your data assets. COYN represents the monetization and value creation from data assets and network effects.
     
-    Together, QryptoCOYN represents a quantum-ready cryptocurrency framework that transforms data into valuable, tradable assets while maintaining the highest levels of security and privacy.`,
+    Together, QriptoCOYN represents a quantum-ready cryptocurrency framework that transforms data into valuable, tradable assets while maintaining the highest levels of security and privacy.`,
     section: 'Core Concepts',
     category: 'philosophy',
-    keywords: ['QryptoCOYN', 'Qrypto', 'COYN', 'quantum-ready cryptography', 'Currency Of Your Network', 'data assets', 'network value'],
+    keywords: ['QriptoCOYN', 'Qripto', 'COYN', 'quantum-ready cryptography', 'Currency Of Your Network', 'data assets', 'network value'],
     timestamp: new Date().toISOString(),
-    source: 'QryptoCOYN Core Documentation'
+    source: 'QriptoCOYN Core Documentation'
   },
   {
     id: 'iqube-whitepaper-executive-summary',
@@ -220,16 +220,16 @@ Together, these three consensus mechanisms reinforce the iQube Protocol's commit
 
 **COYN Protocol:** At the core of the system, COYN protocol uses Proof-of-Risk and Proof-of-Price frameworks to quantify the value of data in the associated token networks. These proofs assess data value in terms of volume, quality, and risk profile, ensuring that data assets are priced fairly and transparently.
 
-**QryptoCOYN (Utility and Governance Token):** QryptoCOYN serves as the ecosystem's utility and governance token, capturing the value of the network, community, and overall economy. It facilitates staking, governance votes, and protocol upgrades, ensuring that participants are incentivized to maintain high data quality and protocol compliance.
+**QriptoCOYN (Utility and Governance Token):** QriptoCOYN serves as the ecosystem's utility and governance token, capturing the value of the network, community, and overall economy. It facilitates staking, governance votes, and protocol upgrades, ensuring that participants are incentivized to maintain high data quality and protocol compliance.
 
-**QryptoCENT (Micro-Stable Coin):** To enable efficient pricing of agent transactions, the protocol introduces QryptoCENT, a micro-stable coin pegged to ₵0.01. QryptoCENT bridges the gap between Web2 AI agents, fiat currencies, and the crypto agent economy, providing a seamless on-ramp for traditional AI services to participate in decentralized ecosystems.
+**QriptoCENT (Micro-Stable Coin):** To enable efficient pricing of agent transactions, the protocol introduces QriptoCENT, a micro-stable coin pegged to ₵0.01. QriptoCENT bridges the gap between Web2 AI agents, fiat currencies, and the crypto agent economy, providing a seamless on-ramp for traditional AI services to participate in decentralized ecosystems.
 
 **Data-as-an-Asset Standard:** By treating data as a verifiable, risk-priced asset, the protocol aligns incentives for data owners and buyers. The Proof-of-Risk and Proof-of-Price mechanisms ensure that data providers are compensated based on data quality, sensitivity, and usage rights.
 
-**Governance and Treasury Allocation:** A portion of COYN and QryptoCENT reserves is allocated to a decentralized treasury, supporting protocol upgrades, compliance frameworks, and risk management initiatives.`,
+**Governance and Treasury Allocation:** A portion of COYN and QriptoCENT reserves is allocated to a decentralized treasury, supporting protocol upgrades, compliance frameworks, and risk management initiatives.`,
     section: 'Economic Framework',
     category: 'tokenomics',
-    keywords: ['COYN economy', 'QryptoCOYN', 'QryptoCENT', 'micro-stable coin', 'data-as-asset', 'governance token'],
+    keywords: ['COYN economy', 'QriptoCOYN', 'QriptoCENT', 'micro-stable coin', 'data-as-asset', 'governance token'],
     timestamp: new Date().toISOString(),
     source: 'iQube Whitepaper v0.1'
   },
@@ -302,13 +302,13 @@ By supporting Bitcoin-native primitives, satoshi-backed token gating, and full r
 
 **Development Milestones:**
 - **Phase 1 (Completed):** Core protocol design, cryptographic primitives implementation (metaQubes, blakQubes, tokenQubes), dual-network architecture, and risk quantification pipeline.
-- **Phase 2 (In Progress):** Integration of Proof-of-Risk, Proof-of-Price, and Proof-of-State consensus mechanisms, and COYN economic layer including QryptoCOYN and QryptoCENT micro-stable coin systems.
+- **Phase 2 (In Progress):** Integration of Proof-of-Risk, Proof-of-Price, and Proof-of-State consensus mechanisms, and COYN economic layer including QriptoCOYN and QriptoCENT micro-stable coin systems.
 - **Phase 3:** MCP, ACP, and A2A framework integration, enhanced regulatory compliance, and support for quantum-resistant encryption standards.
 - **Phase 4:** Full AI agent orchestration with Aigent Protocol stack, developer SDKs, and expanded EVM compatibility.
 
 **Open-Source Cadence:** The protocol follows a transparent, open-source development approach. Key updates, smart contract libraries, and tooling are released on public repositories, ensuring that the community can audit, contribute, and innovate on top of the protocol.
 
-**Treasury Allocation and Governance:** A decentralized governance structure oversees the allocation of funds from the COYN and QryptoCENT reserves. The treasury funds protocol upgrades, risk audits, regulatory compliance initiatives, and community-driven improvements.
+**Treasury Allocation and Governance:** A decentralized governance structure oversees the allocation of funds from the COYN and QriptoCENT reserves. The treasury funds protocol upgrades, risk audits, regulatory compliance initiatives, and community-driven improvements.
 
 **Compliance Roadmap:** Ongoing updates to align with global regulatory standards (GDPR, HIPAA, CCPA, ISO, IEEE) and support for future compliance frameworks. Regular third-party audits verify adherence to security, privacy, and risk management best practices.`,
     section: 'Development Timeline',
