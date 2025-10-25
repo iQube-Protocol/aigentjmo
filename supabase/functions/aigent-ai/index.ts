@@ -138,30 +138,44 @@ async function createChainGPTResponse(
       headers: {
         'Authorization': `Bearer ${chainGPTApiKey}`,
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify({
         model: 'general_assistant',
         question: `${systemPrompt}\n\nUser: ${message}`,
         chatHistory: 'on',
         sdkUniqueId: conversationId,
-        // useCustomContext: true, // enable if you’ve configured default context for this API key
       }),
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    const raw = await response.text();
+
     if (!response.ok) {
-      const errorText = await response.text();
       console.error('❌ ChainGPT: API Error:', {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: raw
       });
-      throw new Error(`ChainGPT API error: ${response.statusText}`);
+      throw new Error(`ChainGPT API error: ${response.status} ${response.statusText} - ${raw?.slice(0,200)}`);
     }
 
-    const data = await response.json();
+    // Try to parse JSON first; if not JSON, fall back to raw text
+    let data: any = null;
+    try {
+      data = contentType.includes('application/json') ? JSON.parse(raw) : JSON.parse(raw);
+    } catch (_) {
+      data = null;
+    }
+
     console.log('✅ ChainGPT: Response received successfully');
-    
-    return data.data?.bot || data.bot || '';
+
+    if (data) {
+      return data.data?.bot || data.bot || '';
+    }
+
+    // Fallback: return raw text (some environments may return non-JSON full answers)
+    return raw || '';
     
   } catch (error: any) {
     console.error('❌ ChainGPT: Error:', {
@@ -579,6 +593,16 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'ChainGPT API key not configured' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Propagate ChainGPT HTTP errors with appropriate status codes when possible
+    const httpMatch = message.match(/ChainGPT API error: (\d{3})/);
+    if (httpMatch) {
+      const status = parseInt(httpMatch[1], 10);
+      return new Response(
+        JSON.stringify({ error: message }),
+        { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
