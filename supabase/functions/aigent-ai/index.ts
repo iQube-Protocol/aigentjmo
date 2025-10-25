@@ -1,6 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+// Inline CORS headers to avoid shared module import errors
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 import { OpenAI } from 'https://esm.sh/openai@4.0.0';
 
 // Interface for the response
