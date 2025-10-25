@@ -71,20 +71,21 @@ const SimplifiedAigentInterface: React.FC = React.memo(() => {
     return {
       id: "1",
       sender: "agent" as const,
-      message: `Hello! I'm Aigent Nakamoto, your crypto-agentic AI assistant powered by **${aiProvider}** with access to the **iQube Protocol, COYN, Qripto, and metaKnyts knowledge bases**.
+      message: `Hello! I'm **JMO KNYT**, your Qripto-agentic AI assistant powered by **${aiProvider}** with access to the **JMO REIT, iQube Protocol, COYN, Qripto, and metaKnyts knowledge bases**.
 
 ${memoryStatus}
 
 I can help you with:
-• **Technical concepts**: iQubes, VFTs, COYN Protocol, tokenomics, smart contracts
-• **Narrative elements**: metaKnyts characters (KnowOne, Satoshi Nakamoto, FANG Gang, BAT Pack)
-• **Worldbuilding**: Terra/Digitterra dual reality framework  
-• **Philosophy**: Clean Data principles, decentralized AI governance
-• **Bitcoin & Crypto**: Runes, protocols, blockchain technology
+• **REIT Assets & Tokenization**: Real estate investment trusts, digital REIT tokens, asset management
+• **REIT Economics**: Property valuation, dividend structures, fractional ownership, REIT COYN
+• **REIT Operations**: Property management, shareholder relations, compliance and governance
+• **iQube Technology**: VFTs, data containers, secure information infrastructure
+• **COYN Protocol**: Tokenomics, micro-stable coins, data-as-asset backed currencies
+• **metaKnyts Lore**: Characters, mythology, Terra/Digitterra worldbuilding (KnowOne, FANG Gang, BAT Pack)
 
 ${conversationId ? "I'll remember our conversation context and can reference our previous discussions naturally." : ""}
 
-Try asking about "metaKnyts", "KnowOne", "Terra and Digitterra", "Bitcoin Runes", or any crypto/Web3 concept. I'll provide insights from both technical and narrative perspectives with proper citations.
+Try asking about "REIT tokenization", "JMO REIT structure", "iQubes for REITs", "REIT COYN economics", or any real estate and Web3 concept. I'll provide insights from both technical and REIT perspectives with proper citations.
 
 What would you like to explore today?`,
       timestamp: new Date().toISOString(),
