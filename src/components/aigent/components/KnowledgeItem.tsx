@@ -39,7 +39,7 @@ const KnowledgeItem = ({
   // Use different colors based on knowledge base with soft white text
   const baseColor = knowledgeBase === 'iQubes' ? 'blue' : 'orange';
   const keywordBgColor = knowledgeBase === 'iQubes' ? 'bg-blue-100/30 text-slate-200 hover:bg-blue-200/40' : 'bg-orange-100/30 text-slate-200 hover:bg-orange-200/40';
-  const connectionBgColor = knowledgeBase === 'iQubes' ? 'bg-rose-100/30 text-slate-200 border-rose-300/40' : 'bg-purple-100/30 text-slate-200 border-purple-300/40';
+  const connectionBgColor = knowledgeBase === 'iQubes' ? 'bg-rose-100/30 text-green-700 border-rose-300/40' : 'bg-purple-100/30 text-green-700 border-purple-300/40';
   return <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02] knowledge-content" onClick={() => onItemClick(item)}>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
