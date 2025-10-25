@@ -66,7 +66,7 @@ export default {
 				qripto: {
 					primary: 'hsl(140 50% 35%)',     // Forest green primary 
 					secondary: 'hsl(140 45% 45%)',   // Lighter forest green 
-					accent: 'hsl(24 95% 53%)',       // Orange accent 
+					accent: 'hsl(280 70% 55%)',      // Purple accent 
 					dark: 'hsl(140 40% 20%)',        // Dark forest green 
 					light: 'hsl(220 14% 96%)'        // Light background 
 				},
