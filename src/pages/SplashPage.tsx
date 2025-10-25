@@ -60,7 +60,7 @@ const SplashPage = () => {
                 variant="outline" 
                 className="w-full max-w-md border-white/30 text-white hover:bg-white/10"
               >
-                Try Aigent Nakamoto
+                Try Aigent JMO
               </Button>
             </div>
           </div>
@@ -73,7 +73,7 @@ const SplashPage = () => {
             variant="outline" 
             className="w-full border-white/30 text-white hover:bg-white/10"
           >
-            Try Aigent Nakamoto
+            Try Aigent JMO
           </Button>
         </div>
 
