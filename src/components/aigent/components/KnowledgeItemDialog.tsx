@@ -37,7 +37,7 @@ const KnowledgeItemDialog = ({
             {selectedItem?.connections && selectedItem.connections.length > 0 && <div className="mt-4 p-3 bg-green-50 border-l-4 border-green-400 rounded-r-lg">
                 <h4 className="font-medium mb-2 text-green-800">Connected Concepts:</h4>
                 <div className="flex flex-wrap gap-1">
-                  {selectedItem.connections.map((connection: string) => <Badge key={connection} variant="outline" className="text-xs bg-green-100/30 text-slate-200 border-green-300/40 hover:bg-green-200/40 font-normal">
+                  {selectedItem.connections.map((connection: string) => <Badge key={connection} variant="outline" className="text-xs bg-green-100/30 text-green-700 border-green-300/40 hover:bg-green-200/40 font-normal">
                       {connection}
                     </Badge>)}
                 </div>
