@@ -112,13 +112,13 @@ export async function generateAigentNakamotoResponse(
                                  conversationMemory.recentHistory.length === 0;
     
     if (needsKnowledgeSearch) {
-      console.log(`🔍 MonDAI: Using knowledge search because: ${!conversationMemory ? 'no memory' : 'knowledge request detected'}`);
+      console.log(`🔍 Aigent: Using knowledge search because: ${!conversationMemory ? 'no memory' : 'knowledge request detected'}`);
       
       // Smart knowledge base search with intent detection
       knowledgeSearchResult = knowledgeRouter.searchKnowledge(message, conversationThemes);
-      console.log(`🔍 MonDAI: Found ${knowledgeSearchResult.totalItems} items from: ${knowledgeSearchResult.sources.join(', ')}`);
+      console.log(`🔍 Aigent: Found ${knowledgeSearchResult.totalItems} items from: ${knowledgeSearchResult.sources.join(', ')}`);
     } else {
-      console.log(`🧠 MonDAI: Prioritizing conversation memory over knowledge search`);
+      console.log(`🧠 Aigent: Prioritizing conversation memory over knowledge search`);
     }
     
     const knowledgeResults = knowledgeSearchResult.results;
@@ -173,9 +173,9 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
     const conversationContext = await PersonaContextService.getConversationContext();
     const contextualPrompt = PersonaContextService.generateContextualPrompt(conversationContext, message);
     
-    console.log(`📝 MonDAI: Using persona context - Anonymous: ${conversationContext.isAnonymous}`);
+    console.log(`📝 Aigent: Using persona context - Anonymous: ${conversationContext.isAnonymous}`);
     if (conversationContext.preferredName) {
-      console.log(`👤 MonDAI: Preferred name: ${conversationContext.preferredName}`);
+      console.log(`👤 Aigent: Preferred name: ${conversationContext.preferredName}`);
     }
     
     // Call the edge function with conversation memory
@@ -241,7 +241,7 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
     // Update conversation memory after successful response
     if (conversationId) {
       try {
-        console.log(`🧠 MonDAI: Updating conversation memory for ${currentConversationId}`);
+        console.log(`🧠 Aigent: Updating conversation memory for ${currentConversationId}`);
         const service = AigentConversationService.getInstance();
         await service.storeConversationExchange(
           currentConversationId, 
@@ -249,13 +249,13 @@ ${item.content.includes('![') ? '⚠️ CONTAINS IMAGES - MUST PRESERVE ALL IMAG
           data.message
         );
       } catch (error) {
-        console.warn('🧠 MonDAI: Failed to update session context:', error);
+        console.warn('🧠 Aigent: Failed to update session context:', error);
       }
     }
 
     return data;
   } catch (error) {
-    console.error('❌ MonDAI: Service error:', error);
+    console.error('❌ Aigent: Service error:', error);
     throw error;
   }
 }

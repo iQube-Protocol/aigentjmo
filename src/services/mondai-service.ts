@@ -264,7 +264,7 @@ export async function generateNakamotoResponse(
     });
     
     if (error) {
-      console.error('Error calling mondai-ai function:', error);
+      console.error('Error calling aigent-ai function:', error);
       throw new Error(error.message);
     }
     
@@ -272,7 +272,7 @@ export async function generateNakamotoResponse(
     return data;
     
   } catch (mondaiError) {
-    console.error('Error with mondai-ai function, falling back to learn-ai:', mondaiError);
+    console.error('Error with aigent-ai function, falling back to learn-ai:', mondaiError);
     
     // Fallback to learn-ai with the Nakamoto system prompt
     try {

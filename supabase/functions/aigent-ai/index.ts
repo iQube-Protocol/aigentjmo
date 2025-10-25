@@ -532,13 +532,16 @@ serve(async (req) => {
 
     if (!message) {
       return new Response(
-        JSON.stringify({
-          error: 'No message provided'
-        }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+        JSON.stringify({ error: 'No message provided' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Specific provider pre-checks (return helpful 400s instead of generic 500s)
+    if (useChainGPT && !Deno.env.get('CHAINGPT_API_KEY')) {
+      return new Response(
+        JSON.stringify({ error: 'ChainGPT API key not configured' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -568,20 +571,22 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in aigent-ai function:', error);
-    
+
+    const message = error instanceof Error ? error.message : String(error);
+    // Map known configuration errors to 400 so the client can surface actionable guidance
+    if (message.includes('ChainGPT API key not configured')) {
+      return new Response(
+        JSON.stringify({ error: 'ChainGPT API key not configured' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({
         error: 'Error processing request',
-        message: error instanceof Error ? error.message : String(error),
-        details: error instanceof Error ? {
-          name: error.name,
-          stack: error.stack
-        } : undefined
+        message,
       }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
