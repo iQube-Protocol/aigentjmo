@@ -30,7 +30,7 @@ const SplashPage = () => {
               position: 'relative'
             }}>
               <iframe 
-                src="https://player.vimeo.com/video/1086475550?badge=0&autopause=0&player_id=0&app_id=58479" 
+                src="https://player.vimeo.com/video/1130694616?badge=0&autopause=0&player_id=0&app_id=58479"
                 frameBorder="0" 
                 allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" 
                 style={{
