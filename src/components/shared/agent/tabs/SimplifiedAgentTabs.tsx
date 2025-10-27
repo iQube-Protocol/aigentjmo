@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, ChevronDown, MessageSquare, BookOpen, Play } from 'lucide-react';
+import { Info, ChevronDown, MessageSquare, BookOpen, Play, User } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ChatTab from './ChatTab';
 import KnowledgeBase from '../KnowledgeBase';
 import IQubesKnowledgeBase from '@/components/aigent/iQubesKnowledgeBase';
+import MetaAvatarTab from '../MetaAvatarTab';
 import AgentInputBar from '../AgentInputBar';
 import { AgentMessage } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { iframeSessionManager } from '@/services/iframe-session-manager';
 
 interface SimplifiedAgentTabsProps {
-  activeTab: 'chat' | 'knowledge' | 'media';
-  setActiveTab: (tab: 'chat' | 'knowledge' | 'media') => void;
+  activeTab: 'chat' | 'metaAvatar' | 'knowledge' | 'media';
+  setActiveTab: (tab: 'chat' | 'metaAvatar' | 'knowledge' | 'media') => void;
   messages: AgentMessage[];
   inputValue: string;
   isProcessing: boolean;
@@ -102,18 +103,20 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
   const knowledgeBaseAgentType = agentType === 'aigent' ? 'learn' : agentType;
 
   return (
-    <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'chat' | 'knowledge' | 'media')} className="flex-1 flex flex-col h-full">
+    <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'chat' | 'metaAvatar' | 'knowledge' | 'media')} className="flex-1 flex flex-col h-full">
       <div className="border-b px-4">
         <div className="flex items-center justify-between">
           {!tabsCollapsed ? (
             <TabsList className="h-10 gap-0">
               <TabsTrigger value="chat" className="data-[state=active]:bg-qrypto-primary/20 px-3">Chat</TabsTrigger>
-              <TabsTrigger value="knowledge" className="data-[state=active]:bg-qrypto-primary/20 px-3">Knowledge</TabsTrigger>
+              <TabsTrigger value="metaAvatar" className="data-[state=active]:bg-qrypto-primary/20 px-3">metaVatar</TabsTrigger>
+              <TabsTrigger value="knowledge" className="data-[state=active]:bg-qrypto-primary/20 px-3">KB</TabsTrigger>
               <TabsTrigger value="media" className="data-[state=active]:bg-qrypto-primary/20 px-3">Media</TabsTrigger>
             </TabsList>
           ) : (
             <div className="h-10 flex items-center">
               {activeTab === 'chat' && <MessageSquare className="h-4 w-4 cursor-pointer hover:text-qrypto-primary" onClick={() => setTabsCollapsed(false)} />}
+              {activeTab === 'metaAvatar' && <User className="h-4 w-4 cursor-pointer hover:text-qrypto-primary" onClick={() => setTabsCollapsed(false)} />}
               {activeTab === 'knowledge' && <BookOpen className="h-4 w-4 cursor-pointer hover:text-qrypto-primary" onClick={() => setTabsCollapsed(false)} />}
               {activeTab === 'media' && <Play className="h-4 w-4 cursor-pointer hover:text-qrypto-primary" onClick={() => setTabsCollapsed(false)} />}
             </div>
@@ -167,6 +170,10 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
             onActivateAgent={onActivateAgent}
             onDismissRecommendation={dismissRecommendation}
           />
+        </TabsContent>
+
+        <TabsContent value="metaAvatar" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
+          <MetaAvatarTab />
         </TabsContent>
 
         <TabsContent value="knowledge" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">

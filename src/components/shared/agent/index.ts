@@ -12,6 +12,7 @@ export { default as ReliabilityIndicator } from './ReliabilityIndicator';
 export { default as DocumentContext } from './DocumentContext';
 export { default as ChatTab } from './tabs/ChatTab';
 export { default as AgentTabs } from './tabs/AgentTabs';
+export { default as MetaAvatarTab } from './MetaAvatarTab';
 
 // Export all hooks from the hooks directory
 export * from './hooks';
