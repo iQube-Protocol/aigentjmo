@@ -25,7 +25,7 @@ const EmptyConversation = ({ agentType }: EmptyConversationProps) => {
   const getDescription = () => {
     switch (agentType) {
       case 'aigent':
-        return 'Your Nakamoto agent is ready to assist you with crypto insights and QryptoCOYN knowledge. Ask any question to get started.';
+        return 'Your Nakamoto agent is ready to assist you with crypto insights and QriptoCOYN knowledge. Ask any question to get started.';
       default:
         return `Your ${getAgentName()} agent is ready to assist you. Ask any question to get started.`;
     }

@@ -79,7 +79,7 @@ const ScoreTooltip = ({ type, score, children }: ScoreTooltipProps) => {
           <div className="space-y-1">
             <div className="font-semibold">Aigent JMO KNYT</div>
             <div className="text-xs">
-              Crypto-agentic AI for the QryptoCOYN community. Designed to help users learn, earn, and connect around blockchain and Web3 technologies while prioritizing user sovereignty and privacy through decentralized iQubes technology.
+              Crypto-agentic AI for the QriptoCOYN community. Designed to help users learn, earn, and connect around blockchain and Web3 technologies while prioritizing user sovereignty and privacy through decentralized iQubes technology.
             </div>
           </div>
         );
