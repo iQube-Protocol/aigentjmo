@@ -77,6 +77,10 @@ export default {
 					dark: 'hsl(262 45% 20%)',        // Dark magenta
 					light: 'hsl(262 14% 96%)'        // Light background
 				},
+				jmo: {
+					navy: '#200589',                 // JMO Navy Blue (darker purple)
+					electric: '#7D12FF',             // JMO Electric Purple
+				},
 				// Legacy support for any remaining references
 				iqube: {
 					primary: '#8B5CF6',
@@ -86,6 +90,8 @@ export default {
 			},
 		fontFamily: {
 			orbitron: ['The Last Shuriken', 'sans-serif'],
+			shuriken: ['The Last Shuriken', 'sans-serif'],
+			montserrat: ['Montserrat', 'sans-serif'],
 		},
 			borderRadius: {
 				lg: 'var(--radius)',
