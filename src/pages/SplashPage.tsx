@@ -20,7 +20,7 @@ const SplashPage = () => {
     };
   }, []);
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-qripto-dark via-qripto-primary to-qripto-secondary">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700">
       <div className="container max-w-4xl mx-auto px-4 py-8 flex flex-col h-full">
         {/* Video Section */}
         <div className="flex-1 flex flex-col justify-center items-center space-y-8">
@@ -48,17 +48,17 @@ const SplashPage = () => {
 
           {/* Title and Description */}
           <div className="text-center space-y-4 max-w-2xl">
-            <h1 className="text-xl md:text-2xl font-semibold text-qripto-accent font-orbitron">
+            <h1 className="text-xl md:text-2xl font-semibold text-black font-orbitron">
               JMO KNYT///SatoshiKNYT #1
             </h1>
-            <p className="text-white/80 text-sm md:text-lg">Get your personalized iQube, COYN and REIT AI Agent</p>
+            <p className="text-black/90 text-sm md:text-lg">Get your personalized iQube, COYN and REIT AI Agent</p>
             
             {/* Mobile Button - positioned right after description */}
             <div className="md:hidden pt-4">
               <Button 
                 onClick={() => navigate('/aigent')} 
                 variant="outline" 
-                className="w-full max-w-md border-white/30 text-white hover:bg-white/10"
+                className="w-full max-w-md border-black/30 text-black hover:bg-black/10"
               >
                 Try Aigent JMO
               </Button>
@@ -71,13 +71,13 @@ const SplashPage = () => {
           <Button 
             onClick={() => navigate('/aigent')} 
             variant="outline" 
-            className="w-full border-white/30 text-white hover:bg-white/10"
+            className="w-full border-black/30 text-black hover:bg-black/10"
           >
             Try Aigent JMO
           </Button>
         </div>
 
-        <div className="text-xs text-white/50 text-center">Powered by iQubes & Aigentic AI</div>
+        <div className="text-xs text-black/70 text-center">Powered by iQubes & Aigentic AI</div>
       </div>
     </div>
   );
