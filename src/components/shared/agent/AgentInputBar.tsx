@@ -110,7 +110,7 @@ const AgentInputBar = ({
                   ? 'Ask JMO KNYT...' 
                   : `Ask your ${agentType} agent...`
             }
-            className="pl-24 min-h-[40px] max-h-32 flex-1 pr-3 py-2 flex items-center"
+            className="pl-24 min-h-[40px] max-h-32 flex-1 pr-3 py-2 flex items-center font-montserrat"
             style={{
               resize: 'none',
               paddingTop: inputValue ? '0.5rem' : '0.625rem', 
@@ -127,7 +127,7 @@ const AgentInputBar = ({
         <Button 
           type="submit" 
           size="icon" 
-          className="bg-iqube-primary hover:bg-iqube-primary/80"
+          className="jmo-send-button"
           disabled={!inputValue.trim() || isProcessing}
         >
           <Send className="h-4 w-4" />

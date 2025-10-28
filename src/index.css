@@ -205,6 +205,22 @@
     border-left: 3px solid #7D12FF;
   }
 
+  /* JMO Chat Input & Button Styles */
+  .jmo-send-button {
+    background: linear-gradient(135deg, #200589, #7D12FF);
+    @apply text-white transition-all duration-200 shadow-md;
+  }
+  
+  .jmo-send-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2d0bb8, #9a3dff);
+    @apply shadow-lg transform scale-105;
+  }
+  
+  .jmo-send-button:disabled {
+    background: linear-gradient(135deg, rgba(32, 5, 137, 0.4), rgba(125, 18, 255, 0.4));
+    @apply opacity-50;
+  }
+
   /* Hide scrollbars while keeping functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
