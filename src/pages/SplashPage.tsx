@@ -58,9 +58,9 @@ const SplashPage = () => {
               <Button 
                 onClick={() => navigate('/aigent')} 
                 variant="outline" 
-                className="w-full max-w-md border-black/30 text-black hover:bg-black/10"
+                className="w-full max-w-md border-white/30 text-white hover:bg-white/10"
               >
-                Try Aigent JMO
+                TRY AIGENT JMO
               </Button>
             </div>
           </div>
@@ -71,9 +71,9 @@ const SplashPage = () => {
           <Button 
             onClick={() => navigate('/aigent')} 
             variant="outline" 
-            className="w-full border-black/30 text-black hover:bg-black/10"
+            className="w-full border-white/30 text-white hover:bg-white/10"
           >
-            Try Aigent JMO
+            TRY AIGENT JMO
           </Button>
         </div>
 
