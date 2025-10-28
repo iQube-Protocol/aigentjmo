@@ -15,6 +15,7 @@ interface AgentInputBarProps {
   agentType: 'learn' | 'earn' | 'connect' | 'aigent';
   handleKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onAfterSubmit?: () => void;
+  activeTab?: 'chat' | 'metaAvatar' | 'knowledge' | 'media';
 }
 
 const AgentInputBar = ({
@@ -24,7 +25,8 @@ const AgentInputBar = ({
   isProcessing,
   agentType,
   handleKeyDown,
-  onAfterSubmit
+  onAfterSubmit,
+  activeTab
 }: AgentInputBarProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -101,7 +103,13 @@ const AgentInputBar = ({
             value={inputValue}
             onChange={customHandleInputChange}
             onKeyDown={handleKeyDown} 
-            placeholder={window.location.pathname === '/aigent' ? 'Ask JMO KNYT...' : `Ask your ${agentType} agent...`}
+            placeholder={
+              activeTab === 'metaAvatar' 
+                ? 'Ask Satooshi KNYT #1...' 
+                : window.location.pathname === '/aigent' 
+                  ? 'Ask JMO KNYT...' 
+                  : `Ask your ${agentType} agent...`
+            }
             className="pl-24 min-h-[40px] max-h-32 flex-1 pr-3 py-2 flex items-center"
             style={{
               resize: 'none',

@@ -237,7 +237,8 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
           isProcessing={isProcessing} 
           agentType={agentType} 
           handleKeyDown={handleKeyDown} 
-          onAfterSubmit={handleAfterSubmit} 
+          onAfterSubmit={handleAfterSubmit}
+          activeTab={activeTab}
         />
       </div>
     </Tabs>
