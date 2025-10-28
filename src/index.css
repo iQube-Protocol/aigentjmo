@@ -195,29 +195,44 @@
   }
   
   .jmo-nav-item:hover {
-    background: linear-gradient(135deg, rgba(32, 5, 137, 0.15), rgba(125, 18, 255, 0.15));
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%, 0.15), 
+      hsl(267, 100%, 54%, 0.15)
+    );
     @apply shadow-sm;
   }
   
   .jmo-nav-item.active {
-    background: linear-gradient(135deg, rgba(32, 5, 137, 0.25), rgba(125, 18, 255, 0.25));
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%, 0.25), 
+      hsl(267, 100%, 54%, 0.25)
+    );
     @apply font-semibold shadow-md;
-    border-left: 3px solid #7D12FF;
+    border-left: 3px solid hsl(267, 100%, 54%);
   }
 
   /* JMO Chat Input & Button Styles */
   .jmo-send-button {
-    background: linear-gradient(135deg, #200589, #7D12FF);
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%), 
+      hsl(267, 100%, 54%)
+    );
     @apply text-white transition-all duration-200 shadow-md;
   }
   
   .jmo-send-button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2d0bb8, #9a3dff);
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 35%), 
+      hsl(267, 100%, 62%)
+    );
     @apply shadow-lg transform scale-105;
   }
   
   .jmo-send-button:disabled {
-    background: linear-gradient(135deg, rgba(32, 5, 137, 0.4), rgba(125, 18, 255, 0.4));
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%, 0.4), 
+      hsl(267, 100%, 54%, 0.4)
+    );
     @apply opacity-50;
   }
 

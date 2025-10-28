@@ -16,7 +16,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       {!collapsed ? <Link to="/aigent" className="flex items-center">
           <Bot className="h-6 w-6 text-qripto-primary mr-2 mt-3" />
           <div className="flex flex-col mt-3">
-            <h1 className="text-2xl font-bold font-orbitron bg-gradient-to-r from-jmo-navy to-jmo-electric inline-block text-transparent bg-clip-text">
+            <h1 className="text-2xl font-bold font-orbitron bg-gradient-to-r from-[#200589] to-[#7D12FF] inline-block text-transparent bg-clip-text">
               JMO KNYT
             </h1>
             

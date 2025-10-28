@@ -78,8 +78,8 @@ export default {
 					light: 'hsl(262 14% 96%)'        // Light background
 				},
 				jmo: {
-					navy: '#200589',                 // JMO Navy Blue (darker purple)
-					electric: '#7D12FF',             // JMO Electric Purple
+					navy: '247 93% 28%',           // JMO Navy Blue (HSL)
+					electric: '267 100% 54%',      // JMO Electric Purple (HSL)
 				},
 				// Legacy support for any remaining references
 				iqube: {
