@@ -48,8 +48,8 @@ const SplashPage = () => {
 
           {/* Title and Description */}
           <div className="text-center space-y-4 max-w-2xl">
-            <h1 className="text-xl md:text-2xl font-semibold text-qripto-accent">
-              JMO KNYT///SatoshiKNYT #2
+            <h1 className="text-xl md:text-2xl font-semibold text-qripto-accent font-orbitron">
+              JMO KNYT///SatoshiKNYT #1
             </h1>
             <p className="text-white/80 text-sm md:text-lg">Get your personalized iQube, COYN and REIT AI Agent</p>
             
