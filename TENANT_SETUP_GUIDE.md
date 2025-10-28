@@ -1,0 +1,697 @@
+# Tenant Setup Guide - QubeBase Multi-Tenant Architecture
+
+## Overview
+This document captures critical insights and requirements for setting up new tenant sites within the QubeBase ecosystem. It addresses common issues and provides a streamlined checklist for tenant initialization.
+
+---
+
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Phase 1: Core Database Setup](#phase-1-core-database-setup)
+3. [Phase 2: Authentication Configuration](#phase-2-authentication-configuration)
+4. [Phase 3: Admin Role Initialization](#phase-3-admin-role-initialization)
+5. [Phase 4: QubeBase Integration](#phase-4-qubebase-integration)
+6. [Phase 5: Security Validation](#phase-5-security-validation)
+7. [Common Issues & Solutions](#common-issues--solutions)
+8. [Testing Checklist](#testing-checklist)
+
+---
+
+## Prerequisites
+
+### Required Information
+- [ ] Tenant ID from QubeBase Core Hub
+- [ ] Site ID for this specific tenant site
+- [ ] Core Hub connection credentials (URL, anon key, service role key)
+- [ ] List of uber_admin users (estate-wide admins like `dele@metame.com`)
+- [ ] List of super_admin users (tenant-specific admins)
+- [ ] Supabase project URL and keys
+
+### Environment Variables
+Ensure these are configured in `.env`:
+```bash
+VITE_SUPABASE_URL=<tenant-supabase-url>
+VITE_SUPABASE_PUBLISHABLE_KEY=<tenant-anon-key>
+VITE_SUPABASE_PROJECT_ID=<tenant-project-id>
+```
+
+---
+
+## Phase 1: Core Database Setup
+
+### 1.1 Create User Roles System
+
+**CRITICAL SECURITY**: Never store roles on user profiles or auth.users table. Always use a separate `user_roles` table.
+
+```sql
+-- 1. Create role enum (if not exists)
+CREATE TYPE IF NOT EXISTS public.app_role AS ENUM (
+  'user',
+  'admin', 
+  'super_admin',
+  'uber_admin'
+);
+
+-- 2. Create user_roles table
+CREATE TABLE IF NOT EXISTS public.user_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  role app_role NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, role)
+);
+
+-- 3. Enable RLS
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+-- 4. Create security definer function (prevents RLS recursion)
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_roles
+    WHERE user_id = _user_id AND role = _role
+  )
+$$;
+
+-- 5. Create RLS policies
+CREATE POLICY "Users can view their own roles"
+  ON public.user_roles FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Admins can view all roles"
+  ON public.user_roles FOR SELECT
+  USING (has_role(auth.uid(), 'admin'::app_role));
+
+CREATE POLICY "Admins can insert roles"
+  ON public.user_roles FOR INSERT
+  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+
+CREATE POLICY "Admins can delete roles"
+  ON public.user_roles FOR DELETE
+  USING (has_role(auth.uid(), 'admin'::app_role));
+
+-- 6. Add performance index
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id_role 
+  ON public.user_roles(user_id, role);
+```
+
+### 1.2 Create Persona Tables
+
+```sql
+-- KNYT Personas
+CREATE TABLE IF NOT EXISTS public.knyt_personas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT,
+  email TEXT,
+  profile_image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
+ALTER TABLE public.knyt_personas ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own knyt persona"
+  ON public.knyt_personas FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own knyt persona"
+  ON public.knyt_personas FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own knyt persona"
+  ON public.knyt_personas FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- Qripto Personas (note the spelling: Qripto with 'i', not Qrypto)
+CREATE TABLE IF NOT EXISTS public.qripto_personas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT,
+  email TEXT,
+  profile_image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
+ALTER TABLE public.qripto_personas ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own qripto persona"
+  ON public.qripto_personas FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own qripto persona"
+  ON public.qripto_personas FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own qripto persona"
+  ON public.qripto_personas FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- Update triggers for both tables
+CREATE TRIGGER update_knyt_personas_updated_at
+  BEFORE UPDATE ON public.knyt_personas
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_qripto_personas_updated_at
+  BEFORE UPDATE ON public.qripto_personas
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_updated_at_column();
+```
+
+### 1.3 Create Supporting Tables
+
+```sql
+-- User Connections
+CREATE TABLE IF NOT EXISTS public.user_connections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  service TEXT NOT NULL,
+  connection_data JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.user_connections ENABLE ROW LEVEL SECURITY;
+
+-- User Interactions (for analytics)
+CREATE TABLE IF NOT EXISTS public.user_interactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  interaction_type TEXT NOT NULL,
+  query TEXT,
+  response TEXT,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.user_interactions ENABLE ROW LEVEL SECURITY;
+
+-- Invited Users (for invitation system)
+CREATE TABLE IF NOT EXISTS public.invited_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL,
+  invitation_code TEXT,
+  persona_type TEXT,
+  persona_data JSONB DEFAULT '{}'::jsonb,
+  invited_by UUID REFERENCES auth.users(id),
+  invited_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ,
+  used_at TIMESTAMPTZ,
+  batch_id TEXT,
+  email_sent BOOLEAN DEFAULT FALSE,
+  email_sent_at TIMESTAMPTZ,
+  send_attempts INTEGER DEFAULT 0,
+  signup_completed BOOLEAN DEFAULT FALSE,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(email)
+);
+
+ALTER TABLE public.invited_users ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Admins can manage invitations"
+  ON public.invited_users FOR ALL
+  USING (has_role(auth.uid(), 'admin'::app_role));
+```
+
+---
+
+## Phase 2: Authentication Configuration
+
+### 2.1 Configure Supabase Auth Settings
+
+**CRITICAL**: Always enable auto-confirm for development/testing environments.
+
+```typescript
+// Use Supabase configure-auth tool or dashboard
+{
+  "disable_signup": false,
+  "external_anonymous_users_enabled": false,
+  "auto_confirm_email": true  // CRITICAL for testing
+}
+```
+
+### 2.2 Set Email Redirect URLs
+
+Ensure proper redirect configuration in auth settings:
+- Site URL: `https://yourtenant.lovable.app`
+- Redirect URLs: Add `https://yourtenant.lovable.app/**` to allowed list
+
+### 2.3 Verify Authentication Flow
+
+Test these authentication scenarios:
+- [ ] Sign up with email/password
+- [ ] Sign in with existing credentials
+- [ ] Password reset flow
+- [ ] Session persistence across page refreshes
+- [ ] Sign out and session cleanup
+
+---
+
+## Phase 3: Admin Role Initialization
+
+### 3.1 Identify Admin Users
+
+**Estate-Wide Admins (uber_admin)**:
+- `dele@metame.com` - Always included across entire QubeBase estate
+- Any other users designated as estate-wide administrators
+
+**Tenant-Specific Admins (super_admin)**:
+- Tenant owner/primary contact
+- Site administrators designated by tenant owner
+
+### 3.2 Insert Admin Roles
+
+```sql
+-- Add uber_admin role for dele@metame.com (estate-wide)
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'uber_admin'::app_role
+FROM auth.users
+WHERE email = 'dele@metame.com'
+ON CONFLICT (user_id, role) DO NOTHING;
+
+-- Add super_admin roles for tenant admins
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'super_admin'::app_role
+FROM auth.users
+WHERE email IN (
+  'nakamoto@jaredmooss.com',
+  'tenant-admin@example.com'
+  -- Add other tenant admin emails here
+)
+ON CONFLICT (user_id, role) DO NOTHING;
+```
+
+### 3.3 Update Admin Portal Security
+
+**CRITICAL**: Never use client-side email checks for admin validation.
+
+❌ **WRONG** - Insecure client-side check:
+```typescript
+const isAdmin = user?.email?.includes('admin') || user?.email?.includes('nakamoto');
+```
+
+✅ **CORRECT** - Server-side role validation:
+```typescript
+import { useAdminCheck } from '@/hooks/use-admin-check';
+
+const { isAdmin, loading } = useAdminCheck();
+```
+
+The `useAdminCheck()` hook queries the `user_roles` table server-side and respects RLS policies.
+
+---
+
+## Phase 4: QubeBase Integration
+
+### 4.1 Configure Tenant Context
+
+Set up the tenant context in `localStorage` or initialization service:
+
+```typescript
+import { setTenantContext } from '@/services/qubebase-core-client';
+
+// During tenant initialization
+setTenantContext(
+  'tenant-uuid-from-core-hub',
+  'site-uuid-for-this-tenant'
+);
+```
+
+### 4.2 QubeBase Role Synchronization (Future Enhancement)
+
+**ISSUE IDENTIFIED**: Currently, tenant sites do NOT automatically sync roles from QubeBase Core Hub. This means:
+
+- Estate-wide uber_admins like `dele@metame.com` must be manually added to each tenant's `user_roles` table
+- Role changes in Core Hub do not propagate to tenant sites automatically
+- Each tenant site maintains its own isolated role system
+
+**RECOMMENDED SOLUTION** (to be implemented):
+
+1. **Create Edge Function: `naka-roles-sync`**
+   - Query Core Hub for user's roles using Core Hub service role key
+   - Support "pull on login" and "bulk sync" modes
+   - Upsert roles into local tenant's `user_roles` table
+   - Handle role inheritance (uber_admin → super_admin in tenant context)
+
+2. **Integrate with Authentication Flow**
+   - Call role sync function after successful login
+   - Cache sync timestamp to avoid excessive API calls
+   - Re-sync periodically (e.g., every 24 hours)
+
+3. **Create Admin UI for Manual Sync**
+   - Add "Sync Roles from QubeBase" button in admin portal
+   - Display last sync timestamp
+   - Show current roles from local database
+
+**Until role sync is implemented**, manually insert admin roles using SQL migration for each new tenant.
+
+### 4.3 Verify Core Hub Connection
+
+```typescript
+import { checkCoreHubHealth } from '@/services/qubebase-core-client';
+
+const healthCheck = await checkCoreHubHealth();
+console.log('Core Hub Connection:', healthCheck);
+```
+
+---
+
+## Phase 5: Security Validation
+
+### 5.1 Run Security Linter
+
+```bash
+# Use Supabase linter tool
+supabase db lint
+```
+
+### 5.2 Verify RLS Policies
+
+Check that all tables with PII have proper RLS:
+- [ ] `user_roles` - RLS enabled ✓
+- [ ] `knyt_personas` - RLS enabled ✓
+- [ ] `qripto_personas` - RLS enabled ✓
+- [ ] `user_connections` - RLS enabled ✓
+- [ ] `user_interactions` - RLS enabled ✓
+- [ ] `invited_users` - RLS enabled ✓
+
+### 5.3 Test Access Control
+
+Test these scenarios:
+- [ ] Regular users cannot see other users' data
+- [ ] Regular users cannot access admin routes
+- [ ] Admin users can access admin portal
+- [ ] Admin users can manage invitations
+- [ ] Uber admins have estate-wide access
+- [ ] Users can only CRUD their own personas
+
+### 5.4 Security Checklist
+
+- [ ] No hardcoded admin emails in client-side code
+- [ ] All admin checks use server-side `has_role()` function
+- [ ] No sensitive data logged to console
+- [ ] Input validation implemented for all forms
+- [ ] SQL injection prevented (using Supabase client, not raw SQL)
+- [ ] CORS properly configured for edge functions
+- [ ] Secrets properly stored (never in code)
+
+---
+
+## Common Issues & Solutions
+
+### Issue 1: Admin Cannot Access Admin Portal
+
+**Symptoms**: 
+- User with admin email cannot access `/admin/invitations`
+- "Access Denied" message shown
+- User is logged in and authenticated
+
+**Root Causes**:
+1. Admin roles not inserted into `user_roles` table
+2. Client-side email check instead of role-based check
+3. RLS policies blocking admin access
+
+**Solutions**:
+1. Verify admin role exists in database:
+   ```sql
+   SELECT u.email, ur.role 
+   FROM auth.users u
+   LEFT JOIN public.user_roles ur ON u.id = ur.user_id
+   WHERE u.email IN ('dele@metame.com', 'nakamoto@jaredmooss.com');
+   ```
+
+2. Insert missing roles:
+   ```sql
+   INSERT INTO public.user_roles (user_id, role)
+   SELECT id, 'uber_admin'::app_role FROM auth.users WHERE email = 'dele@metame.com'
+   ON CONFLICT DO NOTHING;
+   ```
+
+3. Replace client-side checks with `useAdminCheck()` hook
+
+### Issue 2: QubeBase Roles Not Syncing
+
+**Symptoms**:
+- Estate-wide admin (dele@metame.com) doesn't have access
+- Roles defined in Core Hub not visible in tenant site
+
+**Root Cause**: 
+Role synchronization from Core Hub to tenant sites is not yet implemented.
+
+**Temporary Solution**:
+Manually insert admin roles into each tenant's `user_roles` table using SQL migration.
+
+**Permanent Solution**:
+Implement `naka-roles-sync` edge function as described in Phase 4.2.
+
+### Issue 3: Spelling Inconsistencies
+
+**Issue**: "Qrypto" vs "Qripto" spelling inconsistencies across codebase
+
+**Impact**: 
+- Database table: `qripto_personas` (with 'i')
+- Some UI references still use "Qrypto" (with 'y')
+- Causes confusion and potential bugs
+
+**Solution**: 
+Standardize on "Qripto" (with 'i') everywhere:
+- Database tables: `qripto_personas`
+- TypeScript types: `QriptoPersona`
+- UI labels: "Qripto Persona", "QriptoCOYN"
+- File names: `qripto-*.ts`
+
+Search and replace across codebase:
+- "Qrypto" → "Qripto"
+- "QryptoCOYN" → "QriptoCOYN"
+
+### Issue 4: RLS Infinite Recursion
+
+**Symptoms**: 
+- "infinite recursion detected in policy" error
+- Queries hang or timeout
+
+**Root Cause**: 
+RLS policy queries the same table it's protecting.
+
+**Solution**: 
+Always use security definer functions for role checks:
+
+```sql
+-- WRONG - causes recursion
+CREATE POLICY "Admins can view all" ON profiles
+FOR SELECT USING (
+  (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
+);
+
+-- CORRECT - uses security definer function
+CREATE POLICY "Admins can view all" ON profiles
+FOR SELECT USING (
+  has_role(auth.uid(), 'admin'::app_role)
+);
+```
+
+---
+
+## Testing Checklist
+
+### Pre-Launch Testing
+
+#### Authentication Tests
+- [ ] User can sign up with valid email/password
+- [ ] User receives confirmation email (if auto-confirm disabled)
+- [ ] User can sign in after signup
+- [ ] Session persists across page refreshes
+- [ ] User can sign out successfully
+- [ ] Password reset flow works end-to-end
+
+#### Admin Access Tests
+- [ ] Uber admin (dele@metame.com) can access admin portal
+- [ ] Super admin (tenant owner) can access admin portal
+- [ ] Regular users cannot access admin portal
+- [ ] Admin can view all invitations
+- [ ] Admin can create new invitations
+
+#### Persona Management Tests
+- [ ] User can create KNYT persona
+- [ ] User can create Qripto persona
+- [ ] User can update their own personas
+- [ ] User cannot view other users' personas
+- [ ] Profile images upload successfully
+
+#### QubeBase Integration Tests
+- [ ] Tenant context properly initialized
+- [ ] Core Hub health check passes
+- [ ] User data isolated to correct tenant
+- [ ] Cross-tenant data leakage prevented
+
+#### Security Tests
+- [ ] Run Supabase security linter
+- [ ] Verify all RLS policies active
+- [ ] Test unauthorized access attempts
+- [ ] Verify input validation on all forms
+- [ ] Check for exposed secrets in code
+- [ ] Test SQL injection prevention
+
+---
+
+## Post-Launch Monitoring
+
+### Metrics to Track
+- User signup/login success rates
+- Admin portal access patterns
+- Failed authentication attempts
+- RLS policy violations
+- Edge function error rates
+- Database query performance
+
+### Recommended Monitoring Tools
+- Supabase Dashboard (Logs, Analytics)
+- Custom analytics via `user_interactions` table
+- Browser console monitoring for client errors
+- Network request monitoring
+
+---
+
+## Future Enhancements
+
+### Priority 1: QubeBase Role Sync
+- [ ] Implement `naka-roles-sync` edge function
+- [ ] Add role sync to authentication flow
+- [ ] Create admin UI for manual role sync
+- [ ] Add role sync timestamp tracking
+
+### Priority 2: Tenant Management UI
+- [ ] Admin dashboard for tenant configuration
+- [ ] Bulk user invitation system
+- [ ] Role management interface
+- [ ] Tenant analytics and reporting
+
+### Priority 3: Advanced Features
+- [ ] Multi-persona support per user
+- [ ] Cross-tenant user migration
+- [ ] Automated tenant provisioning
+- [ ] Advanced RLS policy templates
+
+---
+
+## References
+
+### Key Files
+- **Auth Hook**: `src/hooks/use-auth.tsx`
+- **Admin Check Hook**: `src/hooks/use-admin-check.ts`
+- **QubeBase Client**: `src/services/qubebase-core-client.ts`
+- **Admin Portal**: `src/pages/admin/Invitations.tsx`
+- **Tenant Init Service**: `src/services/tenant-initialization-service.ts`
+
+### Documentation Links
+- [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
+- [QubeBase Architecture Overview](./ARCHITECTURE.md)
+- [Security Best Practices](./SECURITY.md)
+
+---
+
+## Appendix: SQL Script Templates
+
+### Complete Tenant Setup Script
+
+```sql
+-- TENANT SETUP SCRIPT
+-- Replace <TENANT_NAME> and <ADMIN_EMAILS> with actual values
+
+BEGIN;
+
+-- 1. Create role enum
+CREATE TYPE IF NOT EXISTS public.app_role AS ENUM ('user', 'admin', 'super_admin', 'uber_admin');
+
+-- 2. Create user_roles table with RLS
+CREATE TABLE IF NOT EXISTS public.user_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  role app_role NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, role)
+);
+
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+-- 3. Create security definer function
+CREATE OR REPLACE FUNCTION public.has_role(_user_id UUID, _role app_role)
+RETURNS BOOLEAN LANGUAGE SQL STABLE SECURITY DEFINER SET search_path = public
+AS $$ SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role) $$;
+
+-- 4. Create RLS policies for user_roles
+CREATE POLICY "Users can view their own roles" ON public.user_roles FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can view all roles" ON public.user_roles FOR SELECT USING (has_role(auth.uid(), 'admin'::app_role));
+CREATE POLICY "Admins can insert roles" ON public.user_roles FOR INSERT WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+CREATE POLICY "Admins can delete roles" ON public.user_roles FOR DELETE USING (has_role(auth.uid(), 'admin'::app_role));
+
+-- 5. Create persona tables
+CREATE TABLE IF NOT EXISTS public.knyt_personas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  display_name TEXT,
+  email TEXT,
+  profile_image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.qripto_personas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  display_name TEXT,
+  email TEXT,
+  profile_image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Enable RLS on persona tables
+ALTER TABLE public.knyt_personas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.qripto_personas ENABLE ROW LEVEL SECURITY;
+
+-- 7. Create persona policies
+CREATE POLICY "Users can view their own knyt persona" ON public.knyt_personas FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own knyt persona" ON public.knyt_personas FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own knyt persona" ON public.knyt_personas FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own qripto persona" ON public.qripto_personas FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert their own qripto persona" ON public.qripto_personas FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own qripto persona" ON public.qripto_personas FOR UPDATE USING (auth.uid() = user_id);
+
+-- 8. Add indexes
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id_role ON public.user_roles(user_id, role);
+CREATE INDEX IF NOT EXISTS idx_knyt_personas_user_id ON public.knyt_personas(user_id);
+CREATE INDEX IF NOT EXISTS idx_qripto_personas_user_id ON public.qripto_personas(user_id);
+
+-- 9. Insert admin roles
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'uber_admin'::app_role FROM auth.users WHERE email = 'dele@metame.com'
+ON CONFLICT (user_id, role) DO NOTHING;
+
+-- Add tenant-specific admins
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'super_admin'::app_role FROM auth.users 
+WHERE email IN ('nakamoto@jaredmooss.com') -- Add more admin emails as needed
+ON CONFLICT (user_id, role) DO NOTHING;
+
+COMMIT;
+```
+
+---
+
+**Document Version**: 1.0  
+**Last Updated**: 2025-10-28  
+**Maintained By**: QubeBase Development Team  
+**Questions/Issues**: Contact dele@metame.com
