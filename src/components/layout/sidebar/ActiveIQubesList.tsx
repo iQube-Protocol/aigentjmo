@@ -99,7 +99,7 @@ const ActiveIQubesList: React.FC<ActiveIQubesListProps> = ({
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "flex items-center rounded-md p-2 text-sm hover:bg-accent/30 cursor-pointer",
+                    "flex items-center rounded-md p-2 text-sm jmo-nav-item cursor-pointer",
                     collapsed ? "justify-center" : ""
                   )}
                   onClick={() => {
@@ -126,7 +126,7 @@ const ActiveIQubesList: React.FC<ActiveIQubesListProps> = ({
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "flex items-center rounded-md p-2 text-sm hover:bg-accent/30 cursor-pointer",
+                    "flex items-center rounded-md p-2 text-sm jmo-nav-item cursor-pointer",
                     collapsed ? "justify-center" : ""
                   )}
                   onClick={() => {
@@ -153,7 +153,7 @@ const ActiveIQubesList: React.FC<ActiveIQubesListProps> = ({
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "flex items-center rounded-md p-2 text-sm hover:bg-accent/30 cursor-pointer",
+                    "flex items-center rounded-md p-2 text-sm jmo-nav-item cursor-pointer",
                     collapsed ? "justify-center" : ""
                   )}
                   onClick={() => {
@@ -180,7 +180,7 @@ const ActiveIQubesList: React.FC<ActiveIQubesListProps> = ({
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "flex items-center rounded-md p-2 text-sm hover:bg-accent/30 cursor-pointer",
+                    "flex items-center rounded-md p-2 text-sm jmo-nav-item cursor-pointer",
                     collapsed ? "justify-center" : ""
                   )}
                   onClick={() => {
@@ -207,7 +207,7 @@ const ActiveIQubesList: React.FC<ActiveIQubesListProps> = ({
               <TooltipTrigger asChild>
                 <div
                   className={cn(
-                    "flex items-center rounded-md p-2 text-sm hover:bg-accent/30 cursor-pointer",
+                    "flex items-center rounded-md p-2 text-sm jmo-nav-item cursor-pointer",
                     collapsed ? "justify-center" : ""
                   )}
                   onClick={() => {

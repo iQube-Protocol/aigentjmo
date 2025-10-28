@@ -30,9 +30,9 @@ const MetaQubeItem = ({
   
   // Determine color scheme based on tooltip type
   const getColorScheme = () => {
-    if (isPurple) return { bg: "purple-500/10", hover: "purple-500/20", text: "purple-500" };
-    if (isGreen) return { bg: "green-500/10", hover: "green-500/20", text: "green-500" };
-    return { bg: "iqube-primary/10", hover: "iqube-primary/20", text: "iqube-primary" };
+    if (isPurple) return { bgClass: "bg-purple-500/10", hoverClass: "hover:bg-purple-500/20", textClass: "text-purple-500" };
+    if (isGreen) return { bgClass: "bg-green-500/10", hoverClass: "hover:bg-green-500/20", textClass: "text-green-500" };
+    return { bgClass: "bg-purple-500/10", hoverClass: "hover:bg-purple-500/20", textClass: "text-purple-500" };
   };
   
   const colors = getColorScheme();
@@ -43,10 +43,10 @@ const MetaQubeItem = ({
         <ScoreTooltip type={tooltipType}>
           <Link 
             to="/settings" 
-            className={`flex items-center justify-center py-3 px-3 rounded-md transition-all hover:bg-${colors.hover} bg-${colors.bg}`}
+            className={`flex items-center justify-center py-3 px-3 rounded-md jmo-nav-item ${colors.bgClass}`}
             onClick={() => onIQubeClick(iqubeId)}
           >
-            <div className={`text-${colors.text} h-6 w-6`}>
+            <div className={`${colors.textClass} h-6 w-6`}>
               <CubeIcon />
             </div>
           </Link>
@@ -64,12 +64,12 @@ const MetaQubeItem = ({
   }
   
   return (
-    <div className={`bg-${colors.bg} rounded-md relative ${className}`}>
+    <div className={`${colors.bgClass} rounded-md relative ${className}`}>
       <MetaQubeDisplay 
         metaQube={metaQube} 
         compact={true}
         onClick={() => onIQubeClick(iqubeId)}
-        className={`cursor-pointer hover:bg-${colors.hover} transition-colors`}
+        className={`cursor-pointer jmo-nav-item transition-colors`}
       />
       {onClose && (
         <button

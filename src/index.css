@@ -189,6 +189,22 @@
     opacity: 1 !important;
   }
 
+  /* JMO Brand Sidebar Styles */
+  .jmo-nav-item {
+    @apply transition-all duration-200 font-montserrat;
+  }
+  
+  .jmo-nav-item:hover {
+    background: linear-gradient(135deg, rgba(32, 5, 137, 0.15), rgba(125, 18, 255, 0.15));
+    @apply shadow-sm;
+  }
+  
+  .jmo-nav-item.active {
+    background: linear-gradient(135deg, rgba(32, 5, 137, 0.25), rgba(125, 18, 255, 0.25));
+    @apply font-semibold shadow-md;
+    border-left: 3px solid #7D12FF;
+  }
+
   /* Hide scrollbars while keeping functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;  /* Internet Explorer 10+ */

@@ -17,7 +17,7 @@ const SignOutButton: React.FC<SignOutButtonProps> = ({ collapsed, onSignOut }) =
         size={collapsed ? "icon" : "sm"}
         onClick={onSignOut}
         className={cn(
-          "w-full flex items-center text-sm text-muted-foreground hover:text-foreground",
+          "w-full flex items-center text-sm jmo-nav-item",
           collapsed ? "justify-center" : "justify-start"
         )}
       >

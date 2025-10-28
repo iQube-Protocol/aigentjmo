@@ -96,8 +96,8 @@ const PersonaSection: React.FC<PersonaSectionProps> = ({
             <TooltipTrigger asChild>
               <div
                 className={cn(
-                  "flex items-center justify-center p-2 rounded-md hover:bg-accent/30 cursor-pointer",
-                  location.pathname === '/profile' && "bg-accent/20"
+                  "flex items-center justify-center p-2 rounded-md jmo-nav-item cursor-pointer",
+                  location.pathname === '/profile' && "active"
                 )}
                 onClick={handleProfileNavigation}
               >
@@ -118,7 +118,7 @@ const PersonaSection: React.FC<PersonaSectionProps> = ({
         onOpenChange={togglePersonaMenu}
         className="border-t pt-2"
       >
-        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-accent/30 rounded-md">
+        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 jmo-nav-item rounded-md">
           <div className="flex items-center">
             <User className="h-5 w-5 mr-2" />
             <span className="text-sm font-medium">Persona</span>
@@ -133,8 +133,8 @@ const PersonaSection: React.FC<PersonaSectionProps> = ({
             <div 
               key={persona.id}
               className={cn(
-                "flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-accent/30 cursor-pointer",
-                location.pathname === '/profile' && selectedIQube === persona.name && "bg-accent/20"
+                "flex items-center justify-between px-2 py-2 text-sm rounded-md jmo-nav-item cursor-pointer",
+                location.pathname === '/profile' && selectedIQube === persona.name && "active"
               )}
             >
               <TooltipProvider>

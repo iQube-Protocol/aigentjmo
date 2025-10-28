@@ -149,8 +149,8 @@ const IQubesSection: React.FC<IQubesSectionProps> = ({
             <TooltipTrigger asChild>
               <div
                 className={cn(
-                  "flex items-center justify-center p-2 rounded-md hover:bg-accent/30 cursor-pointer",
-                  location.pathname.includes('/qubes') && "bg-accent/20"
+                  "flex items-center justify-center p-2 rounded-md jmo-nav-item cursor-pointer",
+                  location.pathname.includes('/qubes') && "active"
                 )}
                 onClick={handleSettingsNavigation}
               >
@@ -171,7 +171,7 @@ const IQubesSection: React.FC<IQubesSectionProps> = ({
         onOpenChange={toggleIQubesMenu}
         className="border-t pt-2"
       >
-        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-accent/30 rounded-md">
+        <CollapsibleTrigger className="flex w-full items-center justify-between p-2 jmo-nav-item rounded-md">
           <div className="flex items-center">
             <CubeIcon className="h-5 w-5 mr-2" />
             <span className="text-sm font-medium">iQubes</span>
@@ -186,8 +186,8 @@ const IQubesSection: React.FC<IQubesSectionProps> = ({
             <div 
               key={qube.id}
               className={cn(
-                "flex items-center justify-between px-2 py-2 text-sm rounded-md hover:bg-accent/30 cursor-pointer",
-                location.pathname === '/settings' && selectedIQube === qube.name && "bg-accent/20"
+                "flex items-center justify-between px-2 py-2 text-sm rounded-md jmo-nav-item cursor-pointer",
+                location.pathname === '/settings' && selectedIQube === qube.name && "active"
               )}
             >
               <TooltipProvider>
