@@ -78,7 +78,7 @@ const AgentHeader = ({ title, description, isProcessing, additionalActions }: Ag
                     />
                   </div>
                 </div>
-                <span className="hidden sm:inline">{displayTitle}</span>
+                <span className="hidden sm:inline font-orbitron">{displayTitle}</span>
               </>
             ) : (
               <>
