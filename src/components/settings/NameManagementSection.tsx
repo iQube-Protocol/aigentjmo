@@ -49,7 +49,7 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
       .maybeSingle();
 
     if (knytData) {
-      const knytPreference = await NamePreferenceService.getNamePreference('knyt');
+      const knytPreference = await NamePreferenceService.getNamePreference(user.id, 'knyt');
       personas.push({
         personaType: 'knyt',
         currentName: {
@@ -70,7 +70,7 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
       .maybeSingle();
 
     if (qriptoData) {
-      const qriptoPreference = await NamePreferenceService.getNamePreference('qripto');
+      const qriptoPreference = await NamePreferenceService.getNamePreference(user.id, 'qripto');
       personas.push({
         personaType: 'qripto',
         currentName: {

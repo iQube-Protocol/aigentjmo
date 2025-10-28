@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface NamePreference {
   id: string;
   user_id: string;
+  persona_type: 'knyt' | 'qripto';
   name_source: 'invitation' | 'linkedin' | 'custom';
   preferred_first_name?: string | null;
   preferred_last_name?: string | null;
@@ -14,21 +15,24 @@ export interface NamePreference {
 }
 
 export interface NameConflictData {
-  personaType: 'knyt' | 'qripto' | 'blak';
+  personaType: 'knyt' | 'qripto';
   invitationName?: { firstName?: string; lastName?: string };
   linkedinName?: { firstName?: string; lastName?: string };
   currentName?: { firstName?: string; lastName?: string };
 }
 
 export class NamePreferenceService {
-  static async getNamePreference(userId?: string): Promise<NamePreference | null> {
-    const user = userId || (await supabase.auth.getUser()).data.user?.id;
-    if (!user) return null;
+  static async getNamePreference(userId: string, personaType: 'knyt' | 'qripto'): Promise<NamePreference | null> {
+    if (!userId) {
+      console.warn('⚠️ No user ID provided');
+      return null;
+    }
 
     const { data, error } = await supabase
       .from('user_name_preferences')
       .select('*')
-      .eq('user_id', user)
+      .eq('user_id', userId)
+      .eq('persona_type', personaType)
       .maybeSingle();
 
     if (error) {
@@ -38,23 +42,25 @@ export class NamePreferenceService {
 
     if (!data) return null;
 
-    // Cast name_source to the expected literal type
+    // Cast to expected types
     return {
       ...data,
-      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin'
+      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin',
+      persona_type: data.persona_type as 'knyt' | 'qripto'
     };
   }
 
   static async saveNamePreference(preference: Partial<NamePreference>): Promise<{ success: boolean; error?: string }> {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return { success: false, error: 'User not authenticated' };
+    if (!preference.persona_type) return { success: false, error: 'Persona type required' };
 
     try {
-      // First check if preference exists
-      const existingPref = await this.getNamePreference(user.id);
+      // First check if preference exists for this persona
+      const existingPref = await this.getNamePreference(user.id, preference.persona_type);
       
       if (existingPref) {
-        // Update existing preference
+        // Update existing preference for this persona
         const { error } = await supabase
           .from('user_name_preferences')
           .update({
@@ -65,18 +71,20 @@ export class NamePreferenceService {
             linkedin_last_name: preference.linkedin_last_name || null,
             twitter_username: preference.twitter_username || null,
           })
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .eq('persona_type', preference.persona_type);
 
         if (error) {
           console.error('Error updating name preference:', error);
           return { success: false, error: error.message };
         }
       } else {
-        // Create new preference
+        // Create new preference for this persona
         const { error } = await supabase
           .from('user_name_preferences')
           .insert({
             user_id: user.id,
+            persona_type: preference.persona_type,
             name_source: preference.name_source || 'custom',
             preferred_first_name: preference.preferred_first_name || null,
             preferred_last_name: preference.preferred_last_name || null,
@@ -214,17 +222,17 @@ export class NamePreferenceService {
   ): Promise<void> {
     console.log(`🏷️ Processing LinkedIn names for ${personaType} persona`);
     
-    // Get existing name preference (not tied to persona type anymore)
-    let namePrefs = await this.getNamePreference(userId);
+    // Get existing name preference for this specific persona
+    let namePrefs = await this.getNamePreference(userId, personaType);
     
     if (!namePrefs) {
-      console.log(`💡 Creating new name preferences`);
+      console.log(`💡 Creating new name preferences for ${personaType}`);
       
       // For KNYT: default to custom source
       // For Qrypto: default to LinkedIn source, apply automatically
       const defaultSource = personaType === 'knyt' ? 'custom' : 'linkedin';
       
-      namePrefs = await this.createNamePreferences(userId, {
+      namePrefs = await this.createNamePreferences(userId, personaType, {
         linkedin_first_name: firstName,
         linkedin_last_name: lastName,
         name_source: defaultSource
@@ -256,7 +264,7 @@ export class NamePreferenceService {
       console.log(`💡 ${personaType}: Switching to LinkedIn as name source`);
       
       // Update preferences in database
-      await this.updateNamePreferences(userId, updatedPrefs);
+      await this.updateNamePreferences(userId, personaType, updatedPrefs);
       
       // Update persona names for Qrypto
       await this.updatePersonaNames(userId, updatedPrefs);
@@ -266,16 +274,17 @@ export class NamePreferenceService {
       console.log(`🛡️ ${personaType}: Preserving existing name source: ${namePrefs.name_source}, storing LinkedIn data`);
       
       // Update preferences in database (but don't update persona names)
-      await this.updateNamePreferences(userId, updatedPrefs);
+      await this.updateNamePreferences(userId, personaType, updatedPrefs);
       console.log(`✅ Stored LinkedIn data for ${personaType} but preserved existing names`);
     }
   }
 
-  static async getNamePreferences(userId: string): Promise<NamePreference | null> {
+  static async getNamePreferences(userId: string, personaType: 'knyt' | 'qripto'): Promise<NamePreference | null> {
     const { data, error } = await supabase
       .from('user_name_preferences')
       .select('*')
       .eq('user_id', userId)
+      .eq('persona_type', personaType)
       .maybeSingle();
 
     if (error) {
@@ -286,11 +295,12 @@ export class NamePreferenceService {
     return data as NamePreference | null;
   }
 
-  static async createNamePreferences(userId: string, preferences: Partial<NamePreference>): Promise<NamePreference | null> {
+  static async createNamePreferences(userId: string, personaType: 'knyt' | 'qripto', preferences: Partial<NamePreference>): Promise<NamePreference | null> {
     const { data, error} = await supabase
       .from('user_name_preferences')
       .insert({
         user_id: userId,
+        persona_type: personaType,
         name_source: preferences.name_source || 'custom',
         preferred_first_name: preferences.preferred_first_name || null,
         preferred_last_name: preferences.preferred_last_name || null,
@@ -308,16 +318,18 @@ export class NamePreferenceService {
 
     if (!data) return null;
 
-    // Cast name_source to the expected literal type
+    // Cast to expected types
     return {
       ...data,
-      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin'
+      name_source: data.name_source as 'custom' | 'invitation' | 'linkedin',
+      persona_type: data.persona_type as 'knyt' | 'qripto'
     };
   }
 
-  static async updateNamePreferences(userId: string, preferences: Partial<NamePreference>): Promise<void> {
+  static async updateNamePreferences(userId: string, personaType: 'knyt' | 'qripto', preferences: Partial<NamePreference>): Promise<void> {
     const updateData = {
       user_id: userId,
+      persona_type: personaType,
       name_source: preferences.name_source || 'custom',
       preferred_first_name: preferences.preferred_first_name,
       preferred_last_name: preferences.preferred_last_name,
@@ -328,7 +340,7 @@ export class NamePreferenceService {
 
     const { error } = await supabase
       .from('user_name_preferences')
-      .upsert(updateData);
+      .upsert(updateData, { onConflict: 'user_id,persona_type' });
 
     if (error) {
       console.error('Error updating name preferences:', error);

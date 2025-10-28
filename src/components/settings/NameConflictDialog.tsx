@@ -43,17 +43,28 @@ export const NameConflictDialog: React.FC<NameConflictDialogProps> = ({
   const handleSave = async () => {
     if (!conflictData) return;
     
+    let firstName = '';
+    let lastName = '';
+    
+    // Determine which names to use based on selection
+    if (selectedOption === 'invitation' && conflictData.invitationName) {
+      firstName = conflictData.invitationName.firstName || '';
+      lastName = conflictData.invitationName.lastName || '';
+    } else if (selectedOption === 'linkedin' && conflictData.linkedinName) {
+      firstName = conflictData.linkedinName.firstName || '';
+      lastName = conflictData.linkedinName.lastName || '';
+    } else if (selectedOption === 'custom') {
+      firstName = customFirstName;
+      lastName = customLastName;
+    }
+    
     const preference = {
       persona_type: conflictData.personaType,
       name_source: selectedOption,
+      preferred_first_name: firstName,
+      preferred_last_name: lastName,
       linkedin_first_name: conflictData.linkedinName?.firstName,
       linkedin_last_name: conflictData.linkedinName?.lastName,
-      invitation_first_name: conflictData.invitationName?.firstName,
-      invitation_last_name: conflictData.invitationName?.lastName,
-      ...(selectedOption === 'custom' && {
-        custom_first_name: customFirstName,
-        custom_last_name: customLastName,
-      }),
     };
 
     const result = await NamePreferenceService.saveNamePreference(preference);

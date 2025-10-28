@@ -264,6 +264,7 @@ export type Database = {
           linkedin_first_name: string | null
           linkedin_last_name: string | null
           name_source: string | null
+          persona_type: string
           preferred_first_name: string | null
           preferred_last_name: string | null
           twitter_username: string | null
@@ -276,6 +277,7 @@ export type Database = {
           linkedin_first_name?: string | null
           linkedin_last_name?: string | null
           name_source?: string | null
+          persona_type: string
           preferred_first_name?: string | null
           preferred_last_name?: string | null
           twitter_username?: string | null
@@ -288,6 +290,7 @@ export type Database = {
           linkedin_first_name?: string | null
           linkedin_last_name?: string | null
           name_source?: string | null
+          persona_type?: string
           preferred_first_name?: string | null
           preferred_last_name?: string | null
           twitter_username?: string | null

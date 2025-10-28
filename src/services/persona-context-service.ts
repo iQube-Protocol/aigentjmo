@@ -268,17 +268,23 @@ export class PersonaContextService {
     // Use name preferences if available for active persona
     const { NamePreferenceService } = await import('./name-preference-service');
     
-    if (knytContext?.isActive) {
-      const knytPreference = await NamePreferenceService.getNamePreference('knyt');
-      if (knytPreference) {
-        return NamePreferenceService.getEffectiveName(knytPreference);
+    if (knytContext?.isActive && knytContext.fullPersonaData) {
+      const userId = (knytContext.fullPersonaData as KNYTPersona).user_id;
+      if (userId) {
+        const knytPreference = await NamePreferenceService.getNamePreference(userId, 'knyt');
+        if (knytPreference) {
+          return NamePreferenceService.getEffectiveName(knytPreference);
+        }
       }
     }
 
-    if (qryptoContext?.isActive) {
-      const qriptoPreference = await NamePreferenceService.getNamePreference('qripto');
-      if (qriptoPreference) {
-        return NamePreferenceService.getEffectiveName(qriptoPreference);
+    if (qryptoContext?.isActive && qryptoContext.fullPersonaData) {
+      const userId = (qryptoContext.fullPersonaData as QryptoPersona).user_id;
+      if (userId) {
+        const qriptoPreference = await NamePreferenceService.getNamePreference(userId, 'qripto');
+        if (qriptoPreference) {
+          return NamePreferenceService.getEffectiveName(qriptoPreference);
+        }
       }
     }
 
