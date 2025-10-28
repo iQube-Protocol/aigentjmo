@@ -49,7 +49,7 @@ const SplashPage = () => {
           {/* Title and Description */}
           <div className="text-center space-y-4 max-w-2xl">
             <h1 className="text-xl md:text-2xl font-semibold text-black font-orbitron">
-              JMO KNYT///SatoshiKNYT #1
+              JMO KNYT Featuring SAT KNYT#1
             </h1>
             <p className="text-black/90 text-sm md:text-lg">Get your personalized iQube, COYN and REIT AI Agent</p>
             
