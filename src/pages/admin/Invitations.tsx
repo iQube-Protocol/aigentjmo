@@ -1,13 +1,23 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useAdminCheck } from '@/hooks/use-admin-check';
 import InvitationManager from '@/components/admin/InvitationManager';
 
 const InvitationsPage = () => {
   const { user, isGuest } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdminCheck();
 
-  // Simple admin check - you may want to implement proper role-based access
-  const isAdmin = user?.email?.includes('admin') || user?.email?.includes('nakamoto');
+  if (adminLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg">Verifying admin access...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isGuest || !user) {
     return (
