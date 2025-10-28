@@ -6,12 +6,14 @@ export const useOpenAIAgent = () => {
   const [openAIActivated, setOpenAIActivated] = useState(() => {
     const stored = localStorage.getItem(OPENAI_STORAGE_KEY);
     console.log('🏗️ OpenAI Hook: Initial state from localStorage:', stored);
-    return stored === 'true';
+    // Default to true (active) if no value is stored
+    return stored === null ? true : stored === 'true';
   });
 
   const [openAIVisible, setOpenAIVisible] = useState(() => {
     const stored = localStorage.getItem(OPENAI_STORAGE_KEY);
-    return stored === 'true';
+    // Default to true (visible) if no value is stored
+    return stored === null ? true : stored === 'true';
   });
 
   const activateOpenAI = () => {
