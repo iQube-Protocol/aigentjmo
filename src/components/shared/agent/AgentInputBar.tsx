@@ -105,7 +105,7 @@ const AgentInputBar = ({
             onKeyDown={handleKeyDown} 
             placeholder={
               activeTab === 'metaAvatar' 
-                ? 'Ask Satooshi KNYT #1...' 
+                ? 'Ask Satoshi KNYT #1...' 
                 : window.location.pathname === '/aigent' 
                   ? 'Ask JMO KNYT...' 
                   : `Ask your ${agentType} agent...`
