@@ -51,7 +51,7 @@ const SplashPage = () => {
             <h1 className="text-xl md:text-2xl font-semibold text-black font-orbitron">
               JMO KNYT Featuring SAT KNYT#1
             </h1>
-            <p className="text-black/90 text-sm md:text-lg">GET YOUR PERSONALIZED iQUBE, COYN AND REIT AI AGENT</p>
+            <p className="text-black/90 text-sm md:text-lg">YOUR PERSONALIZED iQUBE, COYN & REIT AIGENT</p>
             
             {/* Mobile Button - positioned right after description */}
             <div className="md:hidden pt-4">
