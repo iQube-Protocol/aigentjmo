@@ -1,30 +1,38 @@
 
 /* Message style classes - JMO Brand */
 .system-message {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border: 1px solid hsl(267 100% 54% / 0.2);
-  border-radius: 0.5rem;
   padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.08), 
+    hsl(267, 100%, 54%, 0.08)
+  );
+  border-left: 3px solid hsl(267, 100%, 54%);
+  border-radius: 0.5rem;
   font-family: 'Montserrat', sans-serif;
 }
 
 .user-message {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border: 1px solid hsl(267 100% 54% / 0.2);
-  border-radius: 0.5rem;
   padding: 0.75rem;
-  max-width: 85%;
-  margin-left: auto;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.12), 
+    hsl(267, 100%, 54%, 0.12)
+  );
+  border-radius: 0.5rem;
+  border: 1px solid hsl(267, 100%, 54%, 0.2);
   font-family: 'Montserrat', sans-serif;
 }
 
 .agent-message {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border: 1px solid hsl(267 100% 54% / 0.2);
-  border-radius: 0.5rem;
   padding: 0.75rem;
-  max-width: 85%;
-  margin-left: 0;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.05), 
+    hsl(267, 100%, 54%, 0.05)
+  );
+  border-radius: 0.5rem;
+  border: 1px solid hsl(267, 100%, 54%, 0.15);
   font-family: 'Montserrat', sans-serif;
 }
 
@@ -126,8 +134,11 @@
 
 /* Historic response styling with enhanced conversational layout - JMO Brand */
 .conversational-content .historic-response {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border-left: 3px solid hsl(267 100% 54%);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.05), 
+    hsl(267, 100%, 54%, 0.05)
+  );
+  border-left: 3px solid hsl(267, 100%, 54%);
   padding: 0.75rem;
   margin: 0.75rem 0;
   border-radius: 0.5rem;
@@ -177,38 +188,50 @@
 }
 
 .historic-content:hover {
-  border-color: hsl(267 100% 54% / 0.4);
-  box-shadow: 0 4px 12px hsl(267 100% 54% / 0.15);
+  border-color: hsl(267, 100%, 54%, 0.4);
+  box-shadow: 0 4px 12px hsl(267, 100%, 54%, 0.15);
 }
 
 /* Historic response themes for profile - JMO Brand */
 .historic-response.user-theme {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border-left: 3px solid hsl(267 100% 54%);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.12), 
+    hsl(267, 100%, 54%, 0.12)
+  );
+  border-left: 3px solid hsl(267, 100%, 54%);
   border-radius: 0.5rem;
 }
 
 .historic-response.agent-theme {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border-left: 3px solid hsl(267 100% 54%);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.08), 
+    hsl(267, 100%, 54%, 0.08)
+  );
+  border-left: 3px solid hsl(267, 100%, 54%);
   border-radius: 0.5rem;
 }
 
 /* Profile conversation preview styling - JMO Brand */
 .conversation-preview {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.05), 
+    hsl(267, 100%, 54%, 0.05)
+  );
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 0.5rem 0;
-  border-left: 4px solid hsl(267 100% 54%);
+  border-left: 4px solid hsl(267, 100%, 54%);
   transition: all 0.2s ease;
   font-family: 'Montserrat', sans-serif;
 }
 
 .conversation-preview:hover {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.08), hsl(267 100% 54% / 0.08));
-  border-left-color: hsl(267 100% 54% / 0.8);
-  box-shadow: 0 4px 12px hsl(267 100% 54% / 0.15);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.1), 
+    hsl(267, 100%, 54%, 0.1)
+  );
+  border-left-color: hsl(267, 100%, 54%, 0.8);
+  box-shadow: 0 4px 12px hsl(267, 100%, 54%, 0.15);
 }
 
 /* Responsive text sizing for better readability */
@@ -312,8 +335,11 @@
 .conversational-content .historic-response.mondai-theme,
 .conversational-content .historic-response.default-theme,
 .conversational-content .historic-response.aigent-theme {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border-left: 3px solid hsl(267 100% 54%);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.05), 
+    hsl(267, 100%, 54%, 0.05)
+  );
+  border-left: 3px solid hsl(267, 100%, 54%);
   border-radius: 0.5rem;
   font-family: 'Montserrat', sans-serif;
 }
@@ -331,18 +357,24 @@
 
 /* Profile specific enhancements - JMO Brand */
 .profile-interaction-card {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05));
-  border: 1px solid hsl(267 100% 54% / 0.2);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.05), 
+    hsl(267, 100%, 54%, 0.05)
+  );
+  border: 1px solid hsl(267, 100%, 54%, 0.2);
   border-radius: 0.5rem;
   transition: all 0.2s ease;
   font-family: 'Montserrat', sans-serif;
 }
 
 .profile-interaction-card:hover {
-  background: linear-gradient(135deg, hsl(247 93% 28% / 0.08), hsl(267 100% 54% / 0.08));
-  border-color: hsl(267 100% 54% / 0.4);
+  background: linear-gradient(135deg, 
+    hsl(247, 93%, 28%, 0.1), 
+    hsl(267, 100%, 54%, 0.1)
+  );
+  border-color: hsl(267, 100%, 54%, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px hsl(267 100% 54% / 0.15);
+  box-shadow: 0 4px 12px hsl(267, 100%, 54%, 0.15);
 }
 
 /* Metadata badges in profile */

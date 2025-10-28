@@ -127,7 +127,7 @@ const AgentInputBar = ({
         <Button 
           type="submit" 
           size="icon" 
-          className="jmo-send-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[hsl(267_100%_54%)]"
+          className="jmo-send-button"
           disabled={!inputValue.trim() || isProcessing}
         >
           <Send className="h-4 w-4" />
