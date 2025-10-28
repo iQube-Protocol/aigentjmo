@@ -5,6 +5,9 @@
 
 @layer base {
   :root {
+    --jmo-navy: 247 93% 28%;
+    --jmo-electric: 267 100% 54%;
+    
     --background: 240 10% 98%;
     --foreground: 240 10% 5%;
 
@@ -23,7 +26,7 @@
     --muted: 240 10% 90%;
     --muted-foreground: 240 10% 45%;
 
-    --accent: 24 95% 53%;
+    --accent: 267 100% 54%;
     --accent-foreground: 240 10% 98%;
 
     --destructive: 0 84% 60%;
@@ -55,6 +58,9 @@
   }
 
   .dark {
+    --jmo-navy: 247 93% 28%;
+    --jmo-electric: 267 100% 54%;
+    
     --background: 240 10% 7%;
     --foreground: 240 10% 95%;
 
@@ -73,7 +79,7 @@
     --muted: 240 10% 25%;
     --muted-foreground: 240 10% 75%;
 
-    --accent: 24 95% 53%;
+    --accent: 267 100% 54%;
     --accent-foreground: 240 10% 5%;
 
     --destructive: 0 84% 60%;
@@ -192,48 +198,38 @@
   /* JMO Brand Sidebar Styles */
   .jmo-nav-item {
     @apply transition-all duration-200 font-montserrat;
+    background: linear-gradient(135deg, hsl(247 93% 28% / 0.08), hsl(267 100% 54% / 0.08));
   }
   
   .jmo-nav-item:hover {
-    background: linear-gradient(135deg, 
-      hsl(247, 93%, 28%, 0.15), 
-      hsl(267, 100%, 54%, 0.15)
-    );
-    @apply shadow-sm;
+    background: linear-gradient(135deg, hsl(247 93% 28% / 0.15), hsl(267 100% 54% / 0.15));
+    @apply shadow-sm text-foreground;
   }
   
   .jmo-nav-item.active {
-    background: linear-gradient(135deg, 
-      hsl(247, 93%, 28%, 0.25), 
-      hsl(267, 100%, 54%, 0.25)
-    );
-    @apply font-semibold shadow-md;
-    border-left: 3px solid hsl(267, 100%, 54%);
+    background: linear-gradient(135deg, hsl(247 93% 28%), hsl(267 100% 54%));
+    @apply font-semibold shadow-md text-white;
+    border-left: 3px solid hsl(267 100% 54%);
   }
 
   /* JMO Chat Input & Button Styles */
   .jmo-send-button {
-    background: linear-gradient(135deg, 
-      hsl(247, 93%, 28%), 
-      hsl(267, 100%, 54%)
-    );
-    @apply text-white transition-all duration-200 shadow-md;
+    background: linear-gradient(135deg, hsl(247 93% 28%), hsl(267 100% 54%));
+    @apply text-white transition-all duration-200 shadow-md font-semibold;
   }
   
   .jmo-send-button:hover:not(:disabled) {
-    background: linear-gradient(135deg, 
-      hsl(247, 93%, 35%), 
-      hsl(267, 100%, 62%)
-    );
+    background: linear-gradient(135deg, hsl(247 93% 35%), hsl(267 100% 62%));
     @apply shadow-lg transform scale-105;
   }
   
   .jmo-send-button:disabled {
-    background: linear-gradient(135deg, 
-      hsl(247, 93%, 28%, 0.4), 
-      hsl(267, 100%, 54%, 0.4)
-    );
-    @apply opacity-50;
+    background: linear-gradient(135deg, hsl(247 93% 28% / 0.5), hsl(267 100% 54% / 0.5));
+    @apply opacity-50 cursor-not-allowed;
+  }
+  
+  .jmo-send-button:disabled:hover {
+    @apply scale-100;
   }
 
   /* Hide scrollbars while keeping functionality */
