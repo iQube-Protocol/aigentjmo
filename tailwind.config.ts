@@ -81,11 +81,11 @@ export default {
 					navy: '247 93% 28%',           // JMO Navy Blue (HSL)
 					electric: '267 100% 54%',      // JMO Electric Purple (HSL)
 				},
-				// Legacy support for any remaining references
+				// Remapped to JMO brand colors
 				iqube: {
-					primary: '#8B5CF6',
-					secondary: '#A855F7',
-					accent: '#FB923C'
+					primary: 'hsl(247 93% 28%)',      // JMO Navy
+					secondary: 'hsl(257 90% 60%)',    // Mid purple
+					accent: 'hsl(267 100% 54%)'       // JMO Electric
 				}
 			},
 		fontFamily: {

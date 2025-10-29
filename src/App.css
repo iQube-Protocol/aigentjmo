@@ -48,24 +48,7 @@ p {
   background-color: #ef4444;
 }
 
-/* Agent message styles */
-.agent-message {
-  background-color: rgba(155, 135, 245, 0.1);
-  border: 1px solid rgba(155, 135, 245, 0.2);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  max-width: 85%;
-  margin-left: 0;
-}
-
-.user-message {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  max-width: 85%;
-  margin-left: auto;
-}
+/* Agent message styles - overridden by agent-interface.css for canonical JMO styling */
 
 /* Animation for audio waveform */
 @keyframes waveform {

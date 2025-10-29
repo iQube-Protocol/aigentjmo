@@ -69,10 +69,7 @@ const AgentInputBar = ({
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="border-t p-4" style={{
-      borderTopColor: 'hsl(267 100% 54% / 0.2)',
-      background: 'linear-gradient(135deg, hsl(247 93% 28% / 0.03), hsl(267 100% 54% / 0.03))'
-    }}>
+    <form onSubmit={handleFormSubmit} className="border-t p-4">
       <div className="flex items-center space-x-2">
         <div className="relative flex-1 flex items-center">
           <div className="absolute left-3 flex items-center space-x-2">
@@ -113,7 +110,7 @@ const AgentInputBar = ({
                   ? 'Ask JMO KNYT...' 
                   : `Ask your ${agentType} agent...`
             }
-            className="pl-24 min-h-[40px] max-h-32 flex-1 pr-3 py-2 flex items-center font-montserrat border-[hsl(267_100%_54%_/_0.2)] focus-visible:ring-[hsl(267_100%_54%)]"
+            className="pl-24 min-h-[40px] max-h-32 flex-1 pr-3 py-2 flex items-center font-montserrat"
             style={{
               resize: 'none',
               paddingTop: inputValue ? '0.5rem' : '0.625rem', 
@@ -122,7 +119,6 @@ const AgentInputBar = ({
               display: 'flex',
               alignItems: 'center',
               overflow: 'auto',
-              background: 'linear-gradient(135deg, hsl(247 93% 28% / 0.05), hsl(267 100% 54% / 0.05))'
             }}
             disabled={isProcessing}
           />
@@ -131,7 +127,7 @@ const AgentInputBar = ({
         <Button 
           type="submit" 
           size="icon" 
-          className="jmo-send-button"
+          className="jmo-send-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[hsl(267_100%_54%)]"
           disabled={!inputValue.trim() || isProcessing}
         >
           <Send className="h-4 w-4" />

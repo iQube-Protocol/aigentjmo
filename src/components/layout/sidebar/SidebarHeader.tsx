@@ -14,7 +14,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
 }) => {
   return <div className={cn("flex items-center mb-6 px-3", collapsed ? "justify-center" : "justify-between")}>
       {!collapsed ? <Link to="/aigent" className="flex items-center">
-          <Bot className="h-6 w-6 mt-3" style={{ color: '#200589' }} />
+          <Bot className="h-6 w-6 mt-3" style={{ color: '#7D12FF' }} />
           <div className="flex flex-col mt-3">
             <h1 className="text-2xl font-bold font-orbitron bg-gradient-to-r from-[#200589] to-[#7D12FF] inline-block text-transparent bg-clip-text">
               JMO KNYT
@@ -25,7 +25,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <button onClick={toggleSidebar} className="p-0 bg-transparent border-none">
-                <Bot className="h-6 w-6 mt-3" style={{ color: '#200589' }} />
+                <Bot className="h-6 w-6 mt-3" style={{ color: '#7D12FF' }} />
               </button>
             </TooltipTrigger>
             <TooltipContent side="right">
