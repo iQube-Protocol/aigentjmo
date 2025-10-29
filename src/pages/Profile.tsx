@@ -83,7 +83,7 @@ const Profile = () => {
           {/* User info section - compressed */}
           <Card className="w-full">
             <CardHeader className="pb-2 px-3 sm:px-6">
-              <CardTitle className="text-base sm:text-lg">Profile</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-montserrat font-bold">Profile</CardTitle>
             </CardHeader>
             <CardContent className="px-3 sm:px-6 pb-3">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
@@ -133,7 +133,7 @@ const Profile = () => {
         {/* Interaction history section - compressed */}
         <Card className="w-full">
           <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardTitle className="text-base sm:text-lg">History</CardTitle>
+            <CardTitle className="text-base sm:text-lg font-montserrat font-bold">History</CardTitle>
             <div className="flex flex-wrap gap-2 mt-2">
               <button 
                 onClick={() => setActiveTab('all')} 
@@ -222,10 +222,10 @@ const Profile = () => {
                            {interaction.metadata && (
                              <div className="flex flex-wrap gap-1">
                                {interaction.metadata.qryptoItemsFound > 0 && (
-                                 <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
-                                   {interaction.metadata.qryptoItemsFound} KB items
-                                 </Badge>
-                               )}
+                                  <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 font-montserrat font-bold">
+                                    {interaction.metadata.qryptoItemsFound} KB items
+                                  </Badge>
+                                )}
                              </div>
                            )}
                          </div>

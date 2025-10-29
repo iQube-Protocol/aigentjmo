@@ -80,11 +80,11 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
                    )}
                   {selectedResponse.metadata && (
                     <div className="flex gap-1">
-                      {selectedResponse.metadata.qryptoItemsFound > 0 && (
-                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
-                          {selectedResponse.metadata.qryptoItemsFound} KB items found
-                        </Badge>
-                      )}
+                       {selectedResponse.metadata.qryptoItemsFound > 0 && (
+                         <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 font-montserrat font-bold">
+                           {selectedResponse.metadata.qryptoItemsFound} KB items found
+                         </Badge>
+                       )}
                       {selectedResponse.metadata.metaKnytsItemsFound > 0 && (
                         <Badge variant="outline" className="text-xs bg-purple-100 text-purple-800">
                           {selectedResponse.metadata.metaKnytsItemsFound} mẹtaKnyts items
