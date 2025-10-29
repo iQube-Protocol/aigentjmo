@@ -37,11 +37,15 @@ const Profile = () => {
   } = useUserInteractionsOptimized('all', {  // Always fetch all interactions
     batchSize: 10,
     enableProgressiveLoading: true,
-    deferDuringNavigation: true
+    deferDuringNavigation: false  // Don't defer - ensure data loads consistently
   });
 
-  // Removed the problematic useEffect that was causing infinite re-fetches
-  // The hook already handles initial fetch internally
+  // Force refresh when user becomes available
+  useEffect(() => {
+    if (user && !loading) {
+      refreshInteractions(true);
+    }
+  }, [user]);
   
   const handleResponseClick = (interaction: any) => {
     setSelectedResponse(interaction);
@@ -201,16 +205,23 @@ const Profile = () => {
               <div className="space-y-3 pr-2">
                 {interactions && interactions.length > 0 ? interactions.filter(interaction => {
                   if (activeTab === 'all') return true;
+                  
+                  const activePersona = interaction.metadata?.activePersona;
+                  
                   if (activeTab === 'qripto') {
-                    // Check both new activePersona field and legacy metadata flags
-                    return (interaction.metadata?.activePersona === 'Qripto Persona') || 
-                           (interaction.metadata?.personaContextUsed && !interaction.metadata?.metaKnytsContextUsed);
+                    // Check activePersona field or legacy flags for Qripto
+                    return activePersona === 'Qripto Persona' || 
+                           (interaction.metadata?.personaContextUsed && !interaction.metadata?.metaKnytsContextUsed) ||
+                           (!activePersona && !interaction.metadata?.metaKnytsContextUsed && interaction.metadata?.personaContextUsed);
                   }
+                  
                   if (activeTab === 'knyt') {
-                    // Check both new activePersona field and legacy metadata flags
-                    return (interaction.metadata?.activePersona === 'KNYT Persona') || 
-                           interaction.metadata?.metaKnytsContextUsed;
+                    // Check activePersona field or legacy flags for KNYT
+                    return activePersona === 'KNYT Persona' || 
+                           interaction.metadata?.metaKnytsContextUsed ||
+                           (!activePersona && interaction.metadata?.metaKnytsContextUsed);
                   }
+                  
                   return true;
                 }).map(interaction => (
                   <div key={interaction.id} className="w-full overflow-hidden">

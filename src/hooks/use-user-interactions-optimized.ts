@@ -43,15 +43,15 @@ export const useUserInteractionsOptimized = (
     NavigationGuard.init();
   }, []);
 
-  const fetchInteractions = useCallback(async () => {
+  const fetchInteractions = useCallback(async (force = false) => {
     if (!user || loadingRef.current) {
       setInteractions([]);
       setDisplayedInteractions([]);
       return;
     }
 
-    // Defer loading during navigation if option is enabled
-    if (deferDuringNavigation && NavigationGuard.isNavigationInProgress()) {
+    // Only defer during navigation if not forced and option is enabled
+    if (!force && deferDuringNavigation && NavigationGuard.isNavigationInProgress()) {
       console.log('NavigationGuard: Deferring interaction loading during navigation');
       return;
     }
@@ -111,17 +111,22 @@ export const useUserInteractionsOptimized = (
     }, 100);
   }, [interactions, displayedInteractions.length, batchSize, hasMore, loadingMore]);
 
-  const refreshInteractions = useCallback(async () => {
+  const refreshInteractions = useCallback(async (force = false) => {
     // Navigation-aware refresh with debouncing
     if (navigationAwareTimeoutRef.current) {
       clearTimeout(navigationAwareTimeoutRef.current);
     }
 
-    navigationAwareTimeoutRef.current = setTimeout(() => {
-      if (!NavigationGuard.isNavigationInProgress()) {
-        fetchInteractions();
-      }
-    }, 150);
+    if (force) {
+      // Force immediate refresh bypassing navigation checks
+      fetchInteractions(true);
+    } else {
+      navigationAwareTimeoutRef.current = setTimeout(() => {
+        if (!NavigationGuard.isNavigationInProgress()) {
+          fetchInteractions();
+        }
+      }, 150);
+    }
   }, [fetchInteractions]);
 
   useEffect(() => {

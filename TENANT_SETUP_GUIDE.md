@@ -646,6 +646,60 @@ const { data } = await supabase
 - Test thoroughly in production-like environment before deploying
 - Review console logs for database errors during integration testing
 
+### Issue 9: Inconsistent History Rendering in Production
+
+**Symptoms**:
+- User interaction history doesn't always render automatically on Profile page
+- Sometimes switching between personas (Qripto/KNYT) shows history, sometimes not
+- Data exists in database but UI remains empty intermittently
+
+**Root Cause**:
+Navigation-aware loading logic was too aggressive in deferring data fetches during route transitions, causing race conditions in production. The `NavigationGuard.isNavigationInProgress()` checks were preventing data loads inconsistently.
+
+**Solution**:
+1. Disable navigation deferral for Profile page data loading
+2. Add force refresh mechanism that bypasses navigation checks
+3. Improve persona filtering logic to handle all metadata states (including null/undefined `activePersona`)
+
+```typescript
+// ❌ WRONG - defers loading too aggressively
+const { interactions } = useUserInteractionsOptimized('all', {
+  deferDuringNavigation: true  // Can cause data not to load
+});
+
+// ✅ CORRECT - ensures consistent loading
+const { interactions, refreshInteractions } = useUserInteractionsOptimized('all', {
+  deferDuringNavigation: false  // Always load data
+});
+
+// Force refresh when user becomes available
+useEffect(() => {
+  if (user && !loading) {
+    refreshInteractions(true);  // Force bypasses navigation checks
+  }
+}, [user]);
+```
+
+**Improved Filtering Logic**:
+```typescript
+// Handle all cases: new activePersona field, legacy flags, and null states
+if (activeTab === 'qripto') {
+  return activePersona === 'Qripto Persona' || 
+         (interaction.metadata?.personaContextUsed && !interaction.metadata?.metaKnytsContextUsed) ||
+         (!activePersona && !interaction.metadata?.metaKnytsContextUsed && interaction.metadata?.personaContextUsed);
+}
+```
+
+**Affected Files**:
+- `src/hooks/use-user-interactions-optimized.ts` - Added force parameter to fetchInteractions and refreshInteractions
+- `src/pages/Profile.tsx` - Disabled navigation deferral, added force refresh effect, improved filter logic
+
+**Prevention**:
+- Avoid over-reliance on navigation guards for critical data fetching
+- Always provide force/bypass mechanisms for user-triggered actions
+- Handle all possible metadata states in filtering logic
+- Test persona switching thoroughly in production environment
+
 ---
 
 ## Testing Checklist
