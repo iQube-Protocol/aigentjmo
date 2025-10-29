@@ -1,5 +1,4 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,12 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    // Use Core Hub credentials
-    const coreUrl = Deno.env.get('CORE_SUPABASE_URL')!;
-    const coreServiceKey = Deno.env.get('CORE_SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(coreUrl, coreServiceKey);
-
-    const { 
+    const {
       tenant_id, 
       display_name,
       parent_project = 'aigent-nakamoto',

@@ -724,6 +724,69 @@ const enhancedMetadata = {
 - Include agent name in all interaction metadata
 - Use fallback values for backwards compatibility with old data
 
+### Issue 11: Missing Environment Variables in Edge Functions
+
+**Symptoms**:
+- Edge function returns 500 error with "supabaseUrl is required"
+- Error occurs at Supabase client creation line
+- Function logs show: `Error: supabaseUrl is required` from `@supabase/supabase-js`
+
+**Root Cause**:
+Edge function attempts to create a Supabase client using environment variables that don't exist in the project's secrets configuration.
+
+**Example Error**:
+```
+Function error: Error: supabaseUrl is required.
+    at createClient (https://esm.sh/@supabase/supabase-js@2.76.1)
+    at Server.<anonymous> (file:///.../index.ts:17:22)
+```
+
+**Solution**:
+
+**Option 1: Remove Unused Client (Recommended if not needed)**
+```typescript
+// ❌ WRONG - Creates client with non-existent env vars
+const coreUrl = Deno.env.get('CORE_SUPABASE_URL')!;
+const coreServiceKey = Deno.env.get('CORE_SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(coreUrl, coreServiceKey);
+// ... client never used ...
+
+// ✅ CORRECT - Remove unused client creation
+// Just proceed with your logic without the client
+```
+
+**Option 2: Use Correct Environment Variables**
+```typescript
+// ✅ CORRECT - Use existing Supabase environment variables
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+```
+
+**Option 3: Add Missing Secrets**
+If you need custom Supabase credentials (e.g., for QubeBase Core Hub):
+1. Use the secrets tool to add `CORE_SUPABASE_URL` and `CORE_SUPABASE_SERVICE_ROLE_KEY`
+2. Only after secrets are added, proceed with using them in code
+
+**Available Environment Variables**:
+Always check existing secrets before using environment variables:
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `LOVABLE_API_KEY`
+- `CHAINGPT_API_KEY`
+
+**Affected Files**:
+- `supabase/functions/naka-tenant-register/index.ts` - Removed unused client creation
+
+**Prevention**:
+- Never assume environment variables exist without checking
+- Remove unused code (like Supabase clients that aren't needed)
+- Always log which env vars you're trying to access for debugging
+- Use the correct env variable names that exist in your project
+- Add new secrets via the secrets tool before using them in code
+
 ### Issue 10: Inconsistent History Rendering in Production
 
 **Symptoms**:
