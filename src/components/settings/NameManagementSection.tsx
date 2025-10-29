@@ -212,7 +212,10 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Name Management</CardTitle>
           <CardDescription className="text-xs">
-            Manage your display names and profile images{filterPersonaType ? ` for ${filterPersonaType.toUpperCase()} persona` : ' for different personas'}
+            {filterPersonaType 
+              ? `Manage your display name and profile image for ${filterPersonaType.toUpperCase()} persona`
+              : 'Manage your display names and profile images for different personas'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -376,12 +379,6 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
                   ))}
                 </div>
               </div>
-            </div>
-          )}
-
-          {displayPersonas.length === 0 && personaNames.length > 0 && (
-            <div className="text-center py-4 text-muted-foreground text-sm">
-              No data for selected persona
             </div>
           )}
         </CardContent>

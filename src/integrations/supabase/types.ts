@@ -145,7 +145,9 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           Email: string | null
+          "First-Name": string | null
           id: string
+          "Last-Name": string | null
           profile_image_url: string | null
           updated_at: string | null
           user_id: string
@@ -154,7 +156,9 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           Email?: string | null
+          "First-Name"?: string | null
           id?: string
+          "Last-Name"?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
           user_id: string
@@ -163,7 +167,9 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           Email?: string | null
+          "First-Name"?: string | null
           id?: string
+          "Last-Name"?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
           user_id?: string
@@ -175,7 +181,9 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           Email: string | null
+          "First-Name": string | null
           id: string
+          "Last-Name": string | null
           profile_image_url: string | null
           updated_at: string | null
           user_id: string
@@ -184,7 +192,9 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           Email?: string | null
+          "First-Name"?: string | null
           id?: string
+          "Last-Name"?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
           user_id: string
@@ -193,7 +203,9 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           Email?: string | null
+          "First-Name"?: string | null
           id?: string
+          "Last-Name"?: string | null
           profile_image_url?: string | null
           updated_at?: string | null
           user_id?: string
