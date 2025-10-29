@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,6 +12,7 @@ import ResponseDialog from '@/components/profile/ResponseDialog';
 import NavigationAwareMessageContent from '@/components/profile/NavigationAwareMessageContent';
 import { NameManagementSection } from '@/components/settings/NameManagementSection';
 import { useSidebarState } from '@/hooks/use-sidebar-state';
+import { Button } from '@/components/ui/button';
 
 const Profile = () => {
   const {
