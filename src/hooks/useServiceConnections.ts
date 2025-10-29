@@ -59,7 +59,7 @@ export function useServiceConnections() {
       
       const { data, error: queryError } = await supabase
         .from('user_connections')
-        .select('service, connected_at, connection_data')
+        .select('service, updated_at, connection_data')
         .eq('user_id', user.id);
       
       clearTimeout(timeoutId);

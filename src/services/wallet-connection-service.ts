@@ -303,8 +303,7 @@ export const walletConnectionService = {
       const { error } = await supabase
         .from('user_connections')
         .update({ 
-          connection_data: updatedConnectionData,
-          connected_at: new Date().toISOString() 
+          connection_data: updatedConnectionData
         })
         .eq('id', connections.id);
 
@@ -407,8 +406,7 @@ export const walletConnectionService = {
       const { error } = await supabase
         .from('user_connections')
         .update({ 
-          connection_data: updatedConnectionData,
-          connected_at: new Date().toISOString() 
+          connection_data: updatedConnectionData
         })
         .eq('id', connections.id);
 

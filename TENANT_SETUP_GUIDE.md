@@ -609,6 +609,43 @@ if (!user && isGuest) {
 - Extract auth states early: `isGuest`, `loading`, `user`
 - Ensure UI consistency between route protection and component rendering
 
+### Issue 8: Non-Existent Column References in Queries
+
+**Symptoms**:
+- Database error: "column user_connections.connected_at does not exist"
+- Features fail to load in production even though they work locally
+- Private data fields not rendering
+
+**Root Cause**:
+Code was referencing `connected_at` column that doesn't exist in the `user_connections` table. The table only has `created_at` and `updated_at` columns.
+
+**Solution**:
+Replace all references to `connected_at` with `updated_at` (which tracks the same information):
+
+```typescript
+// ❌ WRONG - references non-existent column
+const { data } = await supabase
+  .from('user_connections')
+  .select('service, connected_at, connection_data')
+  .eq('user_id', user.id);
+
+// ✅ CORRECT - uses existing column
+const { data } = await supabase
+  .from('user_connections')
+  .select('service, updated_at, connection_data')
+  .eq('user_id', user.id);
+```
+
+**Affected Files**:
+- `src/hooks/useServiceConnections.ts` - Query selection
+- `src/services/wallet-connection-service.ts` - Update operations (remove `connected_at` from updates as `updated_at` is auto-managed)
+
+**Prevention**:
+- Always verify column names against actual table schema before deployment
+- Use TypeScript types from `src/integrations/supabase/types.ts` for type safety
+- Test thoroughly in production-like environment before deploying
+- Review console logs for database errors during integration testing
+
 ---
 
 ## Testing Checklist
