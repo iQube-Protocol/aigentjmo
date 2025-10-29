@@ -140,8 +140,11 @@
   }
 
   .user-message {
-    background: rgba(251, 146, 60, 0.08);
-    border: 1px solid rgba(251, 146, 60, 0.2);
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%, 0.12), 
+      hsl(267, 100%, 54%, 0.12)
+    );
+    border: 1px solid hsl(267, 100%, 54%, 0.2);
     @apply p-4 rounded-lg my-2 text-foreground;
   }
 
@@ -168,8 +171,11 @@
   }
 
   .light .user-message {
-    background: rgba(251, 146, 60, 0.06);
-    border: 1px solid rgba(251, 146, 60, 0.15);
+    background: linear-gradient(135deg, 
+      hsl(247, 93%, 28%, 0.08), 
+      hsl(267, 100%, 54%, 0.08)
+    );
+    border: 1px solid hsl(267, 100%, 54%, 0.15);
   }
 
   .light .qripto-card {
