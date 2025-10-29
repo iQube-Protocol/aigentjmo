@@ -41,12 +41,30 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
 
     const personas: PersonaNameInfo[] = [];
 
-    // Load KNYT persona
-    const { data: knytData } = await supabase
+    // Load or create KNYT persona
+    let { data: knytData } = await supabase
       .from('knyt_personas')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
+
+    // Create default KNYT persona if it doesn't exist
+    if (!knytData) {
+      const { data: newKnytData, error } = await supabase
+        .from('knyt_personas')
+        .insert({
+          user_id: user.id,
+          'Email': user.email,
+          'First-Name': user.email?.split('@')[0] || 'User',
+          'Last-Name': ''
+        })
+        .select()
+        .single();
+
+      if (!error && newKnytData) {
+        knytData = newKnytData;
+      }
+    }
 
     if (knytData) {
       const knytPreference = await NamePreferenceService.getNamePreference(user.id, 'knyt');
@@ -62,12 +80,30 @@ export const NameManagementSection: React.FC<NameManagementSectionProps> = ({ fi
       });
     }
 
-    // Load Qripto persona
-    const { data: qriptoData } = await supabase
+    // Load or create Qripto persona
+    let { data: qriptoData } = await supabase
       .from('qripto_personas')
       .select('*')
       .eq('user_id', user.id)
       .maybeSingle();
+
+    // Create default Qripto persona if it doesn't exist
+    if (!qriptoData) {
+      const { data: newQriptoData, error } = await supabase
+        .from('qripto_personas')
+        .insert({
+          user_id: user.id,
+          'Email': user.email,
+          'First-Name': user.email?.split('@')[0] || 'User',
+          'Last-Name': ''
+        })
+        .select()
+        .single();
+
+      if (!error && newQriptoData) {
+        qriptoData = newQriptoData;
+      }
+    }
 
     if (qriptoData) {
       const qriptoPreference = await NamePreferenceService.getNamePreference(user.id, 'qripto');
