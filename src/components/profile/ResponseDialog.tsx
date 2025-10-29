@@ -34,13 +34,13 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="pr-8">Historic Conversation</DialogTitle>
           <DialogDescription className="text-xs flex items-center gap-2">
-            <Badge variant="outline" className="bg-iqube-primary/20 text-iqube-primary border-iqube-primary/30">
+            <Badge variant="outline" className="bg-qrypto-primary/20">
               {getAgentName(selectedResponse?.interaction_type)}
             </Badge>
             {selectedResponse?.metadata?.aiProvider && (
               <>
                 <span>•</span>
-                <Badge variant="outline" className="text-xs bg-[hsl(267_100%_54%_/_0.12)] text-[hsl(267_100%_25%)] border-[hsl(267_100%_54%_/_0.3)]">
+                <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                   {selectedResponse.metadata.aiProvider === 'Venice AI (Uncensored)' ? 'Venice AI' : selectedResponse.metadata.aiProvider}
                 </Badge>
               </>
@@ -53,13 +53,13 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
             {selectedResponse?.query && (
               <div className="historic-response user-theme">
                 <h4 className="font-medium mb-3 text-sm flex items-center gap-2">
-                  <Badge variant="outline" className="bg-[hsl(267_100%_54%_/_0.12)] text-[hsl(267_100%_25%)] border-[hsl(267_100%_54%_/_0.3)]">
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800">
                     Your Question
                   </Badge>
                   <span>•</span>
                   <span>{selectedResponse?.created_at ? new Date(selectedResponse.created_at).toLocaleString() : ''}</span>
                 </h4>
-                <div className="p-4 rounded-lg" style={{ background: 'linear-gradient(135deg, hsl(247 93% 28% / 0.08), hsl(267 100% 54% / 0.08))', borderLeft: '4px solid hsl(267 100% 54% / 0.6)' }}>
+                <div className="p-4 rounded-lg bg-[#2d1f17]/45 border-l-4 border-orange-400">
                   <div className="conversational-content">
                     <MessageContent content={selectedResponse.query} sender="user" />
                   </div>
@@ -70,30 +70,30 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
             {selectedResponse?.response && (
               <div className="historic-response agent-theme">
                 <h4 className="font-medium mb-3 text-sm flex items-center gap-2">
-                   <Badge variant="secondary" className="bg-iqube-primary text-white">
+                   <Badge variant="secondary" className="bg-qrypto-primary">
                      Nakamoto
                    </Badge>
                    {selectedResponse?.metadata?.modelUsed && (
-                     <Badge variant="outline" className="text-xs bg-[hsl(267_100%_54%_/_0.12)] text-[hsl(267_100%_25%)] border-[hsl(267_100%_54%_/_0.3)]">
+                     <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
                        {selectedResponse.metadata.modelUsed}
                      </Badge>
                    )}
                   {selectedResponse.metadata && (
                     <div className="flex gap-1">
                       {selectedResponse.metadata.qryptoItemsFound > 0 && (
-                        <Badge variant="outline" className="text-xs bg-[hsl(267_100%_54%_/_0.12)] text-[hsl(267_100%_25%)] border-[hsl(267_100%_54%_/_0.3)]">
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
                           {selectedResponse.metadata.qryptoItemsFound} KB items found
                         </Badge>
                       )}
                       {selectedResponse.metadata.metaKnytsItemsFound > 0 && (
-                        <Badge variant="outline" className="text-xs bg-[hsl(257_90%_60%_/_0.12)] text-[hsl(257_90%_30%)] border-[hsl(257_90%_60%_/_0.3)]">
+                        <Badge variant="outline" className="text-xs bg-purple-100 text-purple-800">
                           {selectedResponse.metadata.metaKnytsItemsFound} mẹtaKnyts items
                         </Badge>
                       )}
                     </div>
                   )}
                 </h4>
-                <div className="p-4 rounded-lg" style={{ background: 'linear-gradient(135deg, hsl(247 93% 28% / 0.08), hsl(267 100% 54% / 0.08))', borderLeft: '4px solid hsl(267 100% 54% / 0.6)' }}>
+                <div className="p-4 rounded-lg bg-[#23223f]/[0.32] border-l-4 border-indigo-400">
                   <div className="conversational-content">
                     <MessageContent content={selectedResponse.response} sender="agent" />
                   </div>
