@@ -15,9 +15,7 @@ import { useSidebarState } from '@/hooks/use-sidebar-state';
 import { Button } from '@/components/ui/button';
 
 const Profile = () => {
-  const {
-    user
-  } = useAuth();
+  const { user, isGuest, loading: authLoading } = useAuth();
   const { selectedIQube } = useSidebarState();
   const [activeTab, setActiveTab] = useState<'all' | 'qripto' | 'knyt'>('all');
   const [selectedResponse, setSelectedResponse] = useState<any>(null);
@@ -76,7 +74,42 @@ const Profile = () => {
     .replace(/\n\n+/g, ' ').trim();
   };
   
-  if (!user) return null;
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user && isGuest) {
+    return (
+      <TooltipProvider>
+        <div className="min-h-screen w-full overflow-x-hidden">
+          <div className="max-w-full px-3 sm:px-6 py-3 sm:py-6 space-y-4">
+            <Card className="w-full">
+              <CardHeader className="pb-2 px-3 sm:px-6">
+                <CardTitle className="text-base sm:text-lg font-montserrat font-bold">Profile</CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 sm:px-6 pb-3">
+                <p className="text-sm text-muted-foreground">You’re browsing in guest mode. Sign in to view your profile and history.</p>
+                <div className="mt-3">
+                  <Link to="/signin">
+                    <Button size="sm">Sign in</Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
+  if (!user && !isGuest) return null;
   
   return (
     <TooltipProvider>
