@@ -501,6 +501,114 @@ FOR SELECT USING (
 );
 ```
 
+### Issue 5: Persona Tables Missing Name Fields
+
+**Symptoms**:
+- NameManagementSection displays "No data for selected persona" even when persona exists
+- Name preferences cannot be properly stored or displayed
+- Profile management features incomplete
+
+**Root Cause**:
+Initial persona table schema was missing critical name fields (`First-Name` and `Last-Name`) that are required by the name management system.
+
+**Solution**:
+Add missing columns to both persona tables:
+
+```sql
+-- Add name fields to knyt_personas
+ALTER TABLE public.knyt_personas
+ADD COLUMN IF NOT EXISTS "First-Name" TEXT,
+ADD COLUMN IF NOT EXISTS "Last-Name" TEXT,
+ADD COLUMN IF NOT EXISTS "Email" TEXT;
+
+-- Add name fields to qripto_personas  
+ALTER TABLE public.qripto_personas
+ADD COLUMN IF NOT EXISTS "First-Name" TEXT,
+ADD COLUMN IF NOT EXISTS "Last-Name" TEXT,
+ADD COLUMN IF NOT EXISTS "Email" TEXT;
+```
+
+**Note**: Column names use mixed case with hyphens to match external API naming conventions (LinkedIn, Twitter).
+
+### Issue 6: Duplicate UI Messages in Components
+
+**Symptoms**:
+- "No data for selected persona" message appearing multiple times
+- Confusing UX with redundant empty state messaging
+- CardDescription not dynamically reflecting current view
+
+**Root Cause**:
+Component had duplicate conditional rendering logic showing the same empty state message twice.
+
+**Solution**:
+Clean up conditional rendering in `NameManagementSection.tsx`:
+- Remove duplicate empty state checks
+- Update CardDescription to dynamically display filtered persona type
+- Consolidate empty state rendering into single location
+
+```tsx
+// Dynamic description based on filter
+<CardDescription className="text-xs sm:text-sm">
+  {filterPersonaType 
+    ? `Manage your ${filterPersonaType.toUpperCase()} persona display names and profile images`
+    : 'Manage your persona display names and profile images across KNYT and QRIPTO'}
+</CardDescription>
+```
+
+### Issue 7: Protected Routes Not Handling Guest Mode
+
+**Symptoms**:
+- Profile page shows blank screen when not authenticated
+- Loading states not properly displayed
+- Guest users see nothing instead of helpful sign-in prompt
+
+**Root Cause**:
+Profile.tsx component returned `null` when `user` was null, but `ProtectedRoute` wrapper allows guest mode, creating mismatch where component renders nothing while route thinks it should show content.
+
+**Solution**:
+Update Profile component to properly handle all authentication states:
+
+```tsx
+const { user, isGuest, loading: authLoading } = useAuth();
+
+// Show loading spinner during authentication check
+if (authLoading) {
+  return (
+    <div className="flex h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-lg">Loading profile...</p>
+      </div>
+    </div>
+  );
+}
+
+// Show sign-in prompt for guest users
+if (!user && isGuest) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Profile</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          You're browsing in guest mode. Sign in to view your profile and history.
+        </p>
+        <Link to="/signin">
+          <Button size="sm">Sign in</Button>
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+**Key Lessons**:
+- Always handle loading, authenticated, and guest states explicitly
+- Never return `null` from protected routes - provide helpful messaging
+- Extract auth states early: `isGuest`, `loading`, `user`
+- Ensure UI consistency between route protection and component rendering
+
 ---
 
 ## Testing Checklist
