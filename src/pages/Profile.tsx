@@ -187,8 +187,8 @@ const Profile = () => {
                 }).map(interaction => (
                   <div key={interaction.id} className="w-full overflow-hidden">
                     {/* User Query */}
-                    {interaction.query && (
-                       <div className="p-2 sm:p-3 rounded-lg bg-[#2d1f17]/45 border-l-4 border-orange-400 mb-2 overflow-hidden">
+                     {interaction.query && (
+                       <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-r from-[hsl(247,93%,28%)]/[0.04] to-[hsl(267,100%,54%)]/[0.04] border-l-4 border-[hsl(267,100%,54%)]/[0.1] mb-2 overflow-hidden">
                          <div className="flex flex-col gap-1 mb-2">
                            <div className="flex items-center gap-2">
                              <Badge variant="outline" className="text-orange-200 bg-gray-500 border-orange-400 w-fit text-xs">
