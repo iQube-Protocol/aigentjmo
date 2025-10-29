@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { TENANT_CONFIG } from '@/config/tenant';
 
 export interface InteractionData {
   query: string;
@@ -20,11 +21,12 @@ export const storeUserInteraction = async (data: InteractionData) => {
       return { success: false, error: new Error('User not authenticated') };
     }
 
-    // Enhance metadata with current persona context
+    // Enhance metadata with current persona context and tenant agent name
     const selectedPersona = localStorage.getItem('selected-iqube');
     const enhancedMetadata = {
       ...data.metadata,
       activePersona: selectedPersona || 'Anon',
+      agentName: TENANT_CONFIG.agentName,
       timestamp: new Date().toISOString()
     };
 

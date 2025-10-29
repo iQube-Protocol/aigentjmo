@@ -646,7 +646,85 @@ const { data } = await supabase
 - Test thoroughly in production-like environment before deploying
 - Review console logs for database errors during integration testing
 
-### Issue 9: Inconsistent History Rendering in Production
+### Issue 9: Tenant Agent Name Not Displaying in History
+
+**Symptoms**:
+- History shows generic "Nakamoto" agent name instead of tenant-specific name (e.g., "JMO KNYT")
+- Agent name doesn't match the tenant branding in QubeBase
+- All interactions show the same agent name regardless of tenant
+
+**Root Cause**:
+The agent name was hardcoded in the Profile.tsx component instead of being read from tenant configuration and interaction metadata.
+
+**Solution**:
+1. Add `agentName` property to tenant configuration
+2. Store agent name in interaction metadata when saving
+3. Read agent name from metadata when displaying in Profile
+
+**Implementation Steps**:
+
+**Step 1: Update Tenant Configuration** (`src/config/tenant.ts`):
+```typescript
+export const TENANT_CONFIG = {
+  // Unique tenant identifier
+  tenantId: 'aigent-jmo',
+  
+  // Display name in QubeBase
+  displayName: 'Aigent JMO',
+  
+  // Agent name displayed in UI and history
+  agentName: 'JMO KNYT',  // ✅ Add this property
+  
+  // Parent project (root)
+  parentProject: 'aigent-nakamoto',
+  ...
+}
+```
+
+**Step 2: Store Agent Name in Metadata** (`src/services/user-interaction-service.ts`):
+```typescript
+import { TENANT_CONFIG } from '@/config/tenant';
+
+// Inside storeUserInteraction function:
+const enhancedMetadata = {
+  ...data.metadata,
+  activePersona: selectedPersona || 'Anon',
+  agentName: TENANT_CONFIG.agentName,  // ✅ Add agent name to metadata
+  timestamp: new Date().toISOString()
+};
+```
+
+**Step 3: Display Agent Name from Metadata** (`src/pages/Profile.tsx`):
+```typescript
+// ❌ WRONG - hardcoded agent name
+<Badge variant="secondary" className="bg-qripto-primary w-fit text-xs">
+  Nakamoto
+</Badge>
+
+// ✅ CORRECT - read from metadata with fallback
+<Badge variant="secondary" className="bg-qripto-primary w-fit text-xs">
+  {interaction.metadata?.agentName || 'Nakamoto'}
+</Badge>
+```
+
+**Affected Files**:
+- `src/config/tenant.ts` - Add agentName property
+- `src/services/user-interaction-service.ts` - Store agentName in metadata
+- `src/pages/Profile.tsx` - Display agentName from metadata in history list
+- `src/components/profile/ResponseDialog.tsx` - Display agentName in detailed view dialog
+
+**Testing**:
+1. Update tenant config with your agent name
+2. Have a conversation with the agent
+3. Check Profile page history - should show your tenant's agent name
+4. Verify old interactions still show "Nakamoto" as fallback
+
+**Prevention**:
+- Always read agent name from tenant config, never hardcode
+- Include agent name in all interaction metadata
+- Use fallback values for backwards compatibility with old data
+
+### Issue 10: Inconsistent History Rendering in Production
 
 **Symptoms**:
 - User interaction history doesn't always render automatically on Profile page

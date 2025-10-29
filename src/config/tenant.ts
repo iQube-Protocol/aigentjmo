@@ -12,6 +12,9 @@ export const TENANT_CONFIG = {
   // Display name in QubeBase
   displayName: 'Aigent JMO',
   
+  // Agent name displayed in UI and history
+  agentName: 'JMO KNYT',
+  
   // Parent project (root)
   parentProject: 'aigent-nakamoto',
   

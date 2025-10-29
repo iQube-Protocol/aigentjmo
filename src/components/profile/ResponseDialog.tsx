@@ -13,8 +13,14 @@ interface ResponseDialogProps {
 }
 
 const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogProps) => {
-  const getAgentName = (interactionType: string) => {
-    switch (interactionType) {
+  const getAgentName = (interaction: any) => {
+    // First try to get agent name from metadata (tenant-specific)
+    if (interaction?.metadata?.agentName) {
+      return interaction.metadata.agentName;
+    }
+    
+    // Fallback to interaction type mapping for legacy data
+    switch (interaction?.interaction_type) {
       case 'aigent':
         return 'Nakamoto';
       case 'learn':
@@ -24,7 +30,7 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
       case 'connect':
         return 'Connection';
       default:
-        return interactionType;
+        return interaction?.interaction_type || 'Agent';
     }
   };
 
@@ -35,7 +41,7 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
           <DialogTitle className="pr-8">Historic Conversation</DialogTitle>
           <DialogDescription className="text-xs flex items-center gap-2">
             <Badge variant="outline" className="bg-qrypto-primary/20">
-              {getAgentName(selectedResponse?.interaction_type)}
+              {getAgentName(selectedResponse)}
             </Badge>
             {selectedResponse?.metadata?.aiProvider && (
               <>
@@ -71,7 +77,7 @@ const ResponseDialog = ({ selectedResponse, isOpen, onClose }: ResponseDialogPro
               <div className="historic-response agent-theme">
                 <h4 className="font-medium mb-3 text-sm flex items-center gap-2">
                    <Badge variant="secondary" className="bg-qrypto-primary">
-                     Nakamoto
+                     {getAgentName(selectedResponse)}
                    </Badge>
                    {selectedResponse?.metadata?.modelUsed && (
                      <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
