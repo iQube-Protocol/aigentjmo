@@ -787,6 +787,66 @@ Always check existing secrets before using environment variables:
 - Use the correct env variable names that exist in your project
 - Add new secrets via the secrets tool before using them in code
 
+### Issue 12: Tenant-Specific Meta Tags and Branding
+
+**Symptoms**:
+- Social media link previews show incorrect branding (root project name instead of tenant name)
+- Open Graph and Twitter Card metadata displays "Aigent Nakamoto" instead of tenant-specific name
+- Link previews on platforms like Slack, Discord, LinkedIn show wrong description
+
+**Root Cause**:
+The `index.html` file contains hardcoded meta tags for the root project (Aigent Nakamoto) instead of tenant-specific branding.
+
+**Solution**:
+Update meta tags in `index.html` to reflect tenant branding:
+
+```html
+<!-- ❌ WRONG - Root project branding -->
+<meta property="og:title" content="Aigent Nakamoto - AI Agent Community Platform" />
+<meta name="twitter:title" content="Aigent Nakamoto - AI Agent Community Platform" />
+
+<!-- ✅ CORRECT - Tenant-specific branding -->
+<meta property="og:title" content="Aigent JMO KNYT - REIT AI Agent Community Platform" />
+<meta name="twitter:title" content="Aigent JMO KNYT - REIT AI Agent Community Platform" />
+```
+
+**Full Meta Tag Configuration**:
+```html
+<!-- Open Graph / Facebook -->
+<meta property="og:title" content="Aigent JMO KNYT - REIT AI Agent Community Platform" />
+<meta property="og:description" content="Join the future of AI agents with advanced blockchain integration, quantum cryptography, and decentralized intelligence networks" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://jmo.aigentz.me" />
+<meta property="og:image" content="/lovable-uploads/fb39dde0-7003-40a5-812e-6d6439bd1391.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:site_name" content="Aigent JMO KNYT" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@AigentNakamoto" />
+<meta name="twitter:title" content="Aigent JMO KNYT - REIT AI Agent Community Platform" />
+<meta name="twitter:description" content="Join the future of AI agents with advanced blockchain integration, quantum cryptography, and decentralized intelligence networks" />
+<meta name="twitter:image" content="/lovable-uploads/fb39dde0-7003-40a5-812e-6d6439bd1391.png" />
+```
+
+**Tenant Configuration Checklist**:
+1. Update `og:title` and `twitter:title` with tenant name and description
+2. Update `og:url` with tenant domain
+3. Update `og:site_name` with tenant name
+4. Update `twitter:site` handle if tenant has separate Twitter account
+5. Replace `og:image` and `twitter:image` if tenant has custom branding image
+6. Verify page title in `<title>` tag matches tenant branding
+
+**Affected Files**:
+- `index.html` - Lines 16-31 (Open Graph and Twitter Card meta tags)
+
+**Prevention**:
+- Always customize meta tags for each tenant during initial setup
+- Document tenant-specific branding requirements
+- Test link previews on multiple platforms (Slack, Discord, LinkedIn, Twitter)
+- Use tenant configuration file as source of truth for branding
+
 ### Issue 10: Inconsistent History Rendering in Production
 
 **Symptoms**:
