@@ -40,15 +40,8 @@ const Profile = () => {
     deferDuringNavigation: true
   });
 
-  useEffect(() => {
-    refreshInteractions();
-  }, [activeTab, refreshInteractions]);
-
-  // Refresh when persona selection changes
-  useEffect(() => {
-    // Force a re-render when selectedIQube changes
-    setActiveTab(prev => prev); // Trigger state update
-  }, [selectedIQube]);
+  // Removed the problematic useEffect that was causing infinite re-fetches
+  // The hook already handles initial fetch internally
   
   const handleResponseClick = (interaction: any) => {
     setSelectedResponse(interaction);
