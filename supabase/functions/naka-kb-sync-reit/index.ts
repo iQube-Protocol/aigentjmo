@@ -61,7 +61,8 @@ serve(async (req) => {
 
     // Get the root corpus ID from Core Hub
     const { data: corpus, error: corpusError } = await coreSupabase
-      .from('kb.corpora')
+      .schema('kb')
+      .from('corpora')
       .select('id')
       .eq('app', 'nakamoto')
       .eq('name', 'Root')
@@ -93,13 +94,14 @@ serve(async (req) => {
 
         // Check if doc already exists in Core Hub
         const { data: existing } = await coreSupabase
-          .from('kb.docs')
+          .schema('kb')
+          .from('docs')
           .select('id, version')
           .eq('corpus_id', corpus.id)
           .eq('scope', 'tenant')
           .eq('tenant_id', 'aigent-jmo')
           .eq('title', cardData.title)
-          .single();
+          .maybeSingle();
 
         if (existing && !force_update) {
           console.log(`⏭️  Skipping existing doc: "${cardData.title}"`);
@@ -110,7 +112,8 @@ serve(async (req) => {
         if (existing && force_update) {
           // Update existing doc
           const { error: updateError } = await coreSupabase
-            .from('kb.docs')
+            .schema('kb')
+            .from('docs')
             .update({
               content_text: cardData.content_text,
               tags: cardData.tags,
@@ -128,7 +131,8 @@ serve(async (req) => {
           
           // Enqueue for reindexing
           await coreSupabase
-            .from('kb.reindex_queue')
+            .schema('kb')
+            .from('reindex_queue')
             .insert({
               doc_id: existing.id,
               action: 'upsert'
@@ -139,7 +143,8 @@ serve(async (req) => {
         } else {
           // Insert new doc
           const { data: inserted, error: insertError } = await coreSupabase
-            .from('kb.docs')
+            .schema('kb')
+            .from('docs')
             .insert({
               corpus_id: corpus.id,
               scope: 'tenant',
@@ -165,7 +170,8 @@ serve(async (req) => {
 
           // Enqueue for reindexing
           await coreSupabase
-            .from('kb.reindex_queue')
+            .schema('kb')
+            .from('reindex_queue')
             .insert({
               doc_id: inserted.id,
               action: 'upsert'
