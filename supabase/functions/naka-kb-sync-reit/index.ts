@@ -44,10 +44,19 @@ serve(async (req) => {
     if (!coreUrl || coreUrl.startsWith('postgres://')) {
       const fromRaw = coreUrl && coreUrl.startsWith('postgres://') ? deriveHttpsFromPostgres(coreUrl) : null;
       const fromDb = coreDbUrl.startsWith('postgres://') ? deriveHttpsFromPostgres(coreDbUrl) : null;
-      const derived = fromRaw || fromDb;
+      const derived = fromDb || fromRaw;
       if (derived) {
         coreUrl = derived;
         console.log(`Derived Core Hub API URL: ${coreUrl}`);
+      }
+    } else {
+      // Prefer DB URL if both are set, to avoid pointing at the wrong project
+      if (coreDbUrl.startsWith('postgres://')) {
+        const prefer = deriveHttpsFromPostgres(coreDbUrl);
+        if (prefer && prefer !== coreUrl) {
+          coreUrl = prefer;
+          console.log(`Overrode Core Hub API URL using CORE_SUPABASE_DB_URL: ${coreUrl}`);
+        }
       }
     }
 
@@ -58,8 +67,9 @@ serve(async (req) => {
       throw new Error('Invalid CORE_SUPABASE_URL: must be an HTTPS URL like https://<ref>.supabase.co, not a postgres connection string');
     }
 
-    // Connect to Core Hub using public schema (kb schema doesn't exist)
-    const coreSupabase = createClient(coreUrl, coreServiceKey, {
+    // Try 'kb' schema first (preferred); will work if 'kb' is exposed to REST
+    let coreSupabase = createClient(coreUrl, coreServiceKey, {
+      db: { schema: 'kb' },
       auth: { persistSession: false },
     });
 
