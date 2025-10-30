@@ -23,22 +23,31 @@ serve(async (req) => {
     const localSupabase = createClient(localUrl, localServiceKey);
 
     // Core Hub client - operate on kb schema via HTTP
-    const rawCoreUrl = Deno.env.get('CORE_SUPABASE_URL') ?? '';
-    const coreDbUrl = Deno.env.get('CORE_SUPABASE_DB_URL') ?? '';
+    const rawCoreUrl = (Deno.env.get('CORE_SUPABASE_URL') ?? '').trim();
+    const coreDbUrl = (Deno.env.get('CORE_SUPABASE_DB_URL') ?? '').trim();
     const coreServiceKey = Deno.env.get('CORE_SUPABASE_SERVICE_ROLE_KEY');
 
     // Normalize Core Hub URL: accept HTTPS base URL or derive from Postgres URL
     let coreUrl = rawCoreUrl;
-    if ((!coreUrl || coreUrl.startsWith('postgres://')) && coreDbUrl.startsWith('postgres://')) {
+
+    const deriveHttpsFromPostgres = (pgUrl: string): string | null => {
       try {
-        const dbHost = new URL(coreDbUrl).hostname; // e.g., db.<ref>.supabase.co
-        const parts = dbHost.split('.');
-        // Handle hosts like db.<ref>.supabase.co
+        const host = new URL(pgUrl).hostname; // e.g., db.<ref>.supabase.co
+        const parts = host.split('.');
         const ref = parts[0] === 'db' && parts.length >= 3 ? parts[1] : parts[0];
-        coreUrl = `https://${ref}.supabase.co`;
-        console.log(`Derived Core Hub API URL from DB URL: ${coreUrl}`);
+        return `https://${ref}.supabase.co`;
       } catch {
-        // ignore; validation below will catch
+        return null;
+      }
+    };
+
+    if (!coreUrl || coreUrl.startsWith('postgres://')) {
+      const fromRaw = coreUrl && coreUrl.startsWith('postgres://') ? deriveHttpsFromPostgres(coreUrl) : null;
+      const fromDb = coreDbUrl.startsWith('postgres://') ? deriveHttpsFromPostgres(coreDbUrl) : null;
+      const derived = fromRaw || fromDb;
+      if (derived) {
+        coreUrl = derived;
+        console.log(`Derived Core Hub API URL: ${coreUrl}`);
       }
     }
 
