@@ -33,9 +33,12 @@ serve(async (req) => {
       throw new Error('CORE_SUPABASE_DB_URL is required. Format: postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres');
     }
     
+    // Mask password for logging
+    const maskedUrl = coreDbUrl.replace(/:([^@]+)@/, ':****@');
+    console.log(`🔌 Connecting to Core Hub: ${maskedUrl}`);
+    
     // Create PostgreSQL client for Core Hub (to access kb schema)
-    console.log('🔌 Connecting to Core Hub database...');
-    coreClient = new Client(coreDbUrl);
+    coreClient = new Client(coreDbUrl.trim());
 
     await coreClient.connect();
     
