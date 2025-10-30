@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.naka-kb-sync-reit]
 verify_jwt = false
+
+[functions.naka-reit-kb-ingest]
+verify_jwt = false
