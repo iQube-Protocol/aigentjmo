@@ -212,6 +212,63 @@ export type Database = {
         }
         Relationships: []
       }
+      reit_knowledge_items: {
+        Row: {
+          category: string
+          connections: string[] | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          cross_tags: string[] | null
+          id: string
+          is_active: boolean | null
+          keywords: string[] | null
+          reit_id: string
+          section: string
+          source: string
+          timestamp: string
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          category: string
+          connections?: string[] | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          cross_tags?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          reit_id: string
+          section: string
+          source: string
+          timestamp?: string
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          connections?: string[] | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          cross_tags?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          reit_id?: string
+          section?: string
+          source?: string
+          timestamp?: string
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       user_connections: {
         Row: {
           connection_data: Json | null
