@@ -30,17 +30,52 @@ serve(async (req) => {
     const coreDbUrl = Deno.env.get('CORE_SUPABASE_DB_URL');
     
     if (!coreDbUrl) {
-      throw new Error('CORE_SUPABASE_DB_URL is required. Format: postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres');
+      throw new Error('CORE_SUPABASE_DB_URL is required. Format: postgres://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres?sslmode=require');
     }
     
-    // Mask password for logging
-    const maskedUrl = coreDbUrl.replace(/:([^@]+)@/, ':****@');
+    // Normalize connection URL
+    let normalizedUrl = coreDbUrl.trim();
+    
+    // Replace postgresql:// with postgres:// if present
+    if (normalizedUrl.startsWith('postgresql://')) {
+      normalizedUrl = normalizedUrl.replace('postgresql://', 'postgres://');
+    }
+    
+    // Add sslmode=require if not present
+    if (!normalizedUrl.includes('sslmode')) {
+      normalizedUrl += normalizedUrl.includes('?') ? '&sslmode=require' : '?sslmode=require';
+    }
+    
+    // Parse URL for safe logging
+    const urlObj = new URL(normalizedUrl);
+    const maskedUrl = normalizedUrl.replace(/(postgres(ql)?:\/\/)([^@]+)@/, '$1****@');
     console.log(`🔌 Connecting to Core Hub: ${maskedUrl}`);
+    console.log(`🔌 Target host: ${urlObj.hostname}, port: ${urlObj.port || '5432'}`);
     
     // Create PostgreSQL client for Core Hub (to access kb schema)
-    coreClient = new Client(coreDbUrl.trim());
+    coreClient = new Client(normalizedUrl);
 
-    await coreClient.connect();
+    // Connect with retry logic
+    let connected = false;
+    const maxRetries = 3;
+    const retryDelays = [500, 1000, 2000];
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        console.log(`🔄 Connection attempt ${attempt + 1}/${maxRetries}...`);
+        await coreClient.connect();
+        connected = true;
+        console.log(`✅ Connected to Core Hub on attempt ${attempt + 1}`);
+        break;
+      } catch (error: any) {
+        console.error(`❌ Connection attempt ${attempt + 1} failed:`, error.message);
+        if (attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+        } else {
+          throw new Error(`Failed to connect after ${maxRetries} attempts: ${error.message}`);
+        }
+      }
+    }
     
     const { force_update = false } = await req.json();
     
