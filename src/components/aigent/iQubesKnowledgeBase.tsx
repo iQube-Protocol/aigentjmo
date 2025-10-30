@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { iQubesKB } from '@/services/iqubes-knowledge-base';
 import { coynKB } from '@/services/coyn-knowledge-base';
 import { jmoReitKB } from '@/services/jmo-reit-knowledge-base';
@@ -9,12 +11,18 @@ import KnowledgeBaseSearch from './components/KnowledgeBaseSearch';
 import KnowledgeList from './components/KnowledgeList';
 import KnowledgeItemDialog from './components/KnowledgeItemDialog';
 import SyncREITKBButton from './components/SyncREITKBButton';
+import { REITCardEditor } from '@/components/admin/REITCardEditor';
+import { useAdminCheck } from '@/hooks/use-admin-check';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const iQubesKnowledgeBase = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editorMode, setEditorMode] = useState<'create' | 'edit'>('create');
+  const { isAdmin } = useAdminCheck();
   const isMobile = useIsMobile();
   
   // Check if this is the JMO tenant
@@ -43,6 +51,24 @@ const iQubesKnowledgeBase = () => {
     setSelectedItem(null);
   };
 
+  const handleEdit = (item: any) => {
+    setEditingItem(item);
+    setEditorMode('edit');
+    setEditorOpen(true);
+    setSelectedItem(null);
+  };
+
+  const handleCreate = () => {
+    setEditingItem(null);
+    setEditorMode('create');
+    setEditorOpen(true);
+  };
+
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+    setEditingItem(null);
+  };
+
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="px-4 pt-4">
@@ -50,8 +76,16 @@ const iQubesKnowledgeBase = () => {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
         />
-        {isJMOTenant && (
-          <div className="mt-2 flex justify-end">
+        {isJMOTenant && isAdmin && (
+          <div className="mt-2 flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleCreate}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add REIT Card
+            </Button>
             <SyncREITKBButton />
           </div>
         )}
@@ -118,7 +152,17 @@ const iQubesKnowledgeBase = () => {
         selectedItem={selectedItem}
         isOpen={!!selectedItem}
         onClose={closeDialog}
+        onEdit={handleEdit}
       />
+
+      {isJMOTenant && isAdmin && (
+        <REITCardEditor
+          isOpen={editorOpen}
+          onClose={handleEditorClose}
+          item={editingItem}
+          mode={editorMode}
+        />
+      )}
     </div>
   );
 };

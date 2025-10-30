@@ -3,24 +3,52 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Edit } from 'lucide-react';
 import MessageContent from '@/components/shared/agent/message/MessageContent';
+import { useAdminCheck } from '@/hooks/use-admin-check';
+
 interface KnowledgeItemDialogProps {
   selectedItem: any;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: (item: any) => void;
 }
+
 const KnowledgeItemDialog = ({
   selectedItem,
   isOpen,
-  onClose
+  onClose,
+  onEdit
 }: KnowledgeItemDialogProps) => {
+  const { isAdmin } = useAdminCheck();
+  
+  // Check if this is a REIT card (has reit-related category or source)
+  const isREITCard = selectedItem?.category?.includes('reit') || 
+                     selectedItem?.source?.includes('REIT') ||
+                     selectedItem?.section?.includes('REIT');
+  
+  const canEdit = isAdmin && isREITCard && onEdit;
   return <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className="max-w-2xl h-[80vh] flex flex-col">
         <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="pr-8">{selectedItem?.title}</DialogTitle>
-          <DialogDescription className="text-xs">
-            Source: {selectedItem?.source} • Type: {selectedItem?.type}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <DialogTitle className="pr-8">{selectedItem?.title}</DialogTitle>
+              <DialogDescription className="text-xs">
+                Source: {selectedItem?.source} • Type: {selectedItem?.type}
+              </DialogDescription>
+            </div>
+            {canEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(selectedItem)}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         <ScrollArea className="flex-1 min-h-0">

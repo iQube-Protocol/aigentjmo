@@ -787,7 +787,124 @@ Always check existing secrets before using environment variables:
 - Use the correct env variable names that exist in your project
 - Add new secrets via the secrets tool before using them in code
 
-### Issue 12: Tenant-Specific Meta Tags and Branding
+### Issue 13: REIT Knowledge Base Admin Editing
+
+**Description**:
+System for tenant super admins to edit REIT Knowledge Base cards with dual storage (local database + QubeBase Core Hub synchronization).
+
+**Architecture**:
+
+**Database Table:** `reit_knowledge_items`
+- Stores all REIT KB cards in local tenant database
+- Fields: `reit_id`, `title`, `content`, `section`, `category`, `keywords`, `source`, `connections`, `cross_tags`, `is_active`
+- RLS Policies: Super admins have full CRUD, public has read-only access to active items
+- Realtime enabled for live updates
+
+**Service Layer:** `JMOREITKnowledgeBase`
+- Singleton class that fetches from database on initialization
+- Falls back to hardcoded data if database is empty
+- Methods: `addItem()`, `updateItem()`, `deleteItem()` (soft delete), `refreshFromDatabase()`
+- Realtime subscription updates cache when admins make changes
+
+**Admin UI Components:**
+- `REITCardEditor`: Full-featured editor with markdown preview, keyword/connection management
+- Edit button in `KnowledgeItemDialog` (visible only to admins for REIT cards)
+- "Add REIT Card" button in iQube KB interface (JMO tenant super admins only)
+
+**QubeBase Sync:**
+- Edge function `naka-kb-sync-reit` reads from `reit_knowledge_items` table
+- Syncs active cards to QubeBase `kb.docs` table with tenant scoping (`tenant_id = 'aigent-jmo'`)
+- Triggered automatically after admin saves
+- Manual bulk sync available via "Sync REIT KB" button
+
+**Security**:
+- Edit rights restricted to `super_admin` role only
+- iQubes, COYN, and MetaKnyts KB edit rights reserved for `uber_admin` (future implementation)
+- RLS policies enforce access control at database level
+- Server-side validation in edge functions
+
+**Data Flow**:
+```
+Admin Edit → REITCardEditor
+    ↓
+Save to Local DB (reit_knowledge_items)
+    ↓
+Trigger naka-kb-sync-reit Edge Function
+    ↓
+Update QubeBase Core Hub (kb.docs table)
+    ↓
+Realtime → Refresh UI Cache
+```
+
+**Key Features**:
+- Markdown content support with live preview
+- Array field management (keywords, connections, cross tags)
+- Soft deletes preserve history
+- Dual storage ensures data integrity
+- Automatic QubeBase synchronization
+- Realtime collaborative editing
+
+**Usage**:
+1. Super admin logs in to tenant site
+2. Navigates to iQube Knowledge Base
+3. Clicks "Add REIT Card" or "Edit" button on existing card
+4. Makes changes in editor with preview
+5. Saves - automatically syncs to both local DB and QubeBase
+6. Changes propagate to all users in real-time
+
+**Testing Checklist**:
+- [ ] Super admin can create new REIT card
+- [ ] Super admin can edit existing REIT card
+- [ ] Super admin can soft delete REIT card
+- [ ] Non-admin users cannot see edit buttons
+- [ ] Non-admin users can view REIT cards normally
+- [ ] Changes sync to QubeBase successfully
+- [ ] Realtime updates work across sessions
+- [ ] Soft deleted cards disappear from public view
+- [ ] Keywords, connections, crossTags arrays work correctly
+- [ ] Markdown rendering works in preview and display
+
+**Common Issues**:
+
+**Symptom**: Admin can't edit REIT cards
+**Root Cause**: User doesn't have `super_admin` role in `user_roles` table
+**Solution**: Insert admin role:
+```sql
+INSERT INTO public.user_roles (user_id, role)
+VALUES ('user-uuid-here', 'super_admin');
+```
+
+**Symptom**: Changes save locally but don't sync to QubeBase
+**Root Cause**: Edge function env variables not set or Core Hub connection failed
+**Solution**: 
+- Verify `CORE_SUPABASE_URL` and `CORE_SUPABASE_SERVICE_ROLE_KEY` are set
+- Check edge function logs for sync errors
+- Use manual "Sync REIT KB" button to retry
+
+**Symptom**: Realtime updates not working
+**Root Cause**: Realtime not enabled on table
+**Solution**: Run migration:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE public.reit_knowledge_items;
+```
+
+**Affected Files**:
+- `supabase/migrations/` - Database table and RLS policies
+- `src/services/jmo-reit-knowledge-base/JMOREITKnowledgeBase.ts` - Service layer
+- `src/components/admin/REITCardEditor.tsx` - Editor component
+- `src/components/aigent/iQubesKnowledgeBase.tsx` - KB interface with admin buttons
+- `src/components/aigent/components/KnowledgeItemDialog.tsx` - Dialog with edit button
+- `supabase/functions/naka-kb-sync-reit/index.ts` - Sync edge function
+
+**Future Enhancements**:
+- Uber admin editing for iQubes, COYN, MetaKnyts KB
+- Version history and rollback capability
+- Bulk import/export functionality
+- Rich text editor instead of markdown
+- Image upload support
+- Card templates for common patterns
+
+---
 
 **Symptoms**:
 - Social media link previews show incorrect branding (root project name instead of tenant name)

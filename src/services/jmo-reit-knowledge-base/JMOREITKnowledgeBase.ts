@@ -1,13 +1,19 @@
 
 import { JMOREITKnowledgeItem } from './types';
 import { JMO_REIT_KNOWLEDGE_DATA } from './knowledge-data';
+import { supabase } from '@/integrations/supabase/client';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 export class JMOREITKnowledgeBase {
   private static instance: JMOREITKnowledgeBase;
   private knowledgeItems: JMOREITKnowledgeItem[] = [];
+  private isInitialized = false;
+  private initPromise: Promise<void> | null = null;
+  private realtimeChannel: RealtimeChannel | null = null;
 
   private constructor() {
-    this.initializeKnowledgeBase();
+    // Initialize async
+    this.initPromise = this.initializeKnowledgeBase();
   }
 
   public static getInstance(): JMOREITKnowledgeBase {
@@ -17,12 +23,190 @@ export class JMOREITKnowledgeBase {
     return JMOREITKnowledgeBase.instance;
   }
 
-  private initializeKnowledgeBase() {
-    this.addKnowledgeItems(JMO_REIT_KNOWLEDGE_DATA);
+  private async initializeKnowledgeBase() {
+    try {
+      // Fetch from database first
+      const dbItems = await this.fetchFromDatabase();
+      
+      if (dbItems && dbItems.length > 0) {
+        this.knowledgeItems = dbItems;
+      } else {
+        // Fall back to hardcoded data if database is empty
+        console.log('No REIT KB items in database, using hardcoded data');
+        this.knowledgeItems = [...JMO_REIT_KNOWLEDGE_DATA];
+      }
+      
+      // Set up realtime subscription
+      this.setupRealtimeSubscription();
+      this.isInitialized = true;
+    } catch (error) {
+      console.error('Error initializing REIT KB:', error);
+      // Fall back to hardcoded data on error
+      this.knowledgeItems = [...JMO_REIT_KNOWLEDGE_DATA];
+      this.isInitialized = true;
+    }
+  }
+
+  private async fetchFromDatabase(): Promise<JMOREITKnowledgeItem[]> {
+    const { data, error } = await supabase
+      .from('reit_knowledge_items')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching REIT KB from database:', error);
+      return [];
+    }
+
+    // Transform database records to knowledge items
+    return (data || []).map(item => ({
+      id: item.reit_id,
+      title: item.title,
+      content: item.content,
+      section: item.section,
+      category: item.category as any,
+      keywords: item.keywords || [],
+      timestamp: item.timestamp || new Date().toISOString(),
+      source: item.source,
+      connections: item.connections || [],
+      crossTags: item.cross_tags || []
+    }));
+  }
+
+  private setupRealtimeSubscription() {
+    this.realtimeChannel = supabase
+      .channel('reit_knowledge_items_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reit_knowledge_items'
+        },
+        () => {
+          // Refresh data when changes occur
+          this.refreshFromDatabase();
+        }
+      )
+      .subscribe();
+  }
+
+  public async refreshFromDatabase(): Promise<void> {
+    const dbItems = await this.fetchFromDatabase();
+    if (dbItems && dbItems.length > 0) {
+      this.knowledgeItems = dbItems;
+    }
+  }
+
+  public async ensureInitialized(): Promise<void> {
+    if (!this.isInitialized && this.initPromise) {
+      await this.initPromise;
+    }
   }
 
   public addKnowledgeItems(items: JMOREITKnowledgeItem[]) {
     this.knowledgeItems.push(...items);
+  }
+
+  public async addItem(item: Omit<JMOREITKnowledgeItem, 'timestamp'>): Promise<boolean> {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from('reit_knowledge_items')
+        .insert({
+          reit_id: item.id,
+          title: item.title,
+          content: item.content,
+          section: item.section,
+          category: item.category,
+          keywords: item.keywords || [],
+          source: item.source,
+          connections: item.connections || [],
+          cross_tags: item.crossTags || [],
+          created_by: userData?.user?.id,
+          updated_by: userData?.user?.id
+        });
+
+      if (error) {
+        console.error('Error adding REIT KB item:', error);
+        return false;
+      }
+
+      await this.refreshFromDatabase();
+      return true;
+    } catch (error) {
+      console.error('Error in addItem:', error);
+      return false;
+    }
+  }
+
+  public async updateItem(id: string, updates: Partial<JMOREITKnowledgeItem>): Promise<boolean> {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      const updateData: any = {
+        updated_by: userData?.user?.id
+      };
+
+      if (updates.title) updateData.title = updates.title;
+      if (updates.content) updateData.content = updates.content;
+      if (updates.section) updateData.section = updates.section;
+      if (updates.category) updateData.category = updates.category;
+      if (updates.keywords) updateData.keywords = updates.keywords;
+      if (updates.source) updateData.source = updates.source;
+      if (updates.connections) updateData.connections = updates.connections;
+      if (updates.crossTags) updateData.cross_tags = updates.crossTags;
+
+      const { error } = await supabase
+        .from('reit_knowledge_items')
+        .update(updateData)
+        .eq('reit_id', id);
+
+      if (error) {
+        console.error('Error updating REIT KB item:', error);
+        return false;
+      }
+
+      await this.refreshFromDatabase();
+      return true;
+    } catch (error) {
+      console.error('Error in updateItem:', error);
+      return false;
+    }
+  }
+
+  public async deleteItem(id: string): Promise<boolean> {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      
+      // Soft delete by setting is_active to false
+      const { error } = await supabase
+        .from('reit_knowledge_items')
+        .update({
+          is_active: false,
+          updated_by: userData?.user?.id
+        })
+        .eq('reit_id', id);
+
+      if (error) {
+        console.error('Error deleting REIT KB item:', error);
+        return false;
+      }
+
+      await this.refreshFromDatabase();
+      return true;
+    } catch (error) {
+      console.error('Error in deleteItem:', error);
+      return false;
+    }
+  }
+
+  public cleanup() {
+    if (this.realtimeChannel) {
+      supabase.removeChannel(this.realtimeChannel);
+    }
   }
 
   public searchKnowledge(query: string): JMOREITKnowledgeItem[] {
