@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let coreClient: Client | null = null;
+
   try {
     // Get local Supabase client to read from reit_knowledge_items
     const localUrl = Deno.env.get('SUPABASE_URL')!;
@@ -24,9 +27,13 @@ serve(async (req) => {
 
     // Use Core Hub credentials for syncing
     const coreUrl = Deno.env.get('CORE_SUPABASE_URL')!;
-    const coreServiceKey = Deno.env.get('CORE_SUPABASE_SERVICE_ROLE_KEY')!;
-    const coreSupabase = createClient(coreUrl, coreServiceKey);
+    const coreDbUrl = Deno.env.get('CORE_SUPABASE_DB_URL');
+    
+    // Create PostgreSQL client for Core Hub (to access kb schema)
+    coreClient = new Client(coreDbUrl || coreUrl.replace('https://', 'postgresql://postgres:') + ':5432/postgres');
 
+    await coreClient.connect();
+    
     const { force_update = false } = await req.json();
     
     console.log(`🚀 Starting JMO REIT KB sync to QubeBase (force_update: ${force_update})`);
@@ -59,20 +66,19 @@ serve(async (req) => {
 
     console.log(`📚 Found ${reitItems.length} active REIT KB items to sync`);
 
-    // Get the root corpus ID from Core Hub
-    const { data: corpus, error: corpusError } = await coreSupabase
-      .schema('kb')
-      .from('corpora')
-      .select('id')
-      .eq('app', 'nakamoto')
-      .eq('name', 'Root')
-      .single();
+    // Get the root corpus ID from Core Hub using direct SQL
+    const corpusResult = await coreClient.queryObject<{ id: string }>(
+      `SELECT id FROM kb.corpora WHERE app = $1 AND name = $2 LIMIT 1`,
+      ['nakamoto', 'Root']
+    );
 
-    if (corpusError || !corpus) {
-      throw new Error(`Root corpus not found: ${corpusError?.message || 'Unknown error'}`);
+    if (corpusResult.rows.length === 0) {
+      await coreClient.end();
+      throw new Error('Root corpus not found in Core Hub');
     }
 
-    console.log(`✅ Found root corpus: ${corpus.id}`);
+    const corpusId = corpusResult.rows[0].id;
+    console.log(`✅ Found root corpus: ${corpusId}`);
 
     const results = {
       created: 0,
@@ -93,15 +99,14 @@ serve(async (req) => {
         };
 
         // Check if doc already exists in Core Hub
-        const { data: existing } = await coreSupabase
-          .schema('kb')
-          .from('docs')
-          .select('id, version')
-          .eq('corpus_id', corpus.id)
-          .eq('scope', 'tenant')
-          .eq('tenant_id', 'aigent-jmo')
-          .eq('title', cardData.title)
-          .maybeSingle();
+        const existingResult = await coreClient.queryObject<{ id: string; version: number }>(
+          `SELECT id, version FROM kb.docs 
+           WHERE corpus_id = $1 AND scope = $2 AND tenant_id = $3 AND title = $4 
+           LIMIT 1`,
+          [corpusId, 'tenant', 'aigent-jmo', cardData.title]
+        );
+
+        const existing = existingResult.rows.length > 0 ? existingResult.rows[0] : null;
 
         if (existing && !force_update) {
           console.log(`⏭️  Skipping existing doc: "${cardData.title}"`);
@@ -111,71 +116,66 @@ serve(async (req) => {
 
         if (existing && force_update) {
           // Update existing doc
-          const { error: updateError } = await coreSupabase
-            .schema('kb')
-            .from('docs')
-            .update({
-              content_text: cardData.content_text,
-              tags: cardData.tags,
-              metadata: { 
+          await coreClient.queryObject(
+            `UPDATE kb.docs 
+             SET content_text = $1, tags = $2, metadata = $3, version = $4
+             WHERE id = $5`,
+            [
+              cardData.content_text,
+              cardData.tags,
+              JSON.stringify({ 
                 category: cardData.category,
                 reit_id: item.reit_id,
                 section: item.section,
                 source: item.source
-              },
-              version: existing.version + 1
-            })
-            .eq('id', existing.id);
-
-          if (updateError) throw updateError;
+              }),
+              (existing.version) + 1,
+              existing.id
+            ]
+          );
           
           // Enqueue for reindexing
-          await coreSupabase
-            .schema('kb')
-            .from('reindex_queue')
-            .insert({
-              doc_id: existing.id,
-              action: 'upsert'
-            });
+          await coreClient.queryObject(
+            `INSERT INTO kb.reindex_queue (doc_id, action) VALUES ($1, $2)`,
+            [existing.id, 'upsert']
+          );
 
-          console.log(`✏️  Updated doc: "${cardData.title}" (v${existing.version + 1})`);
+          console.log(`✏️  Updated doc: "${cardData.title}" (v${(existing.version) + 1})`);
           results.updated++;
-        } else {
+        } else if (!existing) {
           // Insert new doc
-          const { data: inserted, error: insertError } = await coreSupabase
-            .schema('kb')
-            .from('docs')
-            .insert({
-              corpus_id: corpus.id,
-              scope: 'tenant',
-              tenant_id: 'aigent-jmo',
-              title: cardData.title,
-              content_text: cardData.content_text,
-              source_uri: item.source || 'JMO REIT Strategy Document v1.0',
-              lang: 'en',
-              tags: cardData.tags,
-              metadata: { 
+          const insertResult = await coreClient.queryObject<{ id: string }>(
+            `INSERT INTO kb.docs 
+             (corpus_id, scope, tenant_id, title, content_text, source_uri, lang, tags, metadata, is_active, version)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+             RETURNING id`,
+            [
+              corpusId,
+              'tenant',
+              'aigent-jmo',
+              cardData.title,
+              cardData.content_text,
+              item.source || 'JMO REIT Strategy Document v1.0',
+              'en',
+              cardData.tags,
+              JSON.stringify({ 
                 category: cardData.category,
                 reit_id: item.reit_id,
                 section: item.section,
                 source: item.source
-              },
-              is_active: true,
-              version: 1
-            })
-            .select()
-            .single();
+              }),
+              true,
+              1
+            ]
+          );
 
-          if (insertError) throw insertError;
+          const insertedId = insertResult.rows[0].id;
 
           // Enqueue for reindexing
-          await coreSupabase
-            .schema('kb')
-            .from('reindex_queue')
-            .insert({
-              doc_id: inserted.id,
-              action: 'upsert'
-            });
+          await coreClient.queryObject(
+            `INSERT INTO kb.reindex_queue (doc_id, action) VALUES ($1, $2)`,
+            [insertedId, 'upsert']
+          );
 
           console.log(`➕ Created doc: "${cardData.title}"`);
           results.created++;
@@ -186,6 +186,8 @@ serve(async (req) => {
       }
     }
 
+    await coreClient.end();
+    
     console.log(`✅ Sync complete - Created: ${results.created}, Updated: ${results.updated}, Skipped: ${results.skipped}, Errors: ${results.errors.length}`);
 
     return new Response(
@@ -202,6 +204,9 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error('❌ Sync function error:', error);
+    try {
+      await coreClient?.end();
+    } catch {}
     return new Response(
       JSON.stringify({ 
         success: false,
