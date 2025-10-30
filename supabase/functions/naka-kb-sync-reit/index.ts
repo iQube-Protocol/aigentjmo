@@ -66,6 +66,25 @@ serve(async (req) => {
     const { force_update = false } = await req.json().catch(() => ({ force_update: false }));
     console.log(`🚀 Starting JMO REIT KB sync to Core Hub via HTTP (force_update: ${force_update})`);
 
+    // Preflight: verify Core Hub exposes expected KB tables via REST
+    const preflight = async (table: string) => {
+      const { error } = await coreSupabase.from(table).select('id').limit(1);
+      if (error) return { ok: false, table, error: error.message } as const;
+      return { ok: true, table } as const;
+    };
+    const checks = await Promise.all([
+      preflight('corpora'),
+      preflight('docs'),
+      preflight('reindex_queue')
+    ]);
+    const missing = checks.filter((c) => !c.ok);
+    if (missing.length) {
+      const details = missing.map((m) => `${m.table}: ${'error' in m ? m.error : 'unknown'}`).join('; ');
+      throw new Error(
+        `Core Hub KB tables not accessible. Expected public tables [corpora, docs, reindex_queue] or expose a 'kb' schema to REST. Details: ${details}`
+      );
+    }
+
     // Fetch all active REIT KB items from local database
     const { data: reitItems, error: fetchError } = await localSupabase
       .from('reit_knowledge_items')
