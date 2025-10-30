@@ -2,3 +2,6 @@ project_id = "ggmotdhxlbwdqfnasltt"
 
 [functions.aigent-ai]
 verify_jwt = false
+
+[functions.naka-kb-sync-reit]
+verify_jwt = false
