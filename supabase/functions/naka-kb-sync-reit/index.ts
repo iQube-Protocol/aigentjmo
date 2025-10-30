@@ -23,11 +23,30 @@ serve(async (req) => {
     const localSupabase = createClient(localUrl, localServiceKey);
 
     // Core Hub client - operate on kb schema via HTTP
-    const coreUrl = Deno.env.get('CORE_SUPABASE_URL');
+    const rawCoreUrl = Deno.env.get('CORE_SUPABASE_URL') ?? '';
+    const coreDbUrl = Deno.env.get('CORE_SUPABASE_DB_URL') ?? '';
     const coreServiceKey = Deno.env.get('CORE_SUPABASE_SERVICE_ROLE_KEY');
 
+    // Normalize Core Hub URL: accept HTTPS base URL or derive from Postgres URL
+    let coreUrl = rawCoreUrl;
+    if ((!coreUrl || coreUrl.startsWith('postgres://')) && coreDbUrl.startsWith('postgres://')) {
+      try {
+        const dbHost = new URL(coreDbUrl).hostname; // e.g., db.<ref>.supabase.co
+        const parts = dbHost.split('.');
+        // Handle hosts like db.<ref>.supabase.co
+        const ref = parts[0] === 'db' && parts.length >= 3 ? parts[1] : parts[0];
+        coreUrl = `https://${ref}.supabase.co`;
+        console.log(`Derived Core Hub API URL from DB URL: ${coreUrl}`);
+      } catch {
+        // ignore; validation below will catch
+      }
+    }
+
     if (!coreUrl || !coreServiceKey) {
-      throw new Error('CORE_SUPABASE_URL and CORE_SUPABASE_SERVICE_ROLE_KEY are required');
+      throw new Error('Missing Core Hub config: CORE_SUPABASE_URL (https://<ref>.supabase.co) and CORE_SUPABASE_SERVICE_ROLE_KEY are required');
+    }
+    if (!coreUrl.startsWith('http')) {
+      throw new Error('Invalid CORE_SUPABASE_URL: must be an HTTPS URL like https://<ref>.supabase.co, not a postgres connection string');
     }
 
     // IMPORTANT: target kb schema explicitly
