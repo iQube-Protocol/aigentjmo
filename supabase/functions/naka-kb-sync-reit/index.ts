@@ -29,8 +29,13 @@ serve(async (req) => {
     const coreUrl = Deno.env.get('CORE_SUPABASE_URL')!;
     const coreDbUrl = Deno.env.get('CORE_SUPABASE_DB_URL');
     
+    if (!coreDbUrl) {
+      throw new Error('CORE_SUPABASE_DB_URL is required. Format: postgresql://postgres:[PASSWORD]@db.[PROJECT_REF].supabase.co:5432/postgres');
+    }
+    
     // Create PostgreSQL client for Core Hub (to access kb schema)
-    coreClient = new Client(coreDbUrl || coreUrl.replace('https://', 'postgresql://postgres:') + ':5432/postgres');
+    console.log('🔌 Connecting to Core Hub database...');
+    coreClient = new Client(coreDbUrl);
 
     await coreClient.connect();
     
