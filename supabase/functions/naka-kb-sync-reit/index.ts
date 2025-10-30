@@ -87,23 +87,52 @@ serve(async (req) => {
     console.log(`📚 Found ${reitItems.length} active REIT KB items to sync`);
 
     // Get the root corpus ID from Core Hub (kb.corpora)
-    const { data: corpusRow, error: corpusErr } = await coreSupabase
+    // Try site_id='root' first (preferred), fallback to name-based lookup
+    let corpusRow = null;
+    let corpusErr = null;
+    
+    // Attempt 1: Look for site_id='root' (most reliable)
+    const { data: corpus1, error: err1 } = await coreSupabase
       .from('corpora')
-      .select('id')
-      .eq('app', 'nakamoto')
-      .eq('name', 'Root')
+      .select('id, name')
+      .eq('site_id', 'root')
       .maybeSingle();
+    
+    if (err1) {
+      console.warn(`⚠️  Failed to fetch corpus by site_id='root': ${err1.message}`);
+      corpusErr = err1;
+    } else if (corpus1?.id) {
+      corpusRow = corpus1;
+      console.log(`✅ Found corpus by site_id='root': ${corpus1.name} (${corpus1.id})`);
+    }
+    
+    // Attempt 2: Fallback to name-based lookup if needed
+    if (!corpusRow) {
+      const { data: corpus2, error: err2 } = await coreSupabase
+        .from('corpora')
+        .select('id, name')
+        .or('name.eq.Root,name.eq.QubeBase Root Corpus')
+        .maybeSingle();
+      
+      if (err2) {
+        console.warn(`⚠️  Failed to fetch corpus by name: ${err2.message}`);
+        corpusErr = err2;
+      } else if (corpus2?.id) {
+        corpusRow = corpus2;
+        console.log(`✅ Found corpus by name: ${corpus2.name} (${corpus2.id})`);
+      }
+    }
 
-    if (corpusErr) {
+    if (corpusErr && !corpusRow) {
       throw new Error(`Failed to fetch root corpus from Core Hub: ${corpusErr.message}`);
     }
 
     if (!corpusRow?.id) {
-      throw new Error('Root corpus not found in Core Hub');
+      throw new Error('Root corpus not found in Core Hub (tried site_id=root and name=Root/QubeBase Root Corpus)');
     }
 
     const corpusId = corpusRow.id as string;
-    console.log(`✅ Found root corpus: ${corpusId}`);
+    console.log(`📋 Using corpus: ${corpusId}`);
 
     const results = {
       created: 0,
