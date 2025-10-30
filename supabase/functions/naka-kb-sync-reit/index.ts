@@ -58,9 +58,8 @@ serve(async (req) => {
       throw new Error('Invalid CORE_SUPABASE_URL: must be an HTTPS URL like https://<ref>.supabase.co, not a postgres connection string');
     }
 
-    // IMPORTANT: target kb schema explicitly
+    // Connect to Core Hub using public schema (kb schema doesn't exist)
     const coreSupabase = createClient(coreUrl, coreServiceKey, {
-      db: { schema: 'kb' },
       auth: { persistSession: false },
     });
 
