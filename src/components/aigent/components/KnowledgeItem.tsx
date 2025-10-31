@@ -28,13 +28,14 @@ const KnowledgeItem = ({
     .replace(/\n\n+/g, ' ').trim();
   };
 
-  // Truncated content for summary with conversational processing
-  const processedContent = processPreviewContent(item.content);
+  // Truncated content for summary with conversational processing (defensive for undefined)
+  const processedContent = processPreviewContent(String(item?.content ?? ''));
   const truncatedContent = processedContent.length > 150 ? `${processedContent.substring(0, 150)}...` : processedContent;
 
-  // Show only first 3 keywords, with +X indicator if more
-  const visibleKeywords = item.keywords.slice(0, 3);
-  const remainingKeywords = item.keywords.length - 3;
+  // Safely handle missing keywords
+  const keywords = Array.isArray(item?.keywords) ? item.keywords : [];
+  const visibleKeywords = keywords.slice(0, 3);
+  const remainingKeywords = Math.max(0, keywords.length - 3);
 
   // Use different colors based on knowledge base with soft white text
   const baseColor = knowledgeBase === 'iQubes' ? 'blue' : 'orange';
