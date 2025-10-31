@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Info, ChevronDown, MessageSquare, BookOpen, Play, User } from 'lucide-react';
+import { Info, ChevronDown, MessageSquare, BookOpen, Play, User, RefreshCw } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -64,6 +64,8 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
   // Use global iframe session manager instead of local state
   const [mediaInitialized, setMediaInitialized] = useState(iframeSessionManager.isMediaInitialized());
   const [sessionRecovering, setSessionRecovering] = useState(false);
+  // Key to force remount of MetaAvatarTab
+  const [metaAvatarKey, setMetaAvatarKey] = useState(0);
 
   // Setup iframe ref with session manager
   useEffect(() => {
@@ -139,6 +141,27 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
               </div>
             )}
             
+            {/* Refresh button for metaAvatar tab */}
+            {activeTab === 'metaAvatar' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => setMetaAvatarKey(prev => prev + 1)}
+                      className="h-8 w-8"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Refresh metaVatar</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            
             {/* Processing indicator */}
             {isProcessing && (
               <div className="relative">
@@ -173,7 +196,7 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
         </TabsContent>
 
         <TabsContent value="metaAvatar" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
-          <MetaAvatarTab />
+          <MetaAvatarTab key={metaAvatarKey} />
         </TabsContent>
 
         <TabsContent value="knowledge" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
