@@ -3,6 +3,9 @@ project_id = "ggmotdhxlbwdqfnasltt"
 [functions.aigent-ai]
 verify_jwt = false
 
+[functions.naka-reit-kb-bootstrap]
+verify_jwt = false
+
 [functions.naka-reit-kb-pull]
 verify_jwt = false
 

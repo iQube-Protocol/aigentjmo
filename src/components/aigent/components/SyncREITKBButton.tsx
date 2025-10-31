@@ -27,9 +27,11 @@ const SyncREITKBButton: React.FC = () => {
   const [isPulling, setIsPulling] = useState(false);
   const [isPushing, setIsPushing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBootstrapping, setIsBootstrapping] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [draftCount, setDraftCount] = useState(0);
   const [showPushDialog, setShowPushDialog] = useState(false);
+  const [showBootstrapDialog, setShowBootstrapDialog] = useState(false);
   const { isAdmin, loading } = useAdminCheck();
   const { isUberAdmin, loading: uberLoading } = useUberAdminCheck();
   
@@ -177,7 +179,54 @@ const SyncREITKBButton: React.FC = () => {
     }
   };
 
-  const isLoading = isPulling || isPushing || isSubmitting;
+  const handleBootstrap = async (force: boolean = false) => {
+    setShowBootstrapDialog(false);
+    setIsBootstrapping(true);
+    setSyncStatus('idle');
+
+    try {
+      console.log('🌱 Bootstrapping QubeBase with seed data...');
+      
+      const { data, error } = await supabase.functions.invoke('naka-reit-kb-bootstrap', {
+        body: { force_bootstrap: force }
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.success) {
+        setSyncStatus('success');
+        toast.success('QubeBase Bootstrapped', {
+          description: `${data.bootstrapped} seed documents created and synced to local database`
+        });
+        console.log('✅ Bootstrap results:', data);
+      } else {
+        // Show info if already has data
+        if (data.existing_count) {
+          toast.info('QubeBase already has data', {
+            description: data.message,
+            action: {
+              label: 'Force Bootstrap',
+              onClick: () => handleBootstrap(true)
+            }
+          });
+        } else {
+          throw new Error(data.error || 'Bootstrap failed');
+        }
+      }
+    } catch (error: any) {
+      console.error('❌ Bootstrap error:', error);
+      setSyncStatus('error');
+      toast.error('Failed to bootstrap QubeBase', {
+        description: error.message
+      });
+    } finally {
+      setIsBootstrapping(false);
+    }
+  };
+
+  const isLoading = isPulling || isPushing || isSubmitting || isBootstrapping;
 
   return (
     <>
@@ -220,20 +269,38 @@ const SyncREITKBButton: React.FC = () => {
 
         {/* Direct Push - Uber Admins Only */}
         {isUberAdmin && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setShowPushDialog(true)}
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            {isPushing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            {isPushing ? 'Pushing...' : 'Push to QubeBase'}
-          </Button>
+          <>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowPushDialog(true)}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              {isPushing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              {isPushing ? 'Pushing...' : 'Push to QubeBase'}
+            </Button>
+
+            {/* Bootstrap QubeBase - Uber Admins Only */}
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowBootstrapDialog(true)}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              {isBootstrapping ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              {isBootstrapping ? 'Bootstrapping...' : 'Bootstrap QubeBase'}
+            </Button>
+          </>
         )}
       </div>
 
@@ -251,6 +318,26 @@ const SyncREITKBButton: React.FC = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handlePush}>
               Yes, Push to QubeBase
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirmation Dialog for Bootstrap */}
+      <AlertDialog open={showBootstrapDialog} onOpenChange={setShowBootstrapDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bootstrap QubeBase Core Hub?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will seed QubeBase Core Hub with 18 initial REIT knowledge documents.
+              The seeded data will be automatically pulled to your local database.
+              This operation is typically done once during initial setup.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleBootstrap(false)}>
+              Yes, Bootstrap QubeBase
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
