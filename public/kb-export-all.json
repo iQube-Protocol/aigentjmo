@@ -1,0 +1,16 @@
+{
+  "export_metadata": {
+    "exported_at": "2025-10-31T00:00:00.000Z",
+    "source": "Aigent Nakamoto v1",
+    "version": 1,
+    "total_documents": "See documents array length"
+  },
+  "system_prompt": {
+    "app": "nakamoto",
+    "scope": "root",
+    "version": 1,
+    "status": "active"
+  },
+  "documents": "Import from exportNakamotoRootKB()",
+  "note": "This is a placeholder. Use the export functions in src/services/qubebase-kb-export.ts to generate the actual JSON with: JSON.stringify({ documents: exportNakamotoRootKB(), system_prompt: exportNakamotoRootPrompt(), stats: getMigrationStats() }, null, 2)"
+}

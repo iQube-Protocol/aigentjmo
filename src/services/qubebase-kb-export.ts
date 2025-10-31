@@ -7,6 +7,8 @@ import { COYN_KNOWLEDGE_DATA } from './coyn-knowledge-base/knowledge-data';
 import { knytKnowledgeData } from './knyt-knowledge-base/knowledge-data';
 import { IQUBES_KNOWLEDGE_DATA } from './iqubes-knowledge-base/knowledge-data';
 import { JMO_REIT_KNOWLEDGE_DATA } from './jmo-reit-knowledge-base/knowledge-data';
+import { METAKNYTS_KNOWLEDGE_DATA } from './metaknyts-knowledge-base/knowledge-data';
+import { QRIPTO_KNOWLEDGE_DATA } from './qrypto-knowledge-base/knowledge-data';
 import { NAKAMOTO_SYSTEM_PROMPT } from './mondai-service';
 
 export interface QubeBaseDocument {
@@ -110,14 +112,58 @@ export function exportREITKnowledge(): QubeBaseDocument[] {
 }
 
 /**
- * Export all Nakamoto KB (COYN + KNYT + iQubes + REIT) as root corpus
+ * Export metaKnyts KB to QubeBase document format
+ */
+export function exportMetaKnytsKnowledge(): QubeBaseDocument[] {
+  return METAKNYTS_KNOWLEDGE_DATA.map(item => ({
+    slug: item.id,
+    title: item.title,
+    content_text: item.content,
+    lang: 'en',
+    tags: item.keywords,
+    domain: 'metaknyts',
+    topic: item.section,
+    metadata: {
+      category: item.category,
+      section: item.section,
+      source: item.source,
+      timestamp: item.timestamp
+    }
+  }));
+}
+
+/**
+ * Export Qrypto KB to QubeBase document format
+ */
+export function exportQryptoKnowledge(): QubeBaseDocument[] {
+  return QRIPTO_KNOWLEDGE_DATA.map(item => ({
+    slug: item.id,
+    title: item.title,
+    content_text: item.content,
+    lang: 'en',
+    tags: item.keywords,
+    domain: 'qrypto',
+    topic: item.section,
+    metadata: {
+      category: item.category,
+      section: item.section,
+      source: item.source,
+      timestamp: item.timestamp
+    }
+  }));
+}
+
+/**
+ * Export all Nakamoto KB (COYN + KNYT + iQubes + REIT + metaKnyts + Qrypto) as root corpus
  */
 export function exportNakamotoRootKB(): QubeBaseDocument[] {
   return [
     ...exportCOYNKnowledge(),
     ...exportKNYTKnowledge(),
     ...exportiQubesKnowledge(),
-    ...exportREITKnowledge()
+    ...exportREITKnowledge(),
+    ...exportMetaKnytsKnowledge(),
+    ...exportQryptoKnowledge()
   ];
 }
 
@@ -146,14 +192,18 @@ export function getMigrationStats() {
   const knytDocs = exportKNYTKnowledge();
   const iQubesDocs = exportiQubesKnowledge();
   const reitDocs = exportREITKnowledge();
+  const metaKnytsDocs = exportMetaKnytsKnowledge();
+  const qryptoDocs = exportQryptoKnowledge();
   
   return {
-    totalDocuments: coynDocs.length + knytDocs.length + iQubesDocs.length + reitDocs.length,
+    totalDocuments: coynDocs.length + knytDocs.length + iQubesDocs.length + reitDocs.length + metaKnytsDocs.length + qryptoDocs.length,
     byDomain: {
       qryptocoyn: coynDocs.length,
       knyt: knytDocs.length,
       iqubes: iQubesDocs.length,
-      'aigent-jmo': reitDocs.length
+      'aigent-jmo': reitDocs.length,
+      metaknyts: metaKnytsDocs.length,
+      qrypto: qryptoDocs.length
     },
     hasSystemPrompt: !!NAKAMOTO_SYSTEM_PROMPT,
     promptLength: NAKAMOTO_SYSTEM_PROMPT.length
