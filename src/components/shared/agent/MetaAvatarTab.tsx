@@ -1,27 +1,22 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
 
 const MetaAvatarTab: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scriptLoadedRef = useRef(false);
-  const hasBeenLoadedRef = useRef(false);
-  const [showReloadNotice, setShowReloadNotice] = useState(false);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
 
   useEffect(() => {
-    // If avatar was previously loaded, show reload notice
-    if (hasBeenLoadedRef.current) {
-      setShowReloadNotice(true);
-      return;
-    }
-
-    // Only load script once
-    if (scriptLoadedRef.current) return;
-    
-    hasBeenLoadedRef.current = true;
-    
     const containerId = 'did-avatar-container';
     
-    // Create script element
+    // Clear container
+    if (containerRef.current) {
+      containerRef.current.innerHTML = '';
+    }
+    
+    // Remove any existing D-ID scripts
+    const existingScripts = document.querySelectorAll('script[src*="agent.d-id.com"]');
+    existingScripts.forEach(script => script.remove());
+    
+    // Create fresh script element
     const script = document.createElement('script');
     script.type = 'module';
     script.src = 'https://agent.d-id.com/v2/index.js';
@@ -34,28 +29,21 @@ const MetaAvatarTab: React.FC = () => {
 
     // Append script to body
     document.body.appendChild(script);
-    scriptLoadedRef.current = true;
+    scriptRef.current = script;
 
     // Cleanup function
     return () => {
-      // Remove script when component unmounts
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
+      if (scriptRef.current && scriptRef.current.parentNode) {
+        scriptRef.current.parentNode.removeChild(scriptRef.current);
       }
-      scriptLoadedRef.current = false;
+      if (containerRef.current) {
+        containerRef.current.innerHTML = '';
+      }
     };
   }, []);
 
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center">
-      {showReloadNotice && (
-        <div className="flex items-center gap-2 p-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-600 dark:text-amber-400">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
-          <p className="text-sm">
-            Please reload the page to reactivate the avatar interface.
-          </p>
-        </div>
-      )}
+    <div className="h-full w-full flex items-center justify-center">
       <div 
         id="did-avatar-container" 
         ref={containerRef}
