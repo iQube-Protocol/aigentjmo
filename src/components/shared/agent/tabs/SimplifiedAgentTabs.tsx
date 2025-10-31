@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import ChatTab from './ChatTab';
 import KnowledgeBase from '../KnowledgeBase';
 import IQubesKnowledgeBase from '@/components/aigent/iQubesKnowledgeBase';
+import KBErrorBoundary from '@/components/aigent/components/KBErrorBoundary';
 import MetaAvatarTab from '../MetaAvatarTab';
 import AgentInputBar from '../AgentInputBar';
 import { AgentMessage } from '@/lib/types';
@@ -214,7 +215,9 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
         </TabsContent>
 
         <TabsContent value="knowledge" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
-          {agentType === 'aigent' ? <IQubesKnowledgeBase /> : <KnowledgeBase agentType={knowledgeBaseAgentType} />}
+          <KBErrorBoundary>
+            {agentType === 'aigent' ? <IQubesKnowledgeBase /> : <KnowledgeBase agentType={knowledgeBaseAgentType} />}
+          </KBErrorBoundary>
         </TabsContent>
 
         <TabsContent value="media" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
