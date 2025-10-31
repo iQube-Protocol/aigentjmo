@@ -27,6 +27,7 @@ import QubeBaseMigration from '@/pages/admin/QubeBaseMigration';
 import InvitedUserSignup from '@/components/auth/InvitedUserSignup';
 import OAuthCallback from '@/components/settings/OAuthCallback';
 import PasswordResetGuard from '@/components/auth/PasswordResetGuard';
+import KBExport from '@/pages/KBExport';
 
 const AppRouter = () => {
   return (
@@ -46,6 +47,7 @@ const AppRouter = () => {
           <Route path="/invited-signup" element={<InvitedUserSignup />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/oauth-callback" element={<OAuthCallback />} />
+          <Route path="/kb-export" element={<KBExport />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
