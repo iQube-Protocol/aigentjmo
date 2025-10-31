@@ -7,6 +7,7 @@ type Props = {
 type State = {
   hasError: boolean;
   message?: string;
+  componentStack?: string;
 };
 
 class KBErrorBoundary extends React.Component<Props, State> {
@@ -22,6 +23,7 @@ class KBErrorBoundary extends React.Component<Props, State> {
   componentDidCatch(error: any, errorInfo: any) {
     // Log for diagnostics
     console.error('Knowledge Base crashed:', error, errorInfo);
+    this.setState({ componentStack: errorInfo?.componentStack });
   }
 
   handleRetry = () => {
@@ -35,6 +37,12 @@ class KBErrorBoundary extends React.Component<Props, State> {
           <div className="max-w-md text-center space-y-3">
             <h3 className="text-lg font-semibold">Failed to load Knowledge Base</h3>
             <p className="text-sm text-muted-foreground">{this.state.message}</p>
+            {this.state.componentStack && (
+              <details className="text-left text-xs bg-muted/40 rounded p-3">
+                <summary className="cursor-pointer">Details</summary>
+                <pre className="mt-2 whitespace-pre-wrap">{this.state.componentStack}</pre>
+              </details>
+            )}
             <button
               onClick={this.handleRetry}
               className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-primary-foreground text-sm"
