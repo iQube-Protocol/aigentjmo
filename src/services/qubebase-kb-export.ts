@@ -6,6 +6,7 @@
 import { COYN_KNOWLEDGE_DATA } from './coyn-knowledge-base/knowledge-data';
 import { knytKnowledgeData } from './knyt-knowledge-base/knowledge-data';
 import { IQUBES_KNOWLEDGE_DATA } from './iqubes-knowledge-base/knowledge-data';
+import { JMO_REIT_KNOWLEDGE_DATA } from './jmo-reit-knowledge-base/knowledge-data';
 import { NAKAMOTO_SYSTEM_PROMPT } from './mondai-service';
 
 export interface QubeBaseDocument {
@@ -86,13 +87,37 @@ export function exportiQubesKnowledge(): QubeBaseDocument[] {
 }
 
 /**
- * Export all Nakamoto KB (COYN + KNYT + iQubes) as root corpus
+ * Export REIT KB to QubeBase document format
+ */
+export function exportREITKnowledge(): QubeBaseDocument[] {
+  return JMO_REIT_KNOWLEDGE_DATA.map(item => ({
+    slug: item.id,
+    title: item.title,
+    content_text: item.content,
+    lang: 'en',
+    tags: item.keywords,
+    domain: 'aigent-jmo',
+    topic: item.section,
+    metadata: {
+      category: item.category,
+      section: item.section,
+      source: item.source,
+      timestamp: item.timestamp,
+      connections: item.connections || [],
+      crossTags: item.crossTags || []
+    }
+  }));
+}
+
+/**
+ * Export all Nakamoto KB (COYN + KNYT + iQubes + REIT) as root corpus
  */
 export function exportNakamotoRootKB(): QubeBaseDocument[] {
   return [
     ...exportCOYNKnowledge(),
     ...exportKNYTKnowledge(),
-    ...exportiQubesKnowledge()
+    ...exportiQubesKnowledge(),
+    ...exportREITKnowledge()
   ];
 }
 
@@ -120,13 +145,15 @@ export function getMigrationStats() {
   const coynDocs = exportCOYNKnowledge();
   const knytDocs = exportKNYTKnowledge();
   const iQubesDocs = exportiQubesKnowledge();
+  const reitDocs = exportREITKnowledge();
   
   return {
-    totalDocuments: coynDocs.length + knytDocs.length + iQubesDocs.length,
+    totalDocuments: coynDocs.length + knytDocs.length + iQubesDocs.length + reitDocs.length,
     byDomain: {
       qryptocoyn: coynDocs.length,
       knyt: knytDocs.length,
-      iqubes: iQubesDocs.length
+      iqubes: iQubesDocs.length,
+      'aigent-jmo': reitDocs.length
     },
     hasSystemPrompt: !!NAKAMOTO_SYSTEM_PROMPT,
     promptLength: NAKAMOTO_SYSTEM_PROMPT.length
