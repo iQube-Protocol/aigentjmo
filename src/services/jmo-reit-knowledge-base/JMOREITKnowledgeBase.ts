@@ -146,6 +146,13 @@ export class JMOREITKnowledgeBase {
     try {
       const { data: userData } = await supabase.auth.getUser();
       
+      // First check if this is a seed record
+      const { data: existingRecord } = await supabase
+        .from('reit_knowledge_items')
+        .select('is_seed_record, approval_status')
+        .eq('reit_id', id)
+        .single();
+
       const updateData: any = {
         updated_by: userData?.user?.id
       };
@@ -159,6 +166,12 @@ export class JMOREITKnowledgeBase {
       if (updates.connections) updateData.connections = updates.connections;
       if (updates.crossTags) updateData.cross_tags = updates.crossTags;
 
+      // If it's a seed record, mark as draft (requires approval)
+      if (existingRecord?.is_seed_record) {
+        updateData.approval_status = 'draft';
+        console.log('🔒 Seed record edited - marked as draft, requires approval');
+      }
+
       const { error } = await supabase
         .from('reit_knowledge_items')
         .update(updateData)
@@ -170,6 +183,15 @@ export class JMOREITKnowledgeBase {
       }
 
       await this.refreshFromDatabase();
+      
+      // Show appropriate toast based on record type
+      if (existingRecord?.is_seed_record) {
+        const { toast } = await import('sonner');
+        toast.info('Changes saved as draft', {
+          description: 'Submit for uber admin approval to update QubeBase'
+        });
+      }
+      
       return true;
     } catch (error) {
       console.error('Error in updateItem:', error);
@@ -177,9 +199,79 @@ export class JMOREITKnowledgeBase {
     }
   }
 
+  /**
+   * Get count of draft changes pending submission
+   */
+  public async getDraftCount(): Promise<number> {
+    try {
+      const { count } = await supabase
+        .from('reit_knowledge_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('approval_status', 'draft');
+      
+      return count || 0;
+    } catch (error) {
+      console.error('Error getting draft count:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Submit draft changes for approval
+   */
+  public async submitDraftsForApproval(recordIds: string[]): Promise<boolean> {
+    try {
+      const { data, error } = await supabase.functions.invoke('naka-reit-kb-submit-changes', {
+        body: { record_ids: recordIds }
+      });
+
+      if (error) {
+        console.error('Error submitting for approval:', error);
+        return false;
+      }
+
+      if (data.success) {
+        const { toast } = await import('sonner');
+        toast.success('Changes submitted for approval', {
+          description: `${data.submissions.length} items pending uber admin review`
+        });
+        await this.refreshFromDatabase();
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in submitDraftsForApproval:', error);
+      return false;
+    }
+  }
+
   public async deleteItem(id: string): Promise<boolean> {
     try {
       const { data: userData } = await supabase.auth.getUser();
+      
+      // Check if user is uber_admin (only they can delete seed records)
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userData?.user?.id || '')
+        .eq('role', 'uber_admin')
+        .single();
+
+      const { data: existingRecord } = await supabase
+        .from('reit_knowledge_items')
+        .select('is_seed_record')
+        .eq('reit_id', id)
+        .single();
+
+      if (existingRecord?.is_seed_record && !roleData) {
+        console.error('Only uber admins can delete seed records');
+        const { toast } = await import('sonner');
+        toast.error('Permission denied', {
+          description: 'Only uber admins can delete seed records'
+        });
+        return false;
+      }
       
       // Soft delete by setting is_active to false
       const { error } = await supabase

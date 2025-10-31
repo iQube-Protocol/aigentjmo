@@ -212,8 +212,70 @@ export type Database = {
         }
         Relationships: []
       }
+      reit_kb_approval_queue: {
+        Row: {
+          approval_status: string
+          change_type: string
+          created_at: string | null
+          id: string
+          local_record_id: string
+          original_data: Json | null
+          proposed_data: Json
+          qubebase_doc_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          submitted_at: string
+          submitted_by: string
+          updated_at: string | null
+        }
+        Insert: {
+          approval_status?: string
+          change_type: string
+          created_at?: string | null
+          id?: string
+          local_record_id: string
+          original_data?: Json | null
+          proposed_data: Json
+          qubebase_doc_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          submitted_at?: string
+          submitted_by: string
+          updated_at?: string | null
+        }
+        Update: {
+          approval_status?: string
+          change_type?: string
+          created_at?: string | null
+          id?: string
+          local_record_id?: string
+          original_data?: Json | null
+          proposed_data?: Json
+          qubebase_doc_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          submitted_at?: string
+          submitted_by?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reit_kb_approval_queue_local_record_id_fkey"
+            columns: ["local_record_id"]
+            isOneToOne: false
+            referencedRelation: "reit_knowledge_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reit_knowledge_items: {
         Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           category: string
           connections: string[] | null
           content: string
@@ -222,7 +284,11 @@ export type Database = {
           cross_tags: string[] | null
           id: string
           is_active: boolean | null
+          is_seed_record: boolean | null
           keywords: string[] | null
+          last_synced_at: string | null
+          pending_approval_id: string | null
+          qubebase_doc_id: string | null
           reit_id: string
           section: string
           source: string
@@ -232,6 +298,9 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           category: string
           connections?: string[] | null
           content: string
@@ -240,7 +309,11 @@ export type Database = {
           cross_tags?: string[] | null
           id?: string
           is_active?: boolean | null
+          is_seed_record?: boolean | null
           keywords?: string[] | null
+          last_synced_at?: string | null
+          pending_approval_id?: string | null
+          qubebase_doc_id?: string | null
           reit_id: string
           section: string
           source: string
@@ -250,6 +323,9 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           category?: string
           connections?: string[] | null
           content?: string
@@ -258,7 +334,11 @@ export type Database = {
           cross_tags?: string[] | null
           id?: string
           is_active?: boolean | null
+          is_seed_record?: boolean | null
           keywords?: string[] | null
+          last_synced_at?: string | null
+          pending_approval_id?: string | null
+          qubebase_doc_id?: string | null
           reit_id?: string
           section?: string
           source?: string
@@ -267,7 +347,15 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reit_knowledge_items_pending_approval_id_fkey"
+            columns: ["pending_approval_id"]
+            isOneToOne: false
+            referencedRelation: "reit_kb_approval_queue"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_connections: {
         Row: {

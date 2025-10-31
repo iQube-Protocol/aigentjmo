@@ -1,38 +1,121 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, Download, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TENANT_CONFIG } from '@/config/tenant';
 import { useAdminCheck } from '@/hooks/use-admin-check';
+import { useUberAdminCheck } from '@/hooks/use-uber-admin-check';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 /**
- * Button component to sync JMO REIT Knowledge Base to QubeBase Core Hub
- * Only visible for aigent-jmo tenant and admin users
+ * Button component to manage REIT KB sync with QubeBase Core Hub
+ * - Pull from QubeBase (all admins)
+ * - Submit changes for approval (super admins)
+ * - Direct push to QubeBase (uber admins only)
  */
 const SyncREITKBButton: React.FC = () => {
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isPushing, setIsPushing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [draftCount, setDraftCount] = useState(0);
+  const [showPushDialog, setShowPushDialog] = useState(false);
   const { isAdmin, loading } = useAdminCheck();
+  const { isUberAdmin, loading: uberLoading } = useUberAdminCheck();
   
   // Only show for JMO tenant and admin users
-  if (TENANT_CONFIG.tenantId !== 'aigent-jmo' || loading) {
+  if (TENANT_CONFIG.tenantId !== 'aigent-jmo' || loading || uberLoading) {
     return null;
   }
 
   if (!isAdmin) {
-    return null; // Only admins can see the sync button
+    return null;
   }
 
-  const handleSync = async (forceUpdate: boolean = false) => {
-    setIsSyncing(true);
+  // Fetch draft count for super admins
+  useEffect(() => {
+    if (!isAdmin || isUberAdmin) return;
+
+    const fetchDraftCount = async () => {
+      const { count } = await supabase
+        .from('reit_knowledge_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('approval_status', 'draft');
+      
+      setDraftCount(count || 0);
+    };
+
+    fetchDraftCount();
+  }, [isAdmin, isUberAdmin]);
+
+  const handlePull = async () => {
+    setIsPulling(true);
     setSyncStatus('idle');
 
     try {
-      console.log('🚀 Starting REIT KB sync to QubeBase...');
+      console.log('📥 Pulling REIT KB from QubeBase...');
       
-      const { data, error } = await supabase.functions.invoke('naka-kb-sync-reit', {
-        body: { force_update: forceUpdate }
+      const { data, error } = await supabase.functions.invoke('naka-reit-kb-pull');
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.success) {
+        setSyncStatus('success');
+        toast.success('Pulled from QubeBase', {
+          description: data.message
+        });
+        console.log('✅ Pull results:', data);
+        setDraftCount(0); // Reset draft count after pull
+      } else {
+        throw new Error(data.error || 'Pull failed');
+      }
+    } catch (error: any) {
+      console.error('❌ Pull error:', error);
+      setSyncStatus('error');
+      toast.error('Failed to pull from QubeBase', {
+        description: error.message
+      });
+    } finally {
+      setIsPulling(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSyncStatus('idle');
+
+    try {
+      console.log('📤 Submitting changes for approval...');
+      
+      // Get all draft records
+      const { data: draftRecords, error: fetchError } = await supabase
+        .from('reit_knowledge_items')
+        .select('id')
+        .eq('approval_status', 'draft');
+
+      if (fetchError) throw fetchError;
+
+      if (!draftRecords || draftRecords.length === 0) {
+        toast.info('No draft changes to submit');
+        return;
+      }
+
+      const recordIds = draftRecords.map(r => r.id);
+
+      const { data, error } = await supabase.functions.invoke('naka-reit-kb-submit-changes', {
+        body: { record_ids: recordIds }
       });
 
       if (error) {
@@ -41,56 +124,138 @@ const SyncREITKBButton: React.FC = () => {
 
       if (data.success) {
         setSyncStatus('success');
-        toast.success('REIT KB synced to QubeBase', {
-          description: data.message
+        toast.success('Changes submitted for approval', {
+          description: `${data.submissions.length} items pending uber admin review`
         });
-        console.log('✅ Sync results:', data.results);
+        console.log('✅ Submit results:', data);
+        setDraftCount(0);
       } else {
-        throw new Error(data.error || 'Sync failed');
+        throw new Error(data.error || 'Submit failed');
       }
     } catch (error: any) {
-      console.error('❌ Sync error:', error);
+      console.error('❌ Submit error:', error);
       setSyncStatus('error');
-      toast.error('Failed to sync REIT KB', {
+      toast.error('Failed to submit changes', {
         description: error.message
       });
     } finally {
-      setIsSyncing(false);
+      setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => handleSync(false)}
-        disabled={isSyncing}
-        className="flex items-center gap-2"
-      >
-        {isSyncing ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : syncStatus === 'success' ? (
-          <CheckCircle className="h-4 w-4 text-green-500" />
-        ) : syncStatus === 'error' ? (
-          <AlertCircle className="h-4 w-4 text-red-500" />
-        ) : (
-          <Upload className="h-4 w-4" />
-        )}
-        {isSyncing ? 'Syncing...' : 'Sync REIT KB to QubeBase'}
-      </Button>
+  const handlePush = async () => {
+    setShowPushDialog(false);
+    setIsPushing(true);
+    setSyncStatus('idle');
+
+    try {
+      console.log('🚀 Pushing to QubeBase (uber admin direct)...');
       
-      {!isSyncing && (
+      const { data, error } = await supabase.functions.invoke('naka-reit-kb-push');
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.success) {
+        setSyncStatus('success');
+        toast.success('Pushed to QubeBase', {
+          description: data.message
+        });
+        console.log('✅ Push results:', data);
+      } else {
+        throw new Error(data.error || 'Push failed');
+      }
+    } catch (error: any) {
+      console.error('❌ Push error:', error);
+      setSyncStatus('error');
+      toast.error('Failed to push to QubeBase', {
+        description: error.message
+      });
+    } finally {
+      setIsPushing(false);
+    }
+  };
+
+  const isLoading = isPulling || isPushing || isSubmitting;
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Pull from QubeBase - All Admins */}
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          onClick={() => handleSync(true)}
-          className="text-xs"
+          onClick={handlePull}
+          disabled={isLoading}
+          className="flex items-center gap-2"
         >
-          Force Update
+          {isPulling ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : syncStatus === 'success' && !isPushing && !isSubmitting ? (
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          {isPulling ? 'Pulling...' : 'Pull from QubeBase'}
         </Button>
-      )}
-    </div>
+
+        {/* Submit for Approval - Super Admins Only (not Uber Admins) */}
+        {!isUberAdmin && draftCount > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSubmit}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {isSubmitting ? 'Submitting...' : `Submit ${draftCount} Changes`}
+          </Button>
+        )}
+
+        {/* Direct Push - Uber Admins Only */}
+        {isUberAdmin && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowPushDialog(true)}
+            disabled={isLoading}
+            className="flex items-center gap-2"
+          >
+            {isPushing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            {isPushing ? 'Pushing...' : 'Push to QubeBase'}
+          </Button>
+        )}
+      </div>
+
+      {/* Confirmation Dialog for Uber Admin Direct Push */}
+      <AlertDialog open={showPushDialog} onOpenChange={setShowPushDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bypass Approval Workflow?</AlertDialogTitle>
+            <AlertDialogDescription>
+              As an uber admin, you can directly push changes to QubeBase without approval.
+              This bypasses the normal approval workflow. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePush}>
+              Yes, Push to QubeBase
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
