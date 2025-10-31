@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { iQubesKB } from '@/services/iqubes-knowledge-base';
 import { coynKB } from '@/services/coyn-knowledge-base';
 import { jmoReitKB } from '@/services/jmo-reit-knowledge-base';
@@ -22,16 +22,37 @@ const iQubesKnowledgeBase = () => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [editorMode, setEditorMode] = useState<'create' | 'edit'>('create');
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(0);
   const { isAdmin } = useAdminCheck();
   const isMobile = useIsMobile();
   
   // Check if this is the JMO tenant
   const isJMOTenant = TENANT_CONFIG.tenantId === 'aigent-jmo';
 
-  // Get all knowledge items
-  const iQubesItems = iQubesKB.getAllKnowledge();
-  const coynItems = coynKB.getAllKnowledge();
-  const reitItems = isJMOTenant ? jmoReitKB.getAllKnowledge() : [];
+  // Initialize knowledge bases (only REIT KB needs async init)
+  useEffect(() => {
+    const initializeKnowledgeBases = async () => {
+      try {
+        console.log('🔄 Initializing knowledge bases...');
+        if (isJMOTenant) {
+          await jmoReitKB.ensureInitialized();
+        }
+        console.log('✅ Knowledge bases initialized');
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('❌ Error initializing knowledge bases:', error);
+        setIsInitialized(true); // Still show UI even if there's an error
+      }
+    };
+
+    initializeKnowledgeBases();
+  }, [isJMOTenant, forceRefresh]);
+
+  // Get all knowledge items (only after initialization)
+  const iQubesItems = isInitialized ? iQubesKB.getAllKnowledge() : [];
+  const coynItems = isInitialized ? coynKB.getAllKnowledge() : [];
+  const reitItems = (isInitialized && isJMOTenant) ? jmoReitKB.getAllKnowledge() : [];
 
   // Filter items based on search
   const filteredIQubesItems = searchTerm ? iQubesKB.searchKnowledge(searchTerm) : iQubesItems;
@@ -67,7 +88,21 @@ const iQubesKnowledgeBase = () => {
   const handleEditorClose = () => {
     setEditorOpen(false);
     setEditingItem(null);
+    // Trigger refresh to reload data from database
+    setForceRefresh(prev => prev + 1);
   };
+
+  // Show loading state while initializing
+  if (!isInitialized) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading Knowledge Base...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
