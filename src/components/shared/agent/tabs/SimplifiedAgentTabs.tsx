@@ -151,19 +151,7 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => {
-                        console.info('MetaAvatar: forcing full page reload');
-                        try { window.location.href = window.location.href; } catch (e) { console.warn('href reload failed', e); }
-                        try { window.location.reload(); } catch (e) { console.warn('window reload failed', e); }
-                        try {
-                          if (window.parent && window.parent !== window) {
-                            (window.parent as any).location.href = (window.parent as any).location.href;
-                          }
-                        } catch (e) { console.warn('parent reload failed', e); }
-                        try {
-                          if (window.top && window.top !== window) {
-                            (window.top as any).location.href = (window.top as any).location.href;
-                          }
-                        } catch (e) { console.warn('top reload failed', e); }
+                        window.dispatchEvent(new Event('metaAvatarRefresh'));
                       }}
                       className="h-8 w-8"
                     >
@@ -171,7 +159,7 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Reload page</p>
+                    <p>Refresh metaVatar</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
