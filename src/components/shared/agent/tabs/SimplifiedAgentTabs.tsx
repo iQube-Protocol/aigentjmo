@@ -149,7 +149,10 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => setMetaAvatarKey(prev => prev + 1)}
+                      onClick={() => { 
+                        setMetaAvatarKey(prev => prev + 1);
+                        window.dispatchEvent(new CustomEvent('metaAvatarRefresh'));
+                      }}
                       className="h-8 w-8"
                     >
                       <RefreshCw className="h-4 w-4" />
