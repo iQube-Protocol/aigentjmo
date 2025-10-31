@@ -35,14 +35,8 @@ const SyncREITKBButton: React.FC = () => {
   const { isAdmin, loading } = useAdminCheck();
   const { isUberAdmin, loading: uberLoading } = useUberAdminCheck();
   
-  // Only show for JMO tenant and admin users
-  if (TENANT_CONFIG.tenantId !== 'aigent-jmo' || loading || uberLoading) {
-    return null;
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
+  // Only show for JMO tenant and admin users - defer return until after hooks
+  const shouldHide = TENANT_CONFIG.tenantId !== 'aigent-jmo' || loading || uberLoading || !isAdmin;
 
   // Fetch draft count for super admins
   useEffect(() => {
@@ -227,6 +221,10 @@ const SyncREITKBButton: React.FC = () => {
   };
 
   const isLoading = isPulling || isPushing || isSubmitting || isBootstrapping;
+
+  if (shouldHide) {
+    return null;
+  }
 
   return (
     <>
