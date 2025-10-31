@@ -238,19 +238,37 @@ Deno.serve(async (req) => {
 
     console.log('🔗 Connected to QubeBase Core Hub');
 
-    // Check if QubeBase already has REIT docs
-    const { data: existingDocs, error: checkError } = await coreSupabase
+    // Check if QubeBase already has REIT docs/items (with fallback)
+    let existingCount = 0;
+    // Try legacy 'docs' table first
+    const { error: checkErrorDocs, count: countDocs } = await coreSupabase
       .from('docs')
       .select('id', { count: 'exact', head: true })
       .eq('scope', 'tenant')
       .eq('tenant_id', 'aigent-jmo');
 
-    if (checkError) {
-      console.error('❌ Error checking existing docs:', checkError);
-      throw new Error(`Failed to check existing docs: ${checkError.message}`);
+    if (checkErrorDocs) {
+      console.error('❌ Error checking existing docs:', checkErrorDocs);
+      if (
+        checkErrorDocs.code === 'PGRST205' ||
+        (checkErrorDocs.message || '').includes('Could not find the table')
+      ) {
+        console.log('↩️ Falling back to Core Hub table: reit_knowledge_items for existence check');
+        const { error: checkErrorItems, count: countItems } = await coreSupabase
+          .from('reit_knowledge_items')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_active', true);
+        if (checkErrorItems) {
+          console.error('❌ Error checking existing items:', checkErrorItems);
+          throw new Error(`Failed to check existing items: ${checkErrorItems.message}`);
+        }
+        existingCount = countItems || 0;
+      } else {
+        throw new Error(`Failed to check existing docs: ${checkErrorDocs.message}`);
+      }
+    } else {
+      existingCount = countDocs || 0;
     }
-
-    const existingCount = existingDocs?.length || 0;
 
     if (existingCount > 0 && !force_bootstrap) {
       return new Response(
@@ -265,15 +283,12 @@ Deno.serve(async (req) => {
 
     console.log(`📦 Bootstrapping ${SEED_DATA.length} seed documents to QubeBase...`);
 
-    // Transform seed data to QubeBase format
-    const coreDocs = SEED_DATA.map(item => ({
-      id: item.id,
-      scope: 'tenant' as const,
-      tenant_id: 'aigent-jmo',
+    // Transform seed data to ingest format expected by Core Hub
+    const transformedItems = SEED_DATA.map(item => ({
+      title: item.title,
       content: item.content,
-      is_active: true,
       metadata: {
-        title: item.title,
+        reit_id: item.id,
         section: item.section,
         category: item.category,
         keywords: item.keywords,
@@ -283,28 +298,53 @@ Deno.serve(async (req) => {
       }
     }));
 
-    // Insert seed data into QubeBase
-    const { data: insertedDocs, error: insertError } = await coreSupabase
-      .from('docs')
-      .upsert(coreDocs, {
-        onConflict: 'id',
-        ignoreDuplicates: false
-      })
-      .select();
+    // Get Core Hub URL and sync token
+    const coreHubUrl = Deno.env.get('CORE_SUPABASE_URL');
+    const syncToken = Deno.env.get('SYNC_SECRET_TOKEN');
 
-    if (insertError) {
-      console.error('❌ Error inserting seed data:', insertError);
-      throw new Error(`Failed to insert seed data: ${insertError.message}`);
+    if (!coreHubUrl) {
+      throw new Error('CORE_SUPABASE_URL environment variable not set');
+    }
+    if (!syncToken) {
+      throw new Error('SYNC_SECRET_TOKEN environment variable not set');
     }
 
-    console.log(`✅ Successfully bootstrapped ${insertedDocs?.length || 0} documents to QubeBase`);
+    // Insert seed data via Core Hub ingest endpoint
+    const ingestUrl = `${coreHubUrl}/functions/v1/naka-reit-kb-ingest`;
+    console.log(`🚀 Sending seed data to Core Hub ingest: ${ingestUrl}`);
+
+    const ingestResponse = await fetch(ingestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${syncToken}`,
+      },
+      body: JSON.stringify({
+        items: transformedItems,
+        force_update: !!force_bootstrap
+      })
+    });
+
+    if (!ingestResponse.ok) {
+      const errorText = await ingestResponse.text();
+      console.error('❌ Ingest failed:', errorText);
+      throw new Error(`Failed to insert seed data via ingest: ${ingestResponse.status} ${errorText}`);
+    }
+
+    const ingestResult = await ingestResponse.json();
+    const insertedCount = ingestResult?.inserted ?? ingestResult?.upserted ?? SEED_DATA.length;
+
+    console.log(`✅ Successfully bootstrapped ${insertedCount} documents to QubeBase via ingest`);
 
     // Background task: Automatically pull the seeded data to local database
     const pullToLocal = async () => {
       try {
         console.log('🔄 Auto-pulling seeded data to local database...');
-        
-        const { data: coreDocs, error: fetchError } = await coreSupabase
+
+        // Fetch from Core Hub with fallback (docs -> reit_knowledge_items)
+        let coreDocs: any[] | null = null;
+
+        const { data: docsData, error: docsError } = await coreSupabase
           .from('docs')
           .select('*')
           .eq('scope', 'tenant')
@@ -312,30 +352,61 @@ Deno.serve(async (req) => {
           .eq('is_active', true)
           .order('created_at', { ascending: true });
 
-        if (fetchError) {
-          console.error('❌ Error fetching for auto-pull:', fetchError);
-          return;
+        if (docsError) {
+          console.error('❌ Error fetching for auto-pull (docs):', docsError);
+          if (
+            docsError.code === 'PGRST205' ||
+            (docsError.message || '').includes('Could not find the table')
+          ) {
+            console.log('↩️ Falling back to Core Hub table: reit_knowledge_items (auto-pull)');
+            const { data: itemsData, error: itemsError } = await coreSupabase
+              .from('reit_knowledge_items')
+              .select('*')
+              .eq('is_active', true)
+              .order('created_at', { ascending: true });
+
+            if (itemsError) {
+              console.error('❌ Error fetching items for auto-pull:', itemsError);
+              return;
+            }
+            coreDocs = itemsData || [];
+          } else {
+            return;
+          }
+        } else {
+          coreDocs = docsData || [];
         }
 
-        const transformedDocs = coreDocs.map((doc: any) => ({
-          reit_id: doc.id,
-          qubebase_doc_id: doc.id,
-          title: doc.metadata?.title || doc.id,
-          content: doc.content || '',
-          section: doc.metadata?.section || 'General',
-          category: doc.metadata?.category || 'reit-basics',
-          keywords: doc.metadata?.keywords || [],
-          connections: doc.metadata?.connections || [],
-          cross_tags: doc.metadata?.cross_tags || [],
-          source: doc.metadata?.source || 'QubeBase Core Hub',
-          timestamp: doc.created_at,
-          is_active: true,
-          is_seed_record: true,
-          approval_status: 'approved',
-          last_synced_at: new Date().toISOString(),
-          created_by: null,
-          updated_by: null
-        }));
+        const transformedDocs = coreDocs.map((doc: any) => {
+          const isDocsFormat = typeof doc?.metadata === 'object' && doc.metadata !== null;
+          const title = isDocsFormat ? (doc.metadata?.title ?? doc.id) : (doc.title ?? doc.id);
+          const section = isDocsFormat ? (doc.metadata?.section ?? 'General') : (doc.section ?? 'General');
+          const category = isDocsFormat ? (doc.metadata?.category ?? 'reit-basics') : (doc.category ?? 'reit-basics');
+          const keywords = (isDocsFormat ? doc.metadata?.keywords : doc.keywords) ?? [];
+          const connections = (isDocsFormat ? doc.metadata?.connections : doc.connections) ?? [];
+          const cross_tags = (isDocsFormat ? doc.metadata?.cross_tags : doc.cross_tags) ?? [];
+          const source = (isDocsFormat ? doc.metadata?.source : doc.source) ?? 'QubeBase Core Hub';
+
+          return {
+            reit_id: doc.reit_id ?? doc.id,
+            qubebase_doc_id: doc.qubebase_doc_id ?? doc.id,
+            title,
+            content: doc.content ?? '',
+            section,
+            category,
+            keywords,
+            connections,
+            cross_tags,
+            source,
+            timestamp: doc.created_at ?? new Date().toISOString(),
+            is_active: true,
+            is_seed_record: doc.is_seed_record ?? true,
+            approval_status: doc.approval_status ?? 'approved',
+            last_synced_at: new Date().toISOString(),
+            created_by: doc.created_by ?? null,
+            updated_by: doc.updated_by ?? null,
+          };
+        });
 
         const { error: upsertError } = await localSupabase
           .from('reit_knowledge_items')
@@ -362,9 +433,9 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Bootstrapped ${insertedDocs?.length || 0} seed documents to QubeBase`,
-        bootstrapped: insertedDocs?.length || 0,
-        documents: insertedDocs,
+        message: `Bootstrapped ${insertedCount} seed documents to QubeBase`,
+        bootstrapped: insertedCount,
+        ingest_result: ingestResult,
         auto_pull_initiated: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
