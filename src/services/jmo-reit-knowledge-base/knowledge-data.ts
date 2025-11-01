@@ -920,27 +920,36 @@ The token is backed by more cash than its face value:
 
 ## The Token Flow: Following the Money
 
-```
-[Tenants Pay Rent]
-        ↓
-[Vaulted Rent Cash Flow Account]
-        ↓
-[Aigent JMO Monitors & Verifies]
-        ↓
-[Cryptographic Attestation Created]
-        ↓
-[Smart Contract Mints REIT COYN (70% ratio)]
-        ↓
-[REIT Uses Tokens as Collateral]
-        ↓
-[DeFi Protocol Lends Stablecoins]
-        ↓
-[REIT Buys New Property or Pays Expenses]
-        ↓
-[New Property Generates More Rent]
-        ↓
-[Cycle Continues]
-```
+**Flow Diagram:**
+
+    Tenants Pay Rent
+            |
+            v
+    Vaulted Rent Cash Flow Account
+            |
+            v
+    Aigent JMO Monitors & Verifies
+            |
+            v
+    Cryptographic Attestation Created
+            |
+            v
+    Smart Contract Mints REIT COYN (70% ratio)
+            |
+            v
+    REIT Uses Tokens as Collateral
+            |
+            v
+    DeFi Protocol Lends Stablecoins
+            |
+            v
+    REIT Buys New Property or Pays Expenses
+            |
+            v
+    New Property Generates More Rent
+            |
+            v
+    Cycle Continues
 
 ---
 
@@ -1274,84 +1283,668 @@ The combination of:
   {
     id: 'reitqube-data-integrity-layer',
     title: 'REITQube: The Data Integrity Layer for REITs',
-    content: `REITQube Strategy utilizes the iQube Protocol's verifiable information containers to solve the core REIT flaws of opaque data reporting and centralized redemption. The model positions REITQubes as the crypto-native data standard for verifiable, real-time REIT data for DeFi integration and JMO KNYT as their champion.
+    content: `# REITQube: The Data Integrity Layer for Real Estate Investment Trusts
 
-**Executive Summary: The REIT Data Integrity Layer**
+## Executive Summary: Solving the REIT Data Problem
 
-**The Core Problem:** Traditional REITs cannot provide the institutional-grade, real-time data needed by DeFi for RWA products without breaking investor privacy or regulatory rules.
+**The Core Challenge:** Traditional Real Estate Investment Trusts (REITs) face a fundamental problem when trying to integrate with decentralized finance (DeFi)—they cannot provide the institutional-grade, real-time data that DeFi protocols require without either breaking investor privacy laws or revealing competitive trade secrets.
 
-**JMO KNYT introduces REITQubes** - the REIT Data Integrity Layer that uses iQubes (secure, encrypted data containers) to bridge private financial reality to the public transparency of the blockchain. The strategy focuses on data verification, moving beyond oversimplified asset tokenization.
+**The REITQube Solution:** JMO KNYT introduces REITQubes—a specialized Data Integrity Layer built using the iQube Protocol. Think of REITQubes as secure, encrypted data containers that bridge the gap between the private financial reality of REITs and the public transparency requirements of blockchain technology.
 
-This model establishes trust using Bitcoin-anchored Proofs of State to replace reliance on a centralized, fallible system with an algorithmic, self-auditing system.
+This is not about creating new types of REIT shares or tokens. Instead, it is about creating a verifiable data standard that allows REITs to prove their financial health and operational performance to DeFi systems without exposing sensitive information.
 
-**Key Innovation - Data Verification Without Tokenization:**
+---
 
-Instead of creating security tokens that represent REIT shares (which face regulatory hurdles), REITQube:
-1. Keeps REIT shares as traditional securities
-2. Verifies the data about those securities using cryptographic proofs
-3. Tokenizes only the verifiable cash flow and accreditation status
-4. Publishes valuation metrics through DVN Oracles for DeFi integration
+## Understanding the Problem: Why Traditional REITs Cannot Integrate with DeFi
 
-**JMOVERSE Strategic Alignment:**
+### The DeFi Data Requirements
 
-This model embodies:
-- **Integrity:** Cryptographic certainty through metaProof's Bitcoin-anchored proofs
-- **Knowledge:** Transparent data verification without privacy compromise
-- **Emerging Technology:** Bridge between traditional finance and DeFi
+DeFi lending protocols need specific, verifiable data to make lending decisions:
 
-REITQube positions itself not as a competitor to REITs, but as the essential infrastructure layer that enables REITs to participate in DeFi while maintaining regulatory compliance and competitive advantage.`,
+- **Real-Time Cash Flow Verification:** How much rent is actually being collected each month?
+- **Property Valuation Updates:** What are the properties worth right now (not last quarter)?
+- **Occupancy Rates:** How many units are vacant vs. occupied?
+- **Debt Service Coverage:** Can the REIT cover its loan payments from operating income?
+- **Net Asset Value (NAV):** What is the true value per share after liabilities?
+
+### Why REITs Cannot Provide This Data Traditionally
+
+**Privacy Concerns:**
+- Revealing specific tenant information would violate privacy laws (GDPR, CCPA)
+- Individual lease terms are confidential business information
+- Shareholder personal data is protected by securities regulations
+
+**Competitive Disadvantage:**
+- Showing exact rental rates reveals pricing strategy to competitors
+- Property acquisition targets would be exposed
+- Operating cost structures would be public knowledge
+
+**Regulatory Restrictions:**
+- SEC regulations limit what can be disclosed between quarterly reports
+- Material non-public information disclosure rules (Regulation FD)
+- Fair disclosure requirements create timing constraints
+
+**Technical Limitations:**
+- Traditional REITs report quarterly, not real-time
+- Data is presented in standardized formats (10-Q, 10-K) that are not machine-readable
+- No cryptographic verification of accuracy
+
+### The Result: REITs Are Locked Out of DeFi Capital
+
+DeFi lending protocols cannot trust quarterly PDF reports. They need continuous, cryptographically verified data feeds. Without this, REITs cannot access the $100+ billion in DeFi lending capital that could finance their growth.
+
+---
+
+## The REITQube Innovation: Data Verification Without Tokenization
+
+### The Key Insight: Separate Data Verification from Equity Ownership
+
+Most blockchain REIT projects try to "tokenize" REIT shares—turning equity ownership into digital tokens. This approach faces massive regulatory hurdles because it creates new securities that must be registered with the SEC.
+
+**REITQube takes a different approach:**
+
+1. **Keep REIT shares as traditional securities** (no regulatory disruption)
+2. **Verify the data about those securities** using cryptographic proofs
+3. **Tokenize only the cash flow and accreditation status** (not the equity itself)
+4. **Publish valuation metrics through DVN Oracles** for DeFi integration
+
+### How It Works: The iQube Data Container Architecture
+
+**Think of iQubes as Secure Filing Cabinets with Smart Features:**
+
+**The Private Layer (blakQube):**
+- Contains all sensitive REIT data (rent rolls, bank statements, shareholder lists)
+- Encrypted and stored securely
+- Only accessible to authorized parties with cryptographic keys
+- Like a locked filing cabinet that only certain people can open
+
+**The Public Layer (metaQube):**
+- Contains cryptographic proofs and summary metrics
+- Published to the blockchain for DeFi verification
+- Shows "what" without revealing "who" or "how much"
+- Like a notarized certificate that proves the filing cabinet contains valid documents
+
+**The Access Control Layer (tokenQube):**
+- Manages who can see what data and when
+- Enforces privacy and compliance rules automatically
+- Provides audit trails for regulators
+- Like an access log that tracks who opened the filing cabinet
+
+### The Bitcoin-Anchored Proof of State: Immutable Truth
+
+REITQube uses **metaProof**'s Proof of State technology, which anchors data verification to the Bitcoin blockchain:
+
+**How It Works:**
+1. REIT uploads current financial data to their Operator iQube
+2. The iQube Protocol calculates cryptographic hashes (digital fingerprints) of this data
+3. These hashes are anchored to Bitcoin's blockchain every block
+4. Any change to the data would change the hash, making tampering obvious
+5. DeFi protocols can verify data authenticity by checking against Bitcoin
+
+**Why Bitcoin?**
+- Most secure blockchain (13+ years of operation, never hacked)
+- Highest hash rate (computational power securing the network)
+- Most decentralized (thousands of independent nodes)
+- Provides final settlement layer for truth
+
+**The Analogy:**
+Think of it like notarizing a document. The notary does not need to read your entire document—they just need to verify that this specific document existed at this specific time and was signed by this specific person. Bitcoin provides the same service for REIT data.
+
+---
+
+## Strategic Positioning: Infrastructure, Not Competition
+
+### REITQube Is Not a REIT
+
+It is important to understand that REITQube:
+- Does **NOT** own or operate properties
+- Does **NOT** compete with existing REITs
+- Does **NOT** replace traditional REIT structures
+- Does **NOT** require REITs to change their legal status
+
+### REITQube IS the Essential Infrastructure
+
+Instead, REITQube provides:
+- **Data verification services** for existing REITs
+- **Oracle feeds** that DeFi protocols can trust
+- **Privacy-preserving verification** using Zero-Knowledge Proofs
+- **Compliance frameworks** that satisfy both SEC and blockchain requirements
+
+**The Analogy:**
+Just as the SWIFT network does not compete with banks but provides messaging infrastructure that banks use to transfer money internationally, REITQube provides data infrastructure that REITs use to access DeFi capital.
+
+---
+
+## JMOVERSE Strategic Alignment: Integrity, Knowledge, Emerging Technology
+
+REITQube perfectly embodies the three pillars of JMO KNYT's mission:
+
+### Integrity: Cryptographic Certainty
+
+- **Bitcoin-Anchored Proofs:** Every data point verified against Bitcoin's immutable ledger
+- **Tamper-Proof Attestations:** Any modification to historical data is immediately detectable
+- **Trustless Verification:** No need to "trust" the REIT—the math proves the data is accurate
+- **Algorithmic Auditing:** Smart contracts continuously monitor compliance automatically
+
+### Knowledge: Transparent Data Without Privacy Compromise
+
+- **Real-Time Access:** DeFi protocols can query current REIT metrics any time
+- **Institutional-Grade Metrics:** NAV, FFO (Funds From Operations), VDY (Dividend Yield), occupancy rates
+- **Educational Framework:** Knowledge base that helps both REITs and DeFi protocols understand each other
+- **Semantic Data Standards:** Common language for describing real-world assets (RWA)
+
+### Emerging Technology: Bridging Traditional Finance and DeFi
+
+- **iQube Protocol:** Next-generation secure data containers with built-in verification
+- **Zero-Knowledge Proofs:** Prove facts without revealing underlying data
+- **Smart Contract Automation:** Automated lending, distribution, and compliance checking
+- **Cross-Chain Interoperability:** Works across multiple blockchain networks for maximum liquidity
+
+---
+
+## The Market Opportunity: $4 Trillion in Real Estate Meets $100 Billion in DeFi
+
+### Traditional REIT Market Scale
+
+- **$4+ trillion** in global REIT assets under management
+- **Limited DeFi participation** due to data opacity and regulatory concerns
+- **High demand** from institutional investors for real-world asset (RWA) exposure in DeFi
+- **Regulatory barriers** preventing direct equity tokenization
+
+### REITQube Addresses the Gap
+
+- **Data verification without equity tokenization** avoids securities law complexity
+- **Compliance-friendly infrastructure** satisfies both traditional and DeFi regulators
+- **Institutional-grade oracle services** provide the data quality DeFi protocols demand
+- **Bridge to DeFi lending markets** unlocks $100B+ in available capital for REITs
+
+### The Win-Win-Win Scenario
+
+**REITs Win:**
+- Access to global DeFi capital markets
+- Lower cost of capital through competitive borrowing
+- Enhanced liquidity for shareholders via QLST tokens
+- No disruption to existing corporate structure
+
+**DeFi Protocols Win:**
+- Exposure to stable, income-generating real-world assets
+- Institutional-grade data feeds they can trust
+- Diversification beyond crypto-native assets
+- Reduced systemic risk through real estate backing
+
+**Investors Win:**
+- Real estate exposure combined with DeFi liquidity
+- Transparent, verifiable performance data
+- Privacy-preserving compliance (ZKP accreditation)
+- 24/7 trading through decentralized markets
+
+---
+
+## JMO KNYT's Role: The REITQube Champion
+
+JMO KNYT positions itself as the advocate and technical implementer of the REITQube standard:
+
+**Technical Expertise:**
+- Deep knowledge of iQube Protocol architecture
+- Experience implementing Proof of State consensus
+- Smart contract development for oracle services
+- Zero-Knowledge Proof implementation
+
+**Industry Knowledge:**
+- Understanding of REIT legal and regulatory requirements
+- Connections with REIT operators and managers
+- Knowledge of DeFi lending protocol needs
+- Real estate finance and valuation expertise
+
+**Regulatory Compliance:**
+- Frameworks for SEC, FINRA, and state securities compliance
+- Privacy law compliance (GDPR, CCPA, etc.)
+- AML/KYC procedures for blockchain systems
+- Tax structuring to preserve REIT benefits
+
+**Open Standards Development:**
+- Creating open-source REITQube data standards
+- Community education and onboarding materials
+- Developer tools and documentation
+- Reference implementations and code libraries
+
+---
+
+## The Bottom Line: Trust Through Technology
+
+REITQube transforms the trust model for real estate finance:
+
+**Old Model:** Trust the REIT operator, trust the auditor, trust the regulator
+- Opaque data, infrequent reporting, centralized gatekeepers
+
+**New Model:** Trust the cryptographic proofs
+- Transparent verification, real-time data, algorithmic enforcement
+
+This is not about replacing trust—it is about upgrading the foundation of trust from human institutions to mathematical certainty, while preserving privacy and regulatory compliance.`,
     section: 'REITQube Architecture',
     category: 'reitqube-architecture',
-    keywords: ['REITQube', 'data integrity', 'RWA', 'DeFi', 'data verification', 'DVN oracle', 'privacy', 'compliance', 'Proof of State', 'JMO KNYT'],
+    keywords: ['REITQube', 'data integrity', 'RWA', 'DeFi', 'data verification', 'DVN oracle', 'privacy', 'compliance', 'Proof of State', 'JMO KNYT', 'iQube Protocol', 'Bitcoin-anchored', 'Zero-Knowledge Proof', 'institutional-grade data'],
     timestamp: new Date().toISOString(),
     source: 'JMO REIT Strategy Document v1.0',
-    connections: ['reit-history-decentralization', 'reitqube-triple-vault-system'],
-    crossTags: ['iqubes', 'reitqube']
+    connections: ['reit-history-decentralization', 'reitqube-triple-vault-system', 'reit-coyn-token-mechanics'],
+    crossTags: ['iqubes', 'reitqube', 'infrastructure']
   },
   {
     id: 'reitqube-triple-vault-system',
     title: 'REITQube: The iQube Triple-Vault System',
-    content: `REITQubes are built on the iQube Proof-of-State (PoS) consensus framework where participants provide and validate real-time data. The architecture is secured by a triple system of iQubes.
+    content: `# REITQube: The iQube Triple-Vault System
 
-**The iQube Triple-Vault System**
+## Introduction: Three Vaults, One Unified Data Integrity Layer
 
-This system transforms hidden data into a transparent, self-auditing incentive layer.
+The REITQube architecture is built on the **iQube Proof-of-State (PoS) consensus framework**—a specialized system where participants provide and validate real-time data rather than simply processing transactions. At the heart of this system is the **Triple-Vault Architecture**: three types of specialized iQubes that work together to create a complete, verifiable picture of REIT operations while maintaining privacy and regulatory compliance.
 
-**Component Functions:**
+Think of this system as a sophisticated safety deposit box facility where three different types of vaults work together:
+- **Operator Vaults** store the REIT's operational data
+- **Shareholder Vaults** store investor accreditation credentials
+- **Lender Vaults** store capital provider information
 
-**Operator REITQube:**
-- **Function:** The Source of Truth for the REIT Data Integrity Layer
-- **Data Contained (Private - blakQube):** Rent rolls, bank statements, operating expenses, individual property deeds, tax returns
-- **Blockchain Output (Public/Verifiable - metaQube):** Valuation iQube (PoS Oracle) - A cryptographically signed data feed of NAV, FFO, and VDY. Constitutes a validated "proof-of-data" entry
+Each vault is encrypted and private, but all three can generate cryptographic proofs that enable DeFi integration without exposing sensitive information.
 
-**Shareholder REITQube:**
-- **Function:** The Accreditation Pass
-- **Data Contained (Private - blakQube):** Investment account statements, tax documents (proving income/net worth)
-- **Blockchain Output (Public/Verifiable - metaQube):** Verifiable Credential (VC) - A Zero-Knowledge Proof (ZKP) that attests the user is an Accredited Investor without revealing the underlying personal data
+---
 
-**Lender REITQube:**
-- **Function:** The Institutional Identity & Verification Pass
-- **Data Contained (Private - blakQube):** Internal risk models, detailed historical default rates on RWA loans, and private client list details
-- **Blockchain Output (Public/Verifiable - metaQube):** Lending Credential - A VC of the lender's current regulatory status, verified lending history, reputation score, and active product terms
+## Understanding the iQube Architecture: Three Layers of Protection
 
-**The Token Ecosystem**
+Before diving into the three vault types, it's essential to understand how each iQube is structured internally. Every iQube has three subdivisions that work together to provide security, verification, and access control:
 
-The economic engine aligns incentives for data providers and participants, funded exclusively by network operational fees.
+### The Three Subdivisions of Every iQube
 
-**REIT COYN:**
-- **Type & Purpose:** Utility & Governance Token
-- **Funding & Minting Mechanism:** REITQube Revenue Rewards - Funded exclusively by the network's operational revenue (explicit fees for data/transaction services and network transaction fees). This is the compensatory payment for validation services
+**1. blakQube (The Private Vault)**
+- **Purpose:** Secure storage of sensitive data
+- **Encryption:** Military-grade encryption using user-controlled keys
+- **Visibility:** Only accessible to authorized parties with decryption keys
+- **Contents:** All confidential information (financial statements, personal data, proprietary information)
+- **Analogy:** Like a locked safe in a bank vault—only you have the combination
 
-**QLST:**
-- **Type & Purpose:** Liquid Staking Token
-- **Funding & Minting Mechanism:** Staking - Created when participants stake their REIT COYN. The QLST represents their staked position and the accrued incentives. It provides instant market liquidity`,
+**2. metaQube (The Verification Layer)**
+- **Purpose:** Public verification of private data without revealing contents
+- **Technology:** Cryptographic hashes, Zero-Knowledge Proofs, digital signatures
+- **Visibility:** Published to blockchain for transparent verification
+- **Contents:** Data fingerprints, summary statistics, cryptographic attestations
+- **Analogy:** Like a notary stamp that proves a document exists and is authentic without revealing what's inside
+
+**3. tokenQube (The Access Control Layer)**
+- **Purpose:** Dynamic, risk-aware permission management
+- **Technology:** Smart contracts that enforce access policies
+- **Functionality:** Determines who can see what data under which conditions
+- **Enforcement:** Automatically revokes access when conditions change
+- **Analogy:** Like a sophisticated keycard system that grants different access levels based on role and context
+
+---
+
+## The Triple-Vault System: Three Types of iQubes
+
+Now that we understand how each iQube is internally structured, let's examine the three types of iQubes in the REITQube ecosystem:
+
+### 1. Operator REITQube: The Source of Truth for REIT Operations
+
+**Primary Function:** Contains all operational and financial data for a REIT, serving as the authoritative source for property performance, cash flow, and asset valuation.
+
+**Who Uses This:** REIT operators, property managers, and financial controllers
+
+**What's Inside (blakQube - Private Layer):**
+
+**Rent Roll Data (Core Cash Flow):**
+- Complete tenant information and contact details
+- Individual lease agreements with specific terms and expiration dates
+- Monthly rent payment history for each unit/space
+- Tenant credit scores and payment reliability metrics
+- Vacancy rates by property, building, and unit type
+- Late payment tracking and collections status
+- Rent escalation clauses and renewal options
+- Tenant improvement allowances and capital expenditures
+
+**Why This Matters:** DeFi lending protocols need to know that rent is actually being collected, but revealing specific tenant names or lease terms would violate privacy laws and expose competitive intelligence.
+
+**Property Information (Asset Verification):**
+- Legal property descriptions and parcel numbers
+- Title reports and title insurance policies
+- Independent property appraisals (updated quarterly or annually)
+- Property inspection reports and condition assessments
+- Environmental assessments (Phase I, Phase II)
+- Zoning classifications and permitted uses
+- Building permits and certificates of occupancy
+- Utility account details and consumption data
+
+**Why This Matters:** Lenders need proof that the REIT actually owns the properties it claims to own and that those properties are in good condition.
+
+**Cap Table & Shareholder Registry:**
+- Complete shareholder list with ownership percentages
+- Number of shares issued, outstanding, and treasury shares
+- Share transfer history and any transfer restrictions
+- Accredited investor status verification documents
+- Distribution payment records and payment schedules
+- Compliance tracking with 100 shareholder minimum
+- Monitoring of 50% ownership concentration limits
+- Beneficial ownership transparency (anti-money laundering)
+
+**Why This Matters:** REITs must maintain specific shareholder structures to preserve tax-advantaged status. Proof of compliance is required for regulatory reporting.
+
+**Financial Information:**
+- Detailed revenue by property, unit type, and income source
+- Operating expenses broken down by category (maintenance, utilities, management fees, insurance, taxes)
+- Tax liabilities (property tax, income tax, special assessments)
+- Dividend distribution calculations and 90% payout requirement tracking
+- Treasury management (cash balances, reserve accounts)
+- Bank account details and reconciliation statements
+- Web3 wallet addresses for blockchain transactions
+- Debt service schedules and loan covenant compliance
+
+**Why This Matters:** This is the raw financial data that determines whether a REIT can service its debts and generate returns for investors.
+
+**Manager/Operator Details:**
+- Management agreement terms, fee structures, and performance incentives
+- Operator company information, licenses, and professional credentials
+- Operator cap table and ownership structure
+- Performance metrics (occupancy rates, NOI per square foot, tenant retention)
+- Insurance policies (general liability, property, directors & officers)
+- Property management software and systems
+
+**Why This Matters:** The quality of property management directly impacts returns. Lenders need assurance that competent operators are managing the assets.
+
+**Regulatory Filings:**
+- SEC registration documents and periodic reports (10-K annual, 10-Q quarterly, 8-K current)
+- FINRA compliance documentation
+- IRS tax filings (Form 1120-REIT and related schedules)
+- State and local regulatory communications
+- Independent audit reports from certified public accountants
+- Legal opinions on REIT status and compliance
+
+**Why This Matters:** Regulatory compliance is mandatory. Proof of proper filings demonstrates that the REIT is operating legally.
+
+**What's Published (metaQube - Public Verification Layer):**
+
+The Operator iQube generates **Valuation iQubes**—cryptographically signed data feeds that serve as **DVN (Data Verification Network) Oracles** for DeFi protocols. These publish:
+
+- **NAV (Net Asset Value):** Total value of properties minus liabilities, per share
+- **FFO (Funds From Operations):** Cash generated from operations, excluding property sales
+- **VDY (Dividend Yield):** Annual dividend per share as a percentage of share price
+- **Occupancy Rate:** Percentage of leasable space that is currently leased
+- **Rent Roll Verification:** Cryptographic proof that reported rent is being collected
+- **Debt Service Coverage Ratio (DSCR):** Ratio of net operating income to debt payments
+
+**The Key Innovation:** These metrics are published with **cryptographic attestations** that are anchored to Bitcoin's blockchain. Anyone can verify that the data has not been tampered with, but the underlying sensitive information remains encrypted in the blakQube.
+
+**Access Control (tokenQube Layer):**
+- Regulators (SEC, FINRA, IRS) get read-only access to compliance-related data
+- Auditors get temporary access to financial statements during audit periods
+- DeFi protocols get continuous access to oracle feeds (NAV, FFO, VDY)
+- Lenders get conditional access based on loan agreements
+- Shareholders get access to annual/quarterly reports consistent with securities law
+
+---
+
+### 2. Shareholder REITQube: The Accreditation Pass
+
+**Primary Function:** Serves as a privacy-preserving accreditation credential that allows investors to access private DeFi capital pools without revealing sensitive personal financial information.
+
+**Who Uses This:** Individual investors, family offices, and institutional investors who want to participate in private DeFi lending pools
+
+**What's Inside (blakQube - Private Layer):**
+
+**Personal Details (Identity Management):**
+- Full legal name and current residential address
+- Social Security Number or Tax ID
+- Date of birth and citizenship status
+- Contact information (email, phone, mailing address)
+- Employment history and professional credentials
+- Government-issued ID documents (driver's license, passport)
+- All stored with end-to-end encryption
+
+**Financial Information (Accreditation Verification):**
+- Bank account statements showing liquid assets
+- Investment account statements (brokerage, retirement accounts like 401(k), IRA)
+- Income documentation (W-2s for employees, 1099s for contractors, business income statements)
+- Asset valuations (primary residence, investment properties, vehicles, business interests)
+- Liability documentation (mortgages, auto loans, student loans, credit card debt)
+- Net worth calculations (assets minus liabilities)
+
+**Why This Information:** To qualify as an **Accredited Investor** under SEC rules (Rule 501 of Regulation D), an individual must meet one of these criteria:
+- Annual income exceeding $200,000 ($300,000 for joint income) for the past two years with expectation of the same for the current year
+- Net worth exceeding $1 million (excluding primary residence)
+- Hold professional certifications (Series 7, 65, or 82 licenses)
+
+**REIT Investment Records:**
+- Investment amounts and purchase dates
+- Number of shares owned in specific REITs
+- Dividend payment history and reinvestment elections
+- Distribution schedules and tax withholding
+- Form 1099-DIV records for tax reporting
+- Cost basis tracking for capital gains/losses
+- Redemption history (if applicable)
+
+**Tax Documentation:**
+- Annual tax returns (Form 1040 and related schedules)
+- K-1 statements from REIT distributions (if the REIT is structured as a partnership)
+- State and local tax filings
+- Capital gains/loss records
+- REIT-specific income reporting (qualified dividend income)
+- Foreign tax credits (for international REIT exposure)
+
+**What's Published (metaQube - Public Verification Layer):**
+
+The Shareholder iQube generates **Verifiable Credentials (VCs)** using **Zero-Knowledge Proof (ZKP) technology**. These are cryptographic attestations that prove specific facts without revealing the underlying data:
+
+**Example ZKP Attestations:**
+- "Accredited Investor: TRUE" → Proves you meet SEC accreditation requirements without revealing your exact income or net worth
+- "Qualified Purchaser: TRUE" → Proves you have at least $5 million in investments (requirement for 3(c)(7) funds) without revealing exact amount
+- "U.S. Person: TRUE/FALSE" → Proves citizenship status for regulatory compliance without revealing passport or SSN
+- "Investor Since: 2020-03-15" → Proves investment tenure without revealing how much you invested
+- "Age Over 18: TRUE" → Proves you're legally allowed to invest without revealing exact age
+
+**The Magic of Zero-Knowledge Proofs:**
+
+Imagine you want to prove you're over 21 to enter a bar, but you don't want to show your actual birthdate. A ZKP would allow you to cryptographically prove "I am over 21" without revealing "I was born on January 15, 1995."
+
+Similarly, Shareholder iQubes prove "I am an accredited investor with net worth over $1M" without revealing "My net worth is exactly $2.3M and here are all my bank accounts."
+
+**Access Control (tokenQube Layer):**
+- DeFi private capital pools get access to ZKP credentials only (not raw financial data)
+- Tax authorities get access to REIT-related tax documents only (not full financial profile)
+- REIT issuers get access to accreditation status for compliance verification
+- The investor retains full control and can revoke access at any time
+
+---
+
+### 3. Lender REITQube: The Institutional Identity & Verification Pass
+
+**Primary Function:** Contains comprehensive information about capital providers (banks, DeFi protocols, institutional lenders) to enable transparent risk assessment and fair capital allocation.
+
+**Who Uses This:** Banks, DeFi lending protocols, institutional lenders, credit unions, and other capital providers
+
+**What's Inside (blakQube - Private Layer):**
+
+**Lender Identity & Credentials:**
+- Legal entity name and jurisdiction of incorporation
+- Corporate structure (LLC, corporation, DAO, etc.) and ownership
+- Regulatory licenses (state lending licenses, money transmitter licenses)
+- Credit ratings from major agencies (S&P, Moody's, Fitch)
+- Financial strength ratings and capital adequacy ratios
+- Insurance and bonding information
+- Reputation scores based on historical performance
+- Professional certifications and industry memberships
+
+**Capital Information:**
+- Total capital available for lending (committed vs. deployed)
+- Current loan portfolio size and composition
+- Deployed capital by asset class, geography, and risk tier
+- Available capital for new loans
+- Historical loan volume and velocity (how quickly capital deploys)
+- Default rates by loan type, vintage, and geography
+- Loss history and severity (how much capital was lost in defaults)
+- Collection rates and recovery statistics (how much was recovered after default)
+- Capital sources (institutional investors, retail deposits, tokenized capital)
+
+**Why This Matters:** Borrowers (REITs) want to know if a lender has sufficient capital to fund their loan request and a track record of fair dealing. DeFi protocols need this data to match appropriate lenders with borrowers.
+
+**Loan Product Details:**
+- Types of loans offered (acquisition loans, refinance loans, construction loans, bridge loans, mezzanine debt)
+- Loan terms and conditions (duration, interest rates, origination fees, servicing fees)
+- Collateral requirements and Loan-to-Value (LTV) ratios
+- Prepayment penalties and extension options
+- Covenant requirements (DSCR minimums, occupancy thresholds, cash reserve requirements)
+- Monitoring and reporting requirements
+
+**Web3 & Banking Integration:**
+- Traditional banking relationships and account details
+- Stablecoin wallet addresses (USDC, USDT, QryptoCENT)
+- Multi-signature wallet configurations for security
+- Smart contract addresses for automated lending protocols
+- Cross-chain liquidity provisions (ability to lend across multiple blockchains)
+- Integration with DeFi money markets (Aave, Compound, MakerDAO)
+
+**Regulatory Compliance:**
+- State-by-state lending licenses
+- NMLS (Nationwide Multistate Licensing System) registration number
+- Anti-money laundering (AML) program documentation
+- Know Your Customer (KYC) procedures and verification processes
+- Fair lending compliance (Equal Credit Opportunity Act, Fair Housing Act)
+- Consumer protection adherence (Truth in Lending Act, if applicable)
+- OFAC (Office of Foreign Assets Control) sanctions screening
+
+**Risk Management Framework:**
+- Underwriting criteria and credit scoring models
+- Portfolio diversification requirements (limits on concentration by geography, property type, borrower)
+- Geographic concentration limits (not too much exposure to one city or state)
+- Property type concentration limits (balance between office, retail, multifamily, industrial)
+- Borrower concentration limits (not too much lent to any single REIT)
+- Stress testing and scenario analysis (how the portfolio performs under economic downturns)
+- Loss reserve calculations and adequacy
+- Third-party appraisal and inspection requirements
+
+**What's Published (metaQube - Public Verification Layer):**
+
+The Lender iQube generates **Lending Credentials**—verifiable attestations of the lender's regulatory status, track record, and current lending capacity:
+
+- **Regulatory Status: "Licensed & Compliant"** → Proof of active lending licenses
+- **Historical Default Rate: "Below 2%"** → Proof of lending quality without revealing specific loan details
+- **Capital Available: "$50M-$100M"** → Range indication without revealing exact amount
+- **Average Loan Size: "$2M-$5M"** → Typical deal size to match with appropriate borrowers
+- **Typical LTV: "60-70%"** → Lending standards for risk assessment
+- **Interest Rate Range: "6-9%"** → Current pricing for market comparison
+
+**Access Control (tokenQube Layer):**
+- Borrowers (REITs) get access to loan product terms and lender credentials
+- DeFi protocols get access to capital availability and lending history
+- Regulators get access to compliance documentation
+- Other lenders do NOT get access to proprietary underwriting models
+- Auditors get temporary access during compliance reviews
+
+---
+
+## The Token Ecosystem: Aligning Incentives
+
+The REITQube system includes two tokens that align incentives for all participants and fund the ongoing operation of the data integrity network:
+
+### REIT COYN (Utility & Governance Token)
+
+**Type:** Utility token with governance rights (NOT a security)
+
+**Minting Mechanism:**
+- Funded exclusively by the **network's operational revenue** (fees for data services, transaction fees)
+- Minted at a conservative ratio: $0.70 of REIT COYN for every $1.00 of verifiable, unencumbered rent flow
+- Based on cryptographic attestations from Aigent JMO monitoring the Vaulted Rent Cash Flow account
+- This is compensation for providing validation services to the network
+
+**Key Point:** REIT COYN is NOT minted from rental income (which legally must go to REIT shareholders). It is minted from network operational fees, which are separate from rental operations.
+
+**Utility:**
+- **DeFi Collateral:** REITs can use REIT COYN as liquid, sellable collateral for borrowing stablecoins
+- **Governance Rights:** Token holders vote on protocol upgrades, fee structures, and oracle parameters
+- **Staking Rewards:** Stake REIT COYN to earn additional tokens and governance weight
+- **Oracle Access:** Pay for premium data feeds and real-time verification services
+
+**Why It's NOT a Security:**
+- No ownership claim on REIT equity or assets
+- No expectation of profit from REIT operations
+- Utility-focused: used for accessing network services and governance
+- Revenue source is network fees, not rental income
+
+### QLST (Liquid Staking Token)
+
+**Type:** Derivative token representing staked REIT COYN position
+
+**Minting Mechanism:**
+- Created when participants stake their REIT COYN tokens
+- Represents the staked position plus accrued staking rewards
+- Provides instant market liquidity while maintaining staking benefits
+- Tradable on decentralized exchanges (DEX)
+
+**Why This Matters:**
+- Traditional staking locks your tokens for a fixed period (often months)
+- QLST allows you to stake AND maintain liquidity simultaneously
+- You can sell your QLST on the open market if you need immediate liquidity
+- The buyer of your QLST inherits your staked position and future rewards
+
+**Benefits:**
+- **Instant Liquidity:** Trade QLST on DEX platforms without unstaking
+- **No Centralized Redemption:** Peer-to-peer market replaces centralized gatekeepers
+- **Maintains Governance:** QLST holders retain governance voting rights
+- **Earns Trading Fees:** Liquidity providers earn fees from QLST trades
+
+---
+
+## How the Triple-Vault System Creates Trust
+
+The power of the REITQube architecture lies in how these three vault types work together:
+
+**Scenario: A DeFi lending protocol wants to lend to a REIT**
+
+**Step 1:** The lending protocol queries the **Operator iQube** to verify:
+- Current NAV and property valuations
+- Cash flow and rent collection rates
+- Debt service coverage ratios
+- Occupancy and tenant quality
+
+**Step 2:** The lending protocol verifies the **Lender iQube** (its own credentials) to establish trust:
+- Regulatory compliance status
+- Available lending capital
+- Historical performance and default rates
+
+**Step 3:** If applicable, investors access the pool by presenting **Shareholder iQube** credentials:
+- ZKP proof of accredited investor status
+- No sensitive personal data revealed
+- Automatic compliance with private placement rules
+
+**Step 4:** Smart contracts execute the loan automatically:
+- Collateral (REIT COYN tokens) locked in escrow
+- Stablecoins transferred to REIT's Web3 wallet
+- Loan terms enforced algorithmically
+- Continuous monitoring via oracle feeds
+
+**Step 5:** Ongoing verification:
+- Operator iQube continuously updates NAV and cash flow metrics
+- If covenant breach detected, smart contract automatically triggers default procedures
+- Legal Enforcement Agent receives ZKP key to access necessary evidence for foreclosure
+- All parties have cryptographic proof of loan terms and performance
+
+---
+
+## The Bottom Line: Transparent Data, Private Details
+
+The iQube Triple-Vault System represents a fundamental innovation in how financial data is managed:
+
+**Old System:** Either full transparency (exposing sensitive data) OR full opacity (no verification possible)
+
+**New System:** Selective transparency with cryptographic proof
+- **Operators** prove financial performance without revealing trade secrets
+- **Shareholders** prove accreditation without revealing net worth
+- **Lenders** prove capacity without revealing proprietary models
+- **DeFi Protocols** get institutional-grade data they can trust
+- **Regulators** get compliance evidence without market disruption
+
+This is the future of Real-World Asset (RWA) integration with DeFi—where verification does not require exposure, and trust is built on mathematics rather than reputation.`,
     section: 'REITQube Architecture',
     category: 'reitqube-architecture',
-    keywords: ['REITQube', 'iQube', 'Proof of State', 'triple-vault', 'Operator', 'Shareholder', 'Lender', 'REIT COYN', 'QLST', 'token ecosystem', 'ZKP', 'Verifiable Credential'],
+    keywords: ['REITQube', 'iQube', 'Proof of State', 'triple-vault', 'Operator', 'Shareholder', 'Lender', 'REIT COYN', 'QLST', 'token ecosystem', 'ZKP', 'Verifiable Credential', 'blakQube', 'metaQube', 'tokenQube', 'data integrity'],
     timestamp: new Date().toISOString(),
     source: 'JMO REIT Strategy Document v1.0',
-    connections: ['reitqube-data-integrity-layer', 'reitqube-operator-iqubes', 'reitqube-shareholder-iqubes', 'reitqube-lender-iqubes'],
-    crossTags: ['iqubes', 'reitqube', 'coyn']
+    connections: ['reitqube-data-integrity-layer', 'reitqube-operator-iqubes', 'reitqube-shareholder-iqubes', 'reitqube-lender-iqubes', 'reit-coyn-token-mechanics'],
+    crossTags: ['iqubes', 'reitqube', 'coyn', 'architecture']
   },
   {
     id: 'reitqube-operator-iqubes',
