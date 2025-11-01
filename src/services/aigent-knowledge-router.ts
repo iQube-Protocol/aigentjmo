@@ -93,14 +93,14 @@ export class AigentKnowledgeRouter {
     
     // REIT-specific terms (JMO tenant only)
     const reitTerms = [
-      'reit', 'real estate', 'property', 'commercial real estate', 'quartz',
+      'reit', 'real estate', 'property', 'commercial real estate', 'reitqube',
       'dvn oracle', 'nav', 'ffo', 'funds from operations', 'dividend yield',
       'rent roll', 'tenant', 'occupancy', 'vacancy', 'cap rate',
       'shareholder iqube', 'operator iqube', 'lender iqube', 'reit coyn',
       'vaulted rent', 'cash flow', 'collateral', 'defi lending', 'rwa',
       'real world asset', 'accredited investor', 'qualified purchaser',
       'sec compliance', 'finra', '1120-reit', 'distribution requirement',
-      'foreclosure', 'recovery waterfall', 'aigent jmo', 'jmo knyt'
+      'foreclosure', 'recovery waterfall', 'aigent jmo', 'jmo knyt', 'qlst'
     ];
 
     const hasIQubeTerms = iQubeTerms.some(term => lowerMessage.includes(term));

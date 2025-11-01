@@ -27,12 +27,11 @@ const CATEGORIES = [
   'operator-iqubes',
   'shareholder-iqubes',
   'lender-iqubes',
-  'quartz-architecture',
+  'reitqube-architecture',
   'defi-integration',
-  'collateral-lending',
-  'recovery-waterfall',
   'token-economics',
-  'compliance'
+  'compliance',
+  'strategic-positioning'
 ] as const;
 
 export function REITCardEditor({ isOpen, onClose, item, mode }: REITCardEditorProps) {
