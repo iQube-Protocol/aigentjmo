@@ -3341,39 +3341,24 @@ Zero-Knowledge Proofs allow you to prove a statement is true without revealing a
 A cryptographic circuit is a mathematical formula that operates on encrypted data. For accreditation:
 
 **Income Test Circuit:**
-```
-IF (
-  (AGI_Year1 >= $200,000 AND AGI_Year2 >= $200,000)
-  OR
-  (Joint_AGI_Year1 >= $300,000 AND Joint_AGI_Year2 >= $300,000)
-)
-THEN
-  Accredited = TRUE
-ELSE
-  Accredited = FALSE
-```
+
+    IF (AGI_Year1 >= 200000 AND AGI_Year2 >= 200000) OR (Joint_AGI_Year1 >= 300000 AND Joint_AGI_Year2 >= 300000)
+    THEN Accredited = TRUE
+    ELSE Accredited = FALSE
 
 **Net Worth Test Circuit:**
-```
-Total_Assets = (Cash + Investments + Real_Estate + Business + Other)
-Total_Liabilities = (Mortgages + Loans + Credit_Card_Debt)
-Net_Worth = Total_Assets - Total_Liabilities - Primary_Residence_Value
 
-IF (Net_Worth >= $1,000,000)
-THEN
-  Accredited = TRUE
-ELSE
-  Accredited = FALSE
-```
+    Total_Assets = (Cash + Investments + Real_Estate + Business + Other)
+    Total_Liabilities = (Mortgages + Loans + Credit_Card_Debt)
+    Net_Worth = Total_Assets - Total_Liabilities - Primary_Residence_Value
+    
+    IF (Net_Worth >= 1000000) THEN Accredited = TRUE ELSE Accredited = FALSE
 
 **Combined Circuit:**
-```
-IF (Income_Test = TRUE OR Net_Worth_Test = TRUE)
-THEN
-  Accredited_Status = TRUE
-ELSE
-  Accredited_Status = FALSE
-```
+
+    IF (Income_Test = TRUE OR Net_Worth_Test = TRUE)
+    THEN Accredited_Status = TRUE
+    ELSE Accredited_Status = FALSE
 
 **Circuit Execution:**
 - Circuit runs on encrypted data (homomorphic encryption)
@@ -3385,29 +3370,24 @@ ELSE
 
 **Step 3: Verifiable Credential (VC) Generation**
 
-**VC Structure:**
+**VC Structure (JSON):**
 
-```json
-{
-  "credentialSubject": {
-    "id": "did:iqube:shareholder:abc123xyz",
-    "type": "AccreditedInvestor",
-    "status": "TRUE",
-    "issuedBy": "REITQube Verification System",
-    "issuedAt": "2025-11-01T10:00:00Z",
-    "expiresAt": "2026-11-01T10:00:00Z",
-    "proofType": "zk-SNARK",
-    "proofHash": "0x7f8a9b3c..."
-  },
-  "proof": {
-    "type": "zk-SNARK",
-    "created": "2025-11-01T10:00:00Z",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "did:iqube:verifier:xyz789",
-    "zkProof": "base64encodedZKProof=="
-  }
-}
-```
+    credentialSubject:
+      - id: "did:iqube:shareholder:abc123xyz"
+      - type: "AccreditedInvestor"
+      - status: "TRUE"
+      - issuedBy: "REITQube Verification System"
+      - issuedAt: "2025-11-01T10:00:00Z"
+      - expiresAt: "2026-11-01T10:00:00Z"
+      - proofType: "zk-SNARK"
+      - proofHash: "0x7f8a9b3c..."
+    
+    proof:
+      - type: "zk-SNARK"
+      - created: "2025-11-01T10:00:00Z"
+      - proofPurpose: "assertionMethod"
+      - verificationMethod: "did:iqube:verifier:xyz789"
+      - zkProof: "base64encodedZKProof=="
 
 **VC Features:**
 - **Cryptographically Signed:** Can't be forged or tampered with
