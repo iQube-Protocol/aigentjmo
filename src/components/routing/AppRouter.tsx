@@ -24,6 +24,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import MainLayout from '@/components/layout/MainLayout';
 import InvitationsPage from '@/pages/admin/Invitations';
 import QubeBaseMigration from '@/pages/admin/QubeBaseMigration';
+import PasswordResetPage from '@/pages/admin/PasswordReset';
 import InvitedUserSignup from '@/components/auth/InvitedUserSignup';
 import OAuthCallback from '@/components/settings/OAuthCallback';
 import PasswordResetGuard from '@/components/auth/PasswordResetGuard';
@@ -54,6 +55,7 @@ const AppRouter = () => {
             {/* Admin routes - protected but outside MainLayout */}
             <Route path="/admin/invitations" element={<InvitationsPage />} />
             <Route path="/admin/migration" element={<QubeBaseMigration />} />
+            <Route path="/admin/password-reset" element={<PasswordResetPage />} />
             
             {/* Main app routes with layout */}
             <Route element={<MainLayout />}>
