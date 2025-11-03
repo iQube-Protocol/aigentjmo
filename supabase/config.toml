@@ -1,5 +1,8 @@
 project_id = "ggmotdhxlbwdqfnasltt"
 
+[functions.admin-password-reset]
+verify_jwt = true
+
 [functions.aigent-ai]
 verify_jwt = false
 
