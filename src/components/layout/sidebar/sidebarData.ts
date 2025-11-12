@@ -1,5 +1,5 @@
 
-import { LucideIcon, Database, Settings, FolderGit2, Bot, User, Brain } from 'lucide-react';
+import { LucideIcon, Database, Settings, FolderGit2, Bot, User, Brain, Package } from 'lucide-react';
 import CubeIcon from '../sidebar/CubeIcon';
 
 export interface NavItem {
@@ -14,6 +14,11 @@ export const navItems: NavItem[] = [
     name: 'JMO KNYT',
     href: '/aigent',
     icon: Bot,
+  },
+  {
+    name: 'Agentic Assets',
+    href: '/aa/auth',
+    icon: Package,
   },
   {
     name: 'Settings',

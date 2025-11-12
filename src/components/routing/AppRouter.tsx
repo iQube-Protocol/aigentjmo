@@ -13,6 +13,10 @@ import Earn from '@/pages/Earn';
 import Connect from '@/pages/Connect';
 import Profile from '@/pages/Profile';
 import Settings from '@/pages/Settings';
+import AAAuth from '@/pages/AAAuth';
+import AALibrary from '@/pages/AALibrary';
+import AACreator from '@/pages/AACreator';
+import AAAssetDetail from '@/pages/AAAssetDetail';
 import Dashboard from '@/pages/Dashboard';
 import LegacyDashboard from '@/pages/LegacyDashboard';
 import DataQube from '@/pages/qubes/DataQube';
@@ -60,9 +64,15 @@ const AppRouter = () => {
             {/* Main app routes with layout */}
             <Route element={<MainLayout />}>
               <Route path="/aigent" element={<Aigent />} />
-              <Route path="/learn" element={<Learn />} />
-              <Route path="/earn" element={<Earn />} />
-              <Route path="/connect" element={<Connect />} />
+        <Route path="/learn" element={<Learn />} />
+        <Route path="/earn" element={<Earn />} />
+        <Route path="/connect" element={<Connect />} />
+        
+        {/* Agentic Assets Routes */}
+        <Route path="/aa/auth" element={<AAAuth />} />
+        <Route path="/aa/library" element={<AALibrary />} />
+        <Route path="/aa/create" element={<AACreator />} />
+        <Route path="/aa/asset/:assetId" element={<AAAssetDetail />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/dashboard" element={<Dashboard />} />
