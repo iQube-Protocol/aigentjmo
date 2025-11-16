@@ -15,11 +15,12 @@ export const navItems: NavItem[] = [
     href: '/aigent',
     icon: Bot,
   },
-  {
-    name: 'Agentic Assets',
-    href: '/aa/auth',
-    icon: Package,
-  },
+  // Temporarily hidden - Agentic Assets functionality preserved in code
+  // {
+  //   name: 'Agentic Assets',
+  //   href: '/aa/auth',
+  //   icon: Package,
+  // },
   {
     name: 'Settings',
     href: '/settings',
