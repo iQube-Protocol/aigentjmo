@@ -68,11 +68,11 @@ const AppRouter = () => {
         <Route path="/earn" element={<Earn />} />
         <Route path="/connect" element={<Connect />} />
         
-        {/* Agentic Assets Routes */}
-        <Route path="/aa/auth" element={<AAAuth />} />
+        {/* Agentic Assets Routes - Temporarily hidden, functionality preserved */}
+        {/* <Route path="/aa/auth" element={<AAAuth />} />
         <Route path="/aa/library" element={<AALibrary />} />
         <Route path="/aa/create" element={<AACreator />} />
-        <Route path="/aa/asset/:assetId" element={<AAAssetDetail />} />
+        <Route path="/aa/asset/:assetId" element={<AAAssetDetail />} /> */}
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/dashboard" element={<Dashboard />} />
