@@ -65,8 +65,6 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
   // Use global iframe session manager instead of local state
   const [mediaInitialized, setMediaInitialized] = useState(iframeSessionManager.isMediaInitialized());
   const [sessionRecovering, setSessionRecovering] = useState(false);
-  // Key to force remount of MetaAvatarTab
-  const [metaAvatarKey, setMetaAvatarKey] = useState(0);
 
   // Setup iframe ref with session manager
   useEffect(() => {
@@ -150,7 +148,9 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      onClick={() => setMetaAvatarKey(prev => prev + 1)}
+                      onClick={() => {
+                        window.dispatchEvent(new Event('metaAvatarRefresh'));
+                      }}
                       className="h-8 w-8"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -197,7 +197,7 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
         </TabsContent>
 
         <TabsContent value="metaAvatar" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
-          <MetaAvatarTab key={metaAvatarKey} />
+          <MetaAvatarTab />
         </TabsContent>
 
         <TabsContent value="knowledge" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
