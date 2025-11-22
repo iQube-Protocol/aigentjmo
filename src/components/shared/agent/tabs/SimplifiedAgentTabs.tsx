@@ -67,6 +67,8 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
   const [sessionRecovering, setSessionRecovering] = useState(false);
   // Key to force remount of MetaAvatarTab
   const [metaAvatarKey, setMetaAvatarKey] = useState(0);
+  // Track if avatar has been initialized (persistent container pattern)
+  const [avatarInitialized, setAvatarInitialized] = useState(false);
 
   // Setup iframe ref with session manager
   useEffect(() => {
@@ -95,6 +97,13 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
       }
     }
   }, [activeTab, mediaInitialized]);
+
+  // Initialize avatar container on first visit to metaAvatar tab
+  useEffect(() => {
+    if (activeTab === 'metaAvatar' && !avatarInitialized) {
+      setAvatarInitialized(true);
+    }
+  }, [activeTab, avatarInitialized]);
 
   // Function to handle tab switching after form submission
   const handleAfterSubmit = () => {
@@ -197,7 +206,7 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
         </TabsContent>
 
         <TabsContent value="metaAvatar" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
-          <MetaAvatarTab key={metaAvatarKey} />
+          {/* Empty content - D-ID avatar is handled by persistent container below */}
         </TabsContent>
 
         <TabsContent value="knowledge" className="h-full m-0 p-0 overflow-hidden data-[state=active]:flex data-[state=active]:flex-col flex-1">
@@ -250,6 +259,18 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
                 aria-hidden={activeTab !== 'media'}
               />
             </div>
+          </div>
+        )}
+
+        {/* Persistent container for D-ID avatar - always mounted but visibility controlled */}
+        {avatarInitialized && (
+          <div 
+            className={cn(
+              "absolute inset-0 z-10",
+              activeTab === 'metaAvatar' ? 'block' : 'hidden'
+            )}
+          >
+            <MetaAvatarTab key={metaAvatarKey} />
           </div>
         )}
       </div>
