@@ -266,8 +266,8 @@ const SimplifiedAgentTabs: React.FC<SimplifiedAgentTabsProps & {
         {avatarInitialized && (
           <div 
             className={cn(
-              "absolute inset-0 z-10",
-              activeTab === 'metaAvatar' ? 'block' : 'hidden'
+              "absolute inset-0 z-10 transition-opacity duration-300",
+              activeTab === 'metaAvatar' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             )}
           >
             <MetaAvatarTab key={metaAvatarKey} />
