@@ -37,23 +37,8 @@ const MetaAvatarTab: React.FC = () => {
     // Initialize on mount
     init();
 
-    // Listen for external refresh events
-    const handler = () => {
-      // Cleanup previous instance before re-init
-      if (scriptRef.current && scriptRef.current.parentNode) {
-        scriptRef.current.parentNode.removeChild(scriptRef.current);
-        scriptRef.current = null;
-      }
-      if (containerRef.current) {
-        containerRef.current.innerHTML = '';
-      }
-      init();
-    };
-
-    window.addEventListener('metaAvatarRefresh', handler);
-
+    // Cleanup on unmount
     return () => {
-      window.removeEventListener('metaAvatarRefresh', handler);
       if (scriptRef.current && scriptRef.current.parentNode) {
         scriptRef.current.parentNode.removeChild(scriptRef.current);
       }
